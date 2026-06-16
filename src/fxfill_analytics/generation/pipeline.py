@@ -258,10 +258,18 @@ def run_pipeline(
             phenomena_enabled={pid: True for pid in observed_signals},
         )
 
-        # ── Write phenomena manifest ──
+        # ── Run real phenomena validation ──
+        from fxfill_analytics.quality.phenomena_validation import validate_all_phenomena
+
+        validation_results = validate_all_phenomena(tables)
+
+        # ── Write phenomena manifest with real validation data ──
         from fxfill_analytics.generation.manifests import build_phenomena_manifest
 
         build_phenomena_manifest(phenomena_config or {}, observed_signals, tmp_dir)
+        # Also write full validation results
+        with open(tmp_dir / "phenomena_validation.json", "w", encoding="utf-8") as f:
+            json.dump(validation_results, f, indent=2, default=str, ensure_ascii=False)
 
         total_size_bytes = 0
         actual_rows: dict[str, int] = {}

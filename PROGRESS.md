@@ -1,8 +1,8 @@
 # Project Progress Log — FxFill Analytics
 
-**Last Updated:** 2026-06-16
-**Current Phase:** Phase 0.5 (Environment Gate) — ✅ Complete
-**Current Status:** Ready for Phase 1
+**Last Updated:** 2026-06-17
+**Current Phase:** Phase 1 (Synthetic Data Generation) — ✅ Complete
+**Current Status:** Ready for Phase 2
 
 ---
 
@@ -12,7 +12,7 @@
 |-------|------|--------|--------------|--------------|
 | 0 | Project Scaffold | ✅ Complete | 2026-06-16 | 52/52 |
 | 0.5 | Environment Gate | ✅ Complete | 2026-06-16 | 82/82 |
-| 1 | Synthetic Data Generation | ⬜ Pending | — | — |
+| 1 | Synthetic Data Generation | ✅ Complete | 2026-06-17 | 146/147 |
 | 2 | DuckDB + dbt | ⬜ Pending | — | — |
 | 3 | Product Analytics | ⬜ Pending | — | — |
 | 4 | Agent Observability | ⬜ Pending | — | — |

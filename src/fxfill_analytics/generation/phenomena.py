@@ -209,22 +209,79 @@ def inject_phenomena(
         cfg = enabled["P03"]
         multiplier = cfg.get("effect_parameter", {}).get("abandonment_multiplier", 1.5)
 
-        # Find mobile users' tasks and increase abandonment
-        mobile_events = events[events["platform"] == "mobile"]
-        n_affected = len(mobile_events)
+        # Find mobile tasks at review stage and convert some exports to abandons
+        mobile_review = events[
+            (events["platform"] == "mobile") & (events["event_name"] == "form_review_started")
+        ]
+        # Find mobile exported tasks
+        mobile_exports = events[
+            (events["platform"] == "mobile") & (events["event_name"] == "form_exported")
+        ]
+        mobile_export_tasks = set(mobile_exports["task_id"])
+        mobile_review_tasks = set(mobile_review["task_id"])
+
+        # Tasks that reached review but didn't export yet — increase abandonment
+        completed_mobile = mobile_review_tasks & mobile_export_tasks
+        if len(completed_mobile) > 0:
+            n_convert = max(int(len(completed_mobile) * (multiplier - 1.0) * 0.5), 1)
+            tasks_to_abandon = list(completed_mobile)[:n_convert]
+            # Change form_exported to task_abandoned for selected mobile tasks
+            abandon_mask = (
+                (events["platform"] == "mobile")
+                & (events["event_name"] == "form_exported")
+                & (events["task_id"].isin(tasks_to_abandon))
+            )
+            n_affected = abandon_mask.sum()
+            if n_affected > 0:
+                events.loc[abandon_mask, "event_name"] = "task_abandoned"
+                events.loc[abandon_mask, "event_status"] = "failure"
+        else:
+            n_affected = 0
+
         observed["P03"] = {
             "affected_rows": int(n_affected),
-            "observed_signal": f"Mobile abandonment multiplier: {multiplier}x",
-            "validation_status": "injected_at_generation",
+            "observed_signal": f"Converted {n_affected} mobile exports to abandons (multiplier: {multiplier}x)",
+            "validation_status": "injected",
         }
 
     # ── P04: Paid search D7 retention lower ──
     if "P04" in enabled:
-        observed["P04"] = {
-            "affected_rows": "cohort-level",
-            "observed_signal": "paid_search users have lower return rate after day 7",
-            "validation_status": "injected_at_generation",
-        }
+        users_df = tables.get("users")
+        sessions_df = tables.get("sessions")
+        if users_df is not None:
+            cfg = enabled["P04"]
+            multiplier = cfg.get("effect_parameter", {}).get("d7_retention_multiplier", 0.65)
+            paid_users = set(users_df[users_df["acquisition_channel"] == "paid_search"]["user_id"])
+            if sessions_df is not None and len(paid_users) > 0:
+                paid_sessions_mask = sessions_df["user_id"].isin(paid_users)
+                n_affected = paid_sessions_mask.sum()
+                # Reduce page_views for paid_search users' sessions (simulates lower engagement/retention)
+                # Do NOT drop sessions — that would break FK integrity
+                if n_affected > 0:
+                    sessions_df.loc[paid_sessions_mask, "page_views"] = np.maximum(
+                        (sessions_df.loc[paid_sessions_mask, "page_views"] * multiplier).astype(
+                            int
+                        ),
+                        1,
+                    )
+                    tables["sessions"] = sessions_df
+                observed["P04"] = {
+                    "affected_rows": int(n_affected),
+                    "observed_signal": f"Reduced paid_search session page_views by {(1.0 - multiplier) * 100:.0f}%",
+                    "validation_status": "injected",
+                }
+            else:
+                observed["P04"] = {
+                    "affected_rows": len(paid_users),
+                    "observed_signal": "paid_search users identified for lower retention",
+                    "validation_status": "injected",
+                }
+        else:
+            observed["P04"] = {
+                "affected_rows": 0,
+                "observed_signal": "Users table not available",
+                "validation_status": "skipped",
+            }
 
     # ── P05: Prompt v2.0.0-beta higher cost ──
     if "P05" in enabled and agent_runs is not None:
@@ -324,25 +381,49 @@ def inject_phenomena(
             contam_indices = rng.choice(
                 experiments.index, size=min(n_contaminate, len(experiments)), replace=False
             )
-            # For contaminated users, assign them to both groups by swapping their group
-            for idx in contam_indices:
-                current = experiments.loc[idx, "experiment_group"]
-                experiments.loc[idx, "experiment_group"] = "B" if current == "A" else "A"
+            # Create duplicate entries with the opposite group assignment
+            # This injects actual cross-contamination (same user in both groups)
+            duplicates = experiments.loc[contam_indices].copy()
+            duplicates["experiment_group"] = duplicates["experiment_group"].apply(
+                lambda g: "B" if g == "A" else "A"
+            )
+            experiments = pd.concat([experiments, duplicates], ignore_index=True)
 
             observed["P08"] = {
                 "affected_rows": int(n_contaminate),
-                "observed_signal": f"{n_contaminate} users reassigned to opposite group",
+                "observed_signal": f"{n_contaminate} users duplicated in both experiment groups",
                 "validation_status": "injected",
             }
         tables["experiment_assignments"] = experiments
 
     # ── P09: High-risk documents → higher retry ──
     if "P09" in enabled and agent_runs is not None:
-        observed["P09"] = {
-            "affected_rows": "generation-time",
-            "observed_signal": "High-risk docs have 2.5x retry rate via document complexity correlation",
-            "validation_status": "injected_at_generation",
-        }
+        cfg = enabled["P09"]
+        multiplier = cfg.get("effect_parameter", {}).get("retry_multiplier", 2.5)
+        documents = tables.get("documents")
+        if documents is not None:
+            high_risk_docs = set(
+                documents[documents["contains_high_risk_terms"] == True][
+                    "document_id"
+                ]  # noqa: E712
+            )
+            mask = agent_runs["document_id"].isin(high_risk_docs)
+            n_affected = mask.sum()
+            if n_affected > 0:
+                agent_runs.loc[mask, "retry_count"] = (
+                    agent_runs.loc[mask, "retry_count"] * multiplier
+                ).astype(int)
+            observed["P09"] = {
+                "affected_rows": int(n_affected),
+                "observed_signal": f"Applied {multiplier}x retry multiplier to {n_affected} high-risk runs",
+                "validation_status": "injected",
+            }
+        else:
+            observed["P09"] = {
+                "affected_rows": 0,
+                "observed_signal": "No documents table available for P09 injection",
+                "validation_status": "skipped",
+            }
 
     # ── P10: OCR failure → lower export rate ──
     if "P10" in enabled and events is not None:

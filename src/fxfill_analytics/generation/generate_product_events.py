@@ -197,7 +197,7 @@ def _generate_task_events(
                     "event_time": current_time,
                     "event_status": "success",
                     "error_type": None,
-                    "latency_ms": int(rng.normal(300, 100)),
+                    "latency_ms": max(int(rng.normal(300, 100)), 0),
                 }
                 events.insert(insert_pos, edit_event)
                 insert_pos += 1

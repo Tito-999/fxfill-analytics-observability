@@ -182,7 +182,9 @@ class ExperimentAssignmentsSchema(pa.DataFrameModel):
     """Schema for the generated experiment assignments table."""
 
     experiment_id: Series[str] = pa.Field(nullable=False)
-    user_id: Series[str] = pa.Field(nullable=False, unique=True)
+    user_id: Series[str] = pa.Field(
+        nullable=False
+    )  # unique=False: P08 creates intentional duplicates
     experiment_group: Series[str] = pa.Field(nullable=False, isin=["A", "B"])
     assigned_at: pa.typing.DateTime = pa.Field(nullable=False)
 
