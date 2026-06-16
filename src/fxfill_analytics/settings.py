@@ -6,7 +6,7 @@ All paths are resolved relative to the project root.
 
 import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, cast
 
 import yaml
 from dotenv import load_dotenv
@@ -23,8 +23,8 @@ def _load_yaml(filename: str) -> dict[str, Any]:
     config_path = PROJECT_ROOT / "config" / filename
     if not config_path.exists():
         raise FileNotFoundError(f"Config file not found: {config_path}")
-    with open(config_path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
+    with open(config_path, encoding="utf-8") as f:
+        return cast(dict[str, Any], yaml.safe_load(f))
 
 
 def _get_env(key: str, default: Any = None) -> Any:
@@ -33,10 +33,10 @@ def _get_env(key: str, default: Any = None) -> Any:
 
 
 # ── App Config (lazy-loaded) ──
-_app_config: Optional[dict[str, Any]] = None
-_metrics_config: Optional[dict[str, Any]] = None
-_experiments_config: Optional[dict[str, Any]] = None
-_data_gen_config: Optional[dict[str, Any]] = None
+_app_config: dict[str, Any] | None = None
+_metrics_config: dict[str, Any] | None = None
+_experiments_config: dict[str, Any] | None = None
+_data_gen_config: dict[str, Any] | None = None
 
 
 def get_app_config() -> dict[str, Any]:
@@ -88,7 +88,7 @@ def get_data_dir(subdir: str = "generated") -> Path:
 
 def get_data_size() -> str:
     """Return the configured data generation size."""
-    return _get_env("DATA_SIZE") or get_app_config()["data_generation"]["default_size"]
+    return str(_get_env("DATA_SIZE") or get_app_config()["data_generation"]["default_size"])
 
 
 def get_data_seed() -> int:
@@ -98,4 +98,4 @@ def get_data_seed() -> int:
 
 def is_llm_mock() -> bool:
     """Check if LLM provider is set to mock (no real LLM calls)."""
-    return _get_env("LLM_PROVIDER", "mock") == "mock"
+    return bool(_get_env("LLM_PROVIDER", "mock") == "mock")

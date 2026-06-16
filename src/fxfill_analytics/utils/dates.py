@@ -5,7 +5,7 @@ All times are stored in UTC. Functions receive a NumPy random generator
 for reproducibility.
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import numpy as np
 
@@ -48,11 +48,11 @@ def date_range_daily(
     """Generate a list of daily midnight datetimes."""
     days = (end_date.date() - start_date.date()).days
     return [
-        datetime.combine(start_date.date() + timedelta(days=i), datetime.min.time(), tzinfo=timezone.utc)
+        datetime.combine(start_date.date() + timedelta(days=i), datetime.min.time(), tzinfo=UTC)
         for i in range(days + 1)
     ]
 
 
 def utc_now() -> datetime:
     """Return current UTC time (used for validation checks)."""
-    return datetime.now(tz=timezone.utc)
+    return datetime.now(tz=UTC)

@@ -6,7 +6,7 @@ when combined with a fixed random seed.
 """
 
 import itertools
-from typing import Iterator
+from collections.abc import Iterator
 
 
 def generate_ids(prefix: str, count: int, width: int = 6) -> list[str]:
