@@ -181,12 +181,12 @@ class AgentSpansSchema(pa.DataFrameModel):
 class ExperimentAssignmentsSchema(pa.DataFrameModel):
     """Schema for the generated experiment assignments table."""
 
+    assignment_id: Series[str] = pa.Field(nullable=False, unique=True)
     experiment_id: Series[str] = pa.Field(nullable=False)
-    user_id: Series[str] = pa.Field(
-        nullable=False
-    )  # unique=False: P08 creates intentional duplicates
+    user_id: Series[str] = pa.Field(nullable=False)
     experiment_group: Series[str] = pa.Field(nullable=False, isin=["A", "B"])
     assigned_at: pa.typing.DateTime = pa.Field(nullable=False)
+    is_intentional_contamination: Series[bool] = pa.Field(nullable=False)
 
 
 # ── Schema registry for programmatic access ──

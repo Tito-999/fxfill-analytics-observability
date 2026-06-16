@@ -196,51 +196,86 @@ def inject_phenomena(
         }
 
     # ── P02: Complex documents have higher edit rates ──
-    # This is handled at generation time via document complexity → edit count correlation
-    if "P02" in enabled:
-        observed["P02"] = {
-            "affected_rows": "generation-time",
-            "observed_signal": "Complex docs have higher field_edited event counts",
-            "validation_status": "injected",
-        }
+    if "P02" in enabled and events is not None:
+        documents = tables.get("documents")
+        if documents is not None:
+            complex_docs = set(documents[documents["complexity_level"] == "complex"]["document_id"])
+            complex_events = events[events["document_id"].isin(complex_docs)]
+            complex_tasks = set(complex_events["task_id"])
+            n_extra = 0
+            for task_id in sorted(complex_tasks)[: min(len(complex_tasks), 10000)]:
+                task_evts = events[events["task_id"] == task_id]
+                review_rows = task_evts[task_evts["event_name"] == "form_review_started"]
+                if len(review_rows) == 0:
+                    continue
+                review_time = review_rows["event_time"].iloc[0]
+                n_new = int(rng.integers(1, 3))
+                for j in range(n_new):
+                    extra = review_rows.iloc[0:1].copy()
+                    extra["event_name"] = "field_edited"
+                    extra["event_time"] = review_time + pd.Timedelta(
+                        seconds=float(rng.uniform(5, 30))
+                    )
+                    extra["event_id"] = f"EVT_P02_{task_id}_{j}"
+                    extra["latency_ms"] = max(int(rng.normal(400, 150)), 0)
+                    events = pd.concat([events, extra], ignore_index=True)
+events = events.reset_index(drop=True)
+                    n_extra += 1
+            tables["product_events"] = events
+            observed["P02"] = {
+                "affected_rows": n_extra,
+                "observed_signal": f"Added {n_extra} field_edited events for complex documents",
+                "validation_status": "injected",
+            }
+        else:
+            observed["P02"] = {
+                "affected_rows": 0,
+                "observed_signal": "No documents table",
+                "validation_status": "skipped",
+            }
 
-    # ── P03: Mobile review-to-export dropoff ──
+    # ── P03: Mobile review-to-export dropoff (based on user device_type) ──
     if "P03" in enabled and events is not None:
         cfg = enabled["P03"]
         multiplier = cfg.get("effect_parameter", {}).get("abandonment_multiplier", 1.5)
+        users_df = tables.get("users")
 
-        # Find mobile tasks at review stage and convert some exports to abandons
-        mobile_review = events[
-            (events["platform"] == "mobile") & (events["event_name"] == "form_review_started")
-        ]
-        # Find mobile exported tasks
-        mobile_exports = events[
-            (events["platform"] == "mobile") & (events["event_name"] == "form_exported")
-        ]
-        mobile_export_tasks = set(mobile_exports["task_id"])
-        mobile_review_tasks = set(mobile_review["task_id"])
-
-        # Tasks that reached review but didn't export yet — increase abandonment
-        completed_mobile = mobile_review_tasks & mobile_export_tasks
-        if len(completed_mobile) > 0:
-            n_convert = max(int(len(completed_mobile) * (multiplier - 1.0) * 0.5), 1)
-            tasks_to_abandon = list(completed_mobile)[:n_convert]
-            # Change form_exported to task_abandoned for selected mobile tasks
-            abandon_mask = (
-                (events["platform"] == "mobile")
-                & (events["event_name"] == "form_exported")
-                & (events["task_id"].isin(tasks_to_abandon))
+        if users_df is not None:
+            mobile_users = set(users_df[users_df["device_type"] == "mobile"]["user_id"])
+            # Find mobile user tasks at review and export stages
+            mobile_review_tasks = set(
+                events[
+                    (events["user_id"].isin(mobile_users))
+                    & (events["event_name"] == "form_review_started")
+                ]["task_id"]
             )
-            n_affected = abandon_mask.sum()
-            if n_affected > 0:
-                events.loc[abandon_mask, "event_name"] = "task_abandoned"
-                events.loc[abandon_mask, "event_status"] = "failure"
+            mobile_export_tasks = set(
+                events[
+                    (events["user_id"].isin(mobile_users))
+                    & (events["event_name"] == "form_exported")
+                ]["task_id"]
+            )
+            completed_mobile = mobile_review_tasks & mobile_export_tasks
+            if len(completed_mobile) > 0:
+                n_convert = max(int(len(completed_mobile) * (multiplier - 1.0) * 0.5), 1)
+                tasks_to_abandon = list(completed_mobile)[:n_convert]
+                abandon_mask = (
+                    (events["user_id"].isin(mobile_users))
+                    & (events["event_name"] == "form_exported")
+                    & (events["task_id"].isin(tasks_to_abandon))
+                )
+                n_affected = abandon_mask.sum()
+                if n_affected > 0:
+                    events.loc[abandon_mask, "event_name"] = "task_abandoned"
+                    events.loc[abandon_mask, "event_status"] = "failure"
+            else:
+                n_affected = 0
         else:
             n_affected = 0
 
         observed["P03"] = {
             "affected_rows": int(n_affected),
-            "observed_signal": f"Converted {n_affected} mobile exports to abandons (multiplier: {multiplier}x)",
+            "observed_signal": f"Converted {n_affected} mobile-user exports to abandons",
             "validation_status": "injected",
         }
 
@@ -358,6 +393,7 @@ def inject_phenomena(
                     f"EVT_DUP_{i:07d}" for i in range(max_id + 1, max_id + 1 + len(dups))
                 ]
                 events = pd.concat([events, dups], ignore_index=True)
+                events = events.reset_index(drop=True)
                 tables["product_events"] = events
                 observed["P07"] = {
                     "affected_rows": int(len(dups)),
@@ -381,17 +417,22 @@ def inject_phenomena(
             contam_indices = rng.choice(
                 experiments.index, size=min(n_contaminate, len(experiments)), replace=False
             )
-            # Create duplicate entries with the opposite group assignment
-            # This injects actual cross-contamination (same user in both groups)
             duplicates = experiments.loc[contam_indices].copy()
             duplicates["experiment_group"] = duplicates["experiment_group"].apply(
                 lambda g: "B" if g == "A" else "A"
             )
+            # Set contamination flag on duplicates
+            duplicates["is_intentional_contamination"] = True
+            # Generate new assignment_ids for duplicates
+            max_asgn = len(experiments)
+            duplicates["assignment_id"] = [
+                f"ASGN_{i:07d}" for i in range(max_asgn + 1, max_asgn + 1 + len(duplicates))
+            ]
             experiments = pd.concat([experiments, duplicates], ignore_index=True)
 
             observed["P08"] = {
                 "affected_rows": int(n_contaminate),
-                "observed_signal": f"{n_contaminate} users duplicated in both experiment groups",
+                "observed_signal": f"{n_contaminate} users duplicated with opposite group (contamination)",
                 "validation_status": "injected",
             }
         tables["experiment_assignments"] = experiments
@@ -403,9 +444,7 @@ def inject_phenomena(
         documents = tables.get("documents")
         if documents is not None:
             high_risk_docs = set(
-                documents[documents["contains_high_risk_terms"] == True][
-                    "document_id"
-                ]  # noqa: E712
+                documents[documents["contains_high_risk_terms"]]["document_id"]
             )
             mask = agent_runs["document_id"].isin(high_risk_docs)
             n_affected = mask.sum()

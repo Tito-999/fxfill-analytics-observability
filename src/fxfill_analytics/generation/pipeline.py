@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any
 
 import numpy as np
+import pandas as pd
 
 from fxfill_analytics.generation.generate_agent_traces import (
     generate_agent_runs,
@@ -93,6 +94,20 @@ def _config_hash(config: dict[str, Any]) -> str:
     """Stable hash of a configuration dict."""
     raw = json.dumps(config, sort_keys=True, default=str)
     return hashlib.sha256(raw.encode()).hexdigest()[:12]
+
+
+def _get_pk(table_name: str) -> str:
+    """Return the primary key column name for a table."""
+    pk_map = {
+        "users": "user_id",
+        "documents": "document_id",
+        "sessions": "session_id",
+        "product_events": "event_id",
+        "agent_runs": "agent_run_id",
+        "agent_spans": "span_id",
+        "experiment_assignments": "assignment_id",
+    }
+    return pk_map.get(table_name, "")
 
 
 def _get_peak_memory_mb() -> float:
@@ -273,12 +288,26 @@ def run_pipeline(
 
         total_size_bytes = 0
         actual_rows: dict[str, int] = {}
+        canonical_hashes: dict[str, str] = {}
         for name, df in tables.items():
             path = tmp_dir / f"{name}.parquet"
             df.to_parquet(path, index=False)
             file_size = path.stat().st_size
             total_size_bytes += file_size
             actual_rows[name] = len(df)
+            # Compute canonical hash: sort by PK, fixed column order, null→"", UTC iso
+            pk = _get_pk(name)
+            df_sorted = df.sort_values(pk) if pk and pk in df.columns else df
+            cols = sorted(df_sorted.columns)
+            df_canon = df_sorted[cols].copy()
+            for c in df_canon.columns:
+                if df_canon[c].dtype.name.startswith("datetime"):
+                    df_canon[c] = df_canon[c].apply(lambda x: x.isoformat() if pd.notna(x) else "")
+                elif df_canon[c].dtype == object:
+                    df_canon[c] = df_canon[c].fillna("").astype(str)
+            df_canon = df_canon.fillna("")
+            csv_bytes = df_canon.to_csv(index=False, lineterminator="\n").encode("utf-8")
+            canonical_hashes[name] = hashlib.sha256(csv_bytes).hexdigest()
 
         # ── Build manifest ──
         finished_at = datetime.now(UTC)
@@ -335,6 +364,7 @@ def run_pipeline(
             },
             "output_size_bytes": total_size_bytes,
             "output_size_mb": round(total_size_bytes / (1024 * 1024), 2),
+            "canonical_table_hashes": canonical_hashes,
             "quality_status": quality_summary["overall_status"],
             "phenomena": phenomena_config if phenomena_config else {},
         }

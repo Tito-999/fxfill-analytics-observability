@@ -1,18 +1,13 @@
 """
 Real observed-signal validators for all 10 business phenomena.
 
-Each validator:
-1. Computes metrics from the final generated tables
-2. Returns baseline value, affected value, absolute and relative differences
-3. Returns sample sizes for both groups
-4. Determines whether the expected direction is observed (pass/fail)
-
-NO validator reads pre-baked "should pass" results from configuration.
-All metrics are computed from the generated data.
+Each validator computes metrics from final generated tables.
+No validator reads pre-baked results from configuration.
 """
 
 from __future__ import annotations
 
+from datetime import timedelta
 from typing import Any
 
 import pandas as pd
@@ -30,7 +25,6 @@ def _make_result(
     expected_direction: str,
     passed: bool,
 ) -> dict[str, Any]:
-    """Build a standardized validation result dict."""
     return {
         "phenomenon_id": phenomenon_id,
         "metric": metric,
@@ -49,20 +43,16 @@ def _make_result(
     }
 
 
-def validate_p01_ocr_latency(
-    tables: dict[str, pd.DataFrame],
-) -> dict[str, Any]:
-    """P01: P95 OCR latency higher in app v2.3.0."""
+# ── P01 ──
+def validate_p01_ocr_latency(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
     events = tables.get("product_events")
     if events is None:
         return _make_result(
             "P01", "p95_ocr_latency_ms", "other", 0, "v2.3.0", 0, 0, 0, "affected > baseline", False
         )
-
     ocr = events[events["event_name"].isin(["ocr_started", "ocr_completed"])]
     v230 = ocr[ocr["app_version"] == "2.3.0"]
     other = ocr[ocr["app_version"] != "2.3.0"]
-
     if len(v230) == 0 or len(other) == 0:
         return _make_result(
             "P01",
@@ -76,9 +66,8 @@ def validate_p01_ocr_latency(
             "affected > baseline",
             False,
         )
-
-    p95_v230 = v230["latency_ms"].quantile(0.95)
-    p95_other = other["latency_ms"].quantile(0.95)
+    p95_v230 = float(v230["latency_ms"].quantile(0.95))
+    p95_other = float(other["latency_ms"].quantile(0.95))
     return _make_result(
         "P01",
         "p95_ocr_latency_ms",
@@ -93,89 +82,117 @@ def validate_p01_ocr_latency(
     )
 
 
-def validate_p02_complex_edit(
-    tables: dict[str, pd.DataFrame],
-) -> dict[str, Any]:
-    """P02: Complex documents have higher field_edited event count."""
+# ── P02 ──
+def validate_p02_complex_edit(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
     events = tables.get("product_events")
     documents = tables.get("documents")
     if events is None or documents is None:
         return _make_result(
-            "P02", "edit_rate", "simple", 0, "complex", 0, 0, 0, "affected > baseline", False
-        )
-
-    # Join events with document complexity
-    field_edits = events[events["event_name"] == "field_edited"]
-    if len(field_edits) == 0:
-        return _make_result(
-            "P02", "edit_rate", "simple", 0, "complex", 0, 0, 0, "affected > baseline", False
-        )
-
-    # Count edits per doc_id
-    edit_counts = field_edits.groupby("document_id").size().reset_index(name="edit_count")
-
-    # Merge with document complexity
-    merged = edit_counts.merge(
-        documents[["document_id", "complexity_level"]], on="document_id", how="inner"
-    )
-    complex_edits = merged[merged["complexity_level"] == "complex"]["edit_count"]
-    simple_edits = merged[merged["complexity_level"] == "simple"]["edit_count"]
-
-    if len(complex_edits) == 0 or len(simple_edits) == 0:
-        return _make_result(
             "P02",
-            "edit_rate",
+            "avg_edits_per_doc",
             "simple",
-            float(simple_edits.mean()) if len(simple_edits) > 0 else 0,
+            0,
             "complex",
-            float(complex_edits.mean()) if len(complex_edits) > 0 else 0,
-            len(simple_edits),
-            len(complex_edits),
+            0,
+            0,
+            0,
             "affected > baseline",
             False,
         )
-
-    avg_complex = complex_edits.mean()
-    avg_simple = simple_edits.mean()
+    field_edits = events[events["event_name"] == "field_edited"]
+    if len(field_edits) == 0:
+        return _make_result(
+            "P02",
+            "avg_edits_per_doc",
+            "simple",
+            0,
+            "complex",
+            0,
+            0,
+            0,
+            "affected > baseline",
+            False,
+        )
+    edit_counts = field_edits.groupby("document_id").size().reset_index(name="edit_count")
+    merged = edit_counts.merge(
+        documents[["document_id", "complexity_level"]], on="document_id", how="inner"
+    )
+    complex_e = merged[merged["complexity_level"] == "complex"]["edit_count"]
+    simple_e = merged[merged["complexity_level"] == "simple"]["edit_count"]
+    if len(complex_e) == 0 or len(simple_e) == 0:
+        return _make_result(
+            "P02",
+            "avg_edits_per_doc",
+            "simple",
+            float(simple_e.mean()) if len(simple_e) > 0 else 0,
+            "complex",
+            float(complex_e.mean()) if len(complex_e) > 0 else 0,
+            len(simple_e),
+            len(complex_e),
+            "affected > baseline",
+            False,
+        )
+    avg_c = float(complex_e.mean())
+    avg_s = float(simple_e.mean())
     return _make_result(
         "P02",
         "avg_edits_per_document",
         "simple",
-        avg_simple,
+        avg_s,
         "complex",
-        avg_complex,
-        len(simple_edits),
-        len(complex_edits),
+        avg_c,
+        len(simple_e),
+        len(complex_e),
         "affected > baseline",
-        avg_complex > avg_simple,
+        avg_c > avg_s,
     )
 
 
-def validate_p03_mobile_export(
-    tables: dict[str, pd.DataFrame],
-) -> dict[str, Any]:
-    """P03: Mobile users have lower review-to-export completion rate."""
+# ── P03: Join with users table to get device_type (not event platform) ──
+def validate_p03_mobile_export(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
     events = tables.get("product_events")
-    if events is None:
+    users = tables.get("users")
+    if events is None or users is None:
         return _make_result(
-            "P03", "export_rate", "desktop", 0, "mobile", 0, 0, 0, "affected < baseline", False
+            "P03",
+            "review_to_export_rate",
+            "desktop",
+            0,
+            "mobile",
+            0,
+            0,
+            0,
+            "affected < baseline",
+            False,
         )
 
-    # Count tasks that reached form_review_started vs form_exported, by platform
-    review = events[events["event_name"] == "form_review_started"]
-    exported = events[events["event_name"] == "form_exported"]
+    # Join events with users to get device_type
+    events_with_device = events.merge(users[["user_id", "device_type"]], on="user_id", how="inner")
 
-    # Per platform: tasks that started review
-    review_by_platform = review.groupby("platform")["task_id"].nunique()
-    export_by_platform = exported.groupby("platform")["task_id"].nunique()
+    review = events_with_device[events_with_device["event_name"] == "form_review_started"]
+    exported = events_with_device[events_with_device["event_name"] == "form_exported"]
 
-    desktop_review = review_by_platform.get("desktop", 0)
-    mobile_review = review_by_platform.get("mobile", 0)
-    desktop_export = export_by_platform.get("desktop", 0)
-    mobile_export = export_by_platform.get("mobile", 0)
+    review_desktop = review[review["device_type"] == "desktop"]["task_id"].nunique()
+    review_mobile = review[review["device_type"] == "mobile"]["task_id"].nunique()
+    export_desktop = exported[exported["device_type"] == "desktop"]["task_id"].nunique()
+    export_mobile = exported[exported["device_type"] == "mobile"]["task_id"].nunique()
 
-    desktop_rate = desktop_export / max(desktop_review, 1)
-    mobile_rate = mobile_export / max(mobile_review, 1)
+    if review_desktop == 0 and review_mobile == 0:
+        return _make_result(
+            "P03",
+            "review_to_export_rate",
+            "desktop",
+            0,
+            "mobile",
+            0,
+            0,
+            0,
+            "affected < baseline",
+            False,
+        )
+
+    desktop_rate = export_desktop / max(review_desktop, 1)
+    mobile_rate = export_mobile / max(review_mobile, 1)
 
     return _make_result(
         "P03",
@@ -184,94 +201,133 @@ def validate_p03_mobile_export(
         desktop_rate,
         "mobile",
         mobile_rate,
-        int(desktop_review),
-        int(mobile_review),
+        int(review_desktop),
+        int(review_mobile),
         "affected < baseline",
         mobile_rate < desktop_rate,
     )
 
 
-def validate_p04_paid_search_retention(
-    tables: dict[str, pd.DataFrame],
-) -> dict[str, Any]:
-    """P04: Paid search users have lower D7 retention (fewer return visits)."""
+# ── P04: True D7 retention ──
+def validate_p04_d7_retention(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
+    """
+    D7 retention: user has at least one event on their signup_date + 7 days.
+    Users with < 7 days of observation window are excluded.
+    """
     events = tables.get("product_events")
     users = tables.get("users")
     if events is None or users is None:
         return _make_result(
-            "P04", "return_rate", "organic", 0, "paid_search", 0, 0, 0, "affected < baseline", False
+            "P04",
+            "d7_retention_rate",
+            "organic",
+            0,
+            "paid_search",
+            0,
+            0,
+            0,
+            "affected < baseline",
+            False,
         )
 
-    # Compute active days per user
     if "event_date" not in events.columns:
         return _make_result(
-            "P04", "return_rate", "organic", 0, "paid_search", 0, 0, 0, "affected < baseline", False
+            "P04",
+            "d7_retention_rate",
+            "organic",
+            0,
+            "paid_search",
+            0,
+            0,
+            0,
+            "affected < baseline",
+            False,
         )
 
-    # Get unique active days per user
-    # Handle event_date which may be date or datetime
+    # Get max event date as end of observation window
+    max_event_date = (
+        events["event_date"].apply(lambda d: d.date() if hasattr(d, "date") else d).max()
+    )
+
+    # Build user signup info
+    user_info = users[["user_id", "acquisition_channel", "signup_time"]].copy()
+    user_info["signup_date"] = user_info["signup_time"].apply(
+        lambda d: d.date() if hasattr(d, "date") else d
+    )
+    user_info["d7_date"] = user_info["signup_date"] + timedelta(days=7)
+
+    # Exclude users without 7 days of observation
+    user_info = user_info[user_info["d7_date"] <= max_event_date]
+
+    # Build user active dates
     events_copy = events.copy()
     events_copy["active_date"] = events_copy["event_date"].apply(
         lambda d: d.date() if hasattr(d, "date") else d
     )
-    user_active_days = events_copy.groupby("user_id")["active_date"].nunique()
+    user_active_dates = events_copy.groupby("user_id")["active_date"].apply(set).reset_index()
+    user_active_dates.columns = ["user_id", "active_dates"]
 
-    # Merge with user acquisition channel
-    user_info = users[["user_id", "acquisition_channel"]]
-    merged = user_active_days.reset_index(name="active_days").merge(
-        user_info, on="user_id", how="inner"
-    )
+    merged = user_info.merge(user_active_dates, on="user_id", how="inner")
 
-    paid = merged[merged["acquisition_channel"] == "paid_search"]["active_days"]
-    organic = merged[merged["acquisition_channel"] == "organic"]["active_days"]
+    # D7 retained: user was active on their d7_date
+    merged["d7_retained"] = merged.apply(lambda r: r["d7_date"] in r["active_dates"], axis=1)
 
-    if len(paid) == 0 or len(organic) == 0:
+    organic = merged[merged["acquisition_channel"] == "organic"]
+    paid = merged[merged["acquisition_channel"] == "paid_search"]
+
+    if len(organic) == 0 or len(paid) == 0:
         return _make_result(
             "P04",
-            "avg_active_days",
+            "d7_retention_rate",
             "organic",
-            float(organic.mean()) if len(organic) > 0 else 0,
+            float(organic["d7_retained"].mean()) if len(organic) > 0 else 0,
             "paid_search",
-            float(paid.mean()) if len(paid) > 0 else 0,
+            float(paid["d7_retained"].mean()) if len(paid) > 0 else 0,
             len(organic),
             len(paid),
             "affected < baseline",
             False,
         )
 
-    avg_paid = paid.mean()
-    avg_organic = organic.mean()
+    org_rate = float(organic["d7_retained"].mean())
+    paid_rate = float(paid["d7_retained"].mean())
+
     return _make_result(
         "P04",
-        "avg_active_days_per_user",
+        "d7_retention_rate",
         "organic",
-        avg_organic,
+        org_rate,
         "paid_search",
-        avg_paid,
+        paid_rate,
         len(organic),
         len(paid),
         "affected < baseline",
-        avg_paid < avg_organic,
+        paid_rate < org_rate,
     )
 
 
-def validate_p05_prompt_cost(
-    tables: dict[str, pd.DataFrame],
-) -> dict[str, Any]:
-    """P05: Prompt v2.0.0-beta has higher cost per task."""
+# ── P05 ──
+def validate_p05_prompt_cost(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
     runs = tables.get("agent_runs")
     if runs is None:
         return _make_result(
-            "P05", "cost_per_run", "v1.x", 0, "v2.0.0-beta", 0, 0, 0, "affected > baseline", False
+            "P05",
+            "avg_cost_per_run_usd",
+            "v1.x",
+            0,
+            "v2.0.0-beta",
+            0,
+            0,
+            0,
+            "affected > baseline",
+            False,
         )
-
     beta = runs[runs["prompt_version"] == "v2.0.0-beta"]
     non_beta = runs[runs["prompt_version"] != "v2.0.0-beta"]
-
     if len(beta) == 0 or len(non_beta) == 0:
         return _make_result(
             "P05",
-            "cost_per_run",
+            "avg_cost_per_run_usd",
             "v1.x",
             float(non_beta["estimated_cost_usd"].mean()) if len(non_beta) > 0 else 0,
             "v2.0.0-beta",
@@ -281,44 +337,38 @@ def validate_p05_prompt_cost(
             "affected > baseline",
             False,
         )
-
-    avg_beta = beta["estimated_cost_usd"].mean()
-    avg_other = non_beta["estimated_cost_usd"].mean()
     return _make_result(
         "P05",
         "avg_cost_per_run_usd",
         "v1.x",
-        avg_other,
+        float(non_beta["estimated_cost_usd"].mean()),
         "v2.0.0-beta",
-        avg_beta,
+        float(beta["estimated_cost_usd"].mean()),
         len(non_beta),
         len(beta),
         "affected > baseline",
-        avg_beta > avg_other,
+        float(beta["estimated_cost_usd"].mean()) > float(non_beta["estimated_cost_usd"].mean()),
     )
 
 
-def validate_p06_experiment_b(
-    tables: dict[str, pd.DataFrame],
-) -> list[dict[str, Any]]:
-    """P06: Experiment B group has higher export rate, accuracy, and latency."""
+# ── P06 ──
+def validate_p06_experiment_b(tables: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
     runs = tables.get("agent_runs")
     if runs is None:
         return [
             _make_result(
                 "P06", "field_accuracy", "A", 0, "B", 0, 0, 0, "affected > baseline", False
             ),
-            _make_result("P06", "latency_ms", "A", 0, "B", 0, 0, 0, "affected > baseline", False),
+            _make_result(
+                "P06", "avg_latency_ms", "A", 0, "B", 0, 0, 0, "affected > baseline", False
+            ),
         ]
-
-    group_b = runs[runs["experiment_group"] == "B"]
-    group_a = runs[runs["experiment_group"] == "A"]
-
+    gb = runs[runs["experiment_group"] == "B"]
+    ga = runs[runs["experiment_group"] == "A"]
     results = []
-    if len(group_a) > 0 and len(group_b) > 0:
-        # Field accuracy
-        acc_a = group_a["field_accuracy"].mean()
-        acc_b = group_b["field_accuracy"].mean()
+    if len(ga) > 0 and len(gb) > 0:
+        acc_a = float(ga["field_accuracy"].mean())
+        acc_b = float(gb["field_accuracy"].mean())
         results.append(
             _make_result(
                 "P06",
@@ -327,15 +377,14 @@ def validate_p06_experiment_b(
                 acc_a,
                 "B",
                 acc_b,
-                len(group_a),
-                len(group_b),
+                len(ga),
+                len(gb),
                 "affected > baseline",
-                acc_b >= acc_a,
+                acc_b > acc_a,
             )
         )
-        # Latency
-        lat_a = group_a["total_latency_ms"].mean()
-        lat_b = group_b["total_latency_ms"].mean()
+        lat_a = float(ga["total_latency_ms"].mean())
+        lat_b = float(gb["total_latency_ms"].mean())
         results.append(
             _make_result(
                 "P06",
@@ -344,82 +393,70 @@ def validate_p06_experiment_b(
                 lat_a,
                 "B",
                 lat_b,
-                len(group_a),
-                len(group_b),
+                len(ga),
+                len(gb),
                 "affected > baseline",
                 lat_b > lat_a,
-            )
-        )
-    else:
-        results.append(
-            _make_result(
-                "P06",
-                "field_accuracy",
-                "A",
-                0,
-                "B",
-                0,
-                len(group_a),
-                len(group_b),
-                "affected > baseline",
-                False,
-            )
-        )
-        results.append(
-            _make_result(
-                "P06",
-                "avg_latency_ms",
-                "A",
-                0,
-                "B",
-                0,
-                len(group_a),
-                len(group_b),
-                "affected > baseline",
-                False,
             )
         )
     return results
 
 
-def validate_p07_duplicate_rate(
-    tables: dict[str, pd.DataFrame],
-) -> dict[str, Any]:
-    """P07: Duplicate document_uploaded events detected at higher rate on target day."""
+# ── P07: Day-specific duplicate rate ──
+def validate_p07_duplicate_rate(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
     events = tables.get("product_events")
     if events is None:
         return _make_result(
-            "P07", "upload_event_count", "expected", 0, "actual", 0, 0, 0, "duplicates > 0", False
+            "P07", "duplicate_rate", "expected", 0, "actual", 0, 0, 0, "duplicates > 0", False
         )
 
-    uploads = events[events["event_name"] == "document_uploaded"]
-    n_events = len(uploads)
-    n_docs = uploads["document_id"].nunique()
-    dup_count = n_events - n_docs
+    uploads = events[events["event_name"] == "document_uploaded"].copy()
+    if len(uploads) == 0:
+        return _make_result(
+            "P07", "duplicate_rate", "expected", 0, "actual", 0, 0, 0, "duplicates > 0", False
+        )
+
+    # Normalize event_date
+    uploads["evt_date"] = uploads["event_date"].apply(
+        lambda d: d.date() if hasattr(d, "date") else d
+    )
+
+    # Find the day with the most duplicates
+    daily_counts = uploads.groupby("evt_date").agg(
+        total_events=("event_id", "count"),
+        unique_docs=("document_id", "nunique"),
+    )
+    daily_counts["duplicates"] = daily_counts["total_events"] - daily_counts["unique_docs"]
+    daily_counts["dup_rate"] = daily_counts["duplicates"] / daily_counts["total_events"]
+
+    # Get the day with highest duplicate rate
+    max_dup_day = daily_counts["dup_rate"].idxmax()
+    max_dup_info = daily_counts.loc[max_dup_day]
+
+    overall_dups = daily_counts["duplicates"].sum()
+    overall_total = daily_counts["total_events"].sum()
 
     return _make_result(
         "P07",
-        "duplicate_upload_count",
-        "unique_docs",
-        float(n_docs),
-        "total_events",
-        float(n_events),
-        n_docs,
-        n_events,
-        "duplicates > 0",
-        dup_count > 0,
+        "affected_day_duplicate_rate",
+        "overall_rate",
+        round(overall_dups / max(overall_total, 1), 6),
+        f"day_{max_dup_day}",
+        round(float(max_dup_info["dup_rate"]), 6),
+        int(overall_total),
+        int(max_dup_info["total_events"]),
+        "affected_day_rate ≈ configured 8%",
+        float(max_dup_info["dup_rate"]) > 0.05,
     )
 
 
-def validate_p08_contamination(
-    tables: dict[str, pd.DataFrame],
-) -> dict[str, Any]:
-    """P08: Some users appear in multiple experiment groups."""
+# ── P08 ──
+def validate_p08_contamination(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
     experiments = tables.get("experiment_assignments")
     if experiments is None:
         return _make_result(
             "P08",
-            "contamination_count",
+            "contaminated_users",
             "clean",
             0,
             "contaminated",
@@ -448,10 +485,8 @@ def validate_p08_contamination(
     )
 
 
-def validate_p09_high_risk_retry(
-    tables: dict[str, pd.DataFrame],
-) -> dict[str, Any]:
-    """P09: High-risk documents have higher agent retry count."""
+# ── P09 ──
+def validate_p09_high_risk_retry(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
     runs = tables.get("agent_runs")
     documents = tables.get("documents")
     if runs is None or documents is None:
@@ -467,14 +502,11 @@ def validate_p09_high_risk_retry(
             "affected > baseline",
             False,
         )
-
-    # Merge runs with document risk info
     merged = runs.merge(
         documents[["document_id", "contains_high_risk_terms"]], on="document_id", how="inner"
     )
-    high_risk = merged[merged["contains_high_risk_terms"] == True]["retry_count"]  # noqa: E712
+    high_risk = merged[merged["contains_high_risk_terms"] .eq(True)]["retry_count"]  # noqa: E712
     low_risk = merged[merged["contains_high_risk_terms"] == False]["retry_count"]  # noqa: E712
-
     if len(high_risk) == 0 or len(low_risk) == 0:
         return _make_result(
             "P09",
@@ -488,27 +520,23 @@ def validate_p09_high_risk_retry(
             "affected > baseline",
             False,
         )
-
-    avg_hr = high_risk.mean()
-    avg_lr = low_risk.mean()
     return _make_result(
         "P09",
         "avg_retry_count",
         "low_risk",
-        avg_lr,
+        float(low_risk.mean()),
         "high_risk",
-        avg_hr,
+        float(high_risk.mean()),
         len(low_risk),
         len(high_risk),
         "affected > baseline",
-        avg_hr > avg_lr,
+        float(high_risk.mean()) > float(low_risk.mean()),
     )
 
 
-def validate_p10_ocr_failure_export(
-    tables: dict[str, pd.DataFrame],
-) -> dict[str, Any]:
-    """P10: Tasks with OCR failure have lower export rate."""
+# ── P10: Overall export impact and attributable share ──
+def validate_p10_ocr_failure_export(tables: dict[str, pd.DataFrame]) -> dict[str, Any]:
+    """Compute OCR failure rate, overall export rate, and attributable lost-export share."""
     events = tables.get("product_events")
     if events is None:
         return _make_result(
@@ -516,7 +544,7 @@ def validate_p10_ocr_failure_export(
             "export_rate",
             "no_ocr_fail",
             0,
-            "ocr_fail",
+            "with_ocr_fail",
             0,
             0,
             0,
@@ -524,53 +552,51 @@ def validate_p10_ocr_failure_export(
             False,
         )
 
-    # Find tasks with OCR failures
+    all_tasks = set(events["task_id"])
     ocr_failed_tasks = set(events[events["event_name"] == "agent_run_failed"]["task_id"])
     exported_tasks = set(events[events["event_name"] == "form_exported"]["task_id"])
-    all_tasks = set(events["task_id"])
+    n_total = len(all_tasks)
+    n_ocr_fail = len(ocr_failed_tasks)
+    n_exported = len(exported_tasks)
+    n_not_exported = n_total - n_exported
 
-    tasks_with_ocr_fail = all_tasks & ocr_failed_tasks
-    tasks_no_ocr_fail = all_tasks - ocr_failed_tasks
+    ocr_failure_rate = n_ocr_fail / max(n_total, 1)
+    overall_export_rate = n_exported / max(n_total, 1)
 
-    export_with_fail = len(tasks_with_ocr_fail & exported_tasks)
-    export_no_fail = len(tasks_no_ocr_fail & exported_tasks)
+    # Tasks lost after OCR failure: OCR-failed tasks that never exported
+    tasks_lost_to_ocr = ocr_failed_tasks - exported_tasks
+    n_lost_ocr = len(tasks_lost_to_ocr)
 
-    rate_fail = export_with_fail / max(len(tasks_with_ocr_fail), 1)
-    rate_no_fail = export_no_fail / max(len(tasks_no_ocr_fail), 1)
+    # OCR attributable share
+    ocr_attributable_share = n_lost_ocr / max(n_not_exported, 1)
 
-    return _make_result(
-        "P10",
-        "export_rate",
-        "no_ocr_failure",
-        rate_no_fail,
-        "ocr_failure",
-        rate_fail,
-        len(tasks_no_ocr_fail),
-        len(tasks_with_ocr_fail),
-        "affected < baseline",
-        rate_fail < rate_no_fail,
-    )
+    return {
+        "phenomenon_id": "P10",
+        "metric": "overall_export_impact",
+        "ocr_failure_rate": round(ocr_failure_rate, 6),
+        "overall_export_rate": round(overall_export_rate, 6),
+        "total_tasks": n_total,
+        "ocr_failed_tasks": n_ocr_fail,
+        "exported_tasks": n_exported,
+        "tasks_lost_after_ocr_failure": n_lost_ocr,
+        "total_not_exported": n_not_exported,
+        "ocr_attributable_share": round(ocr_attributable_share, 6),
+        "expected_direction": "ocr_attributable_share >= 0.20",
+        "passed": ocr_attributable_share >= 0.20 and ocr_failure_rate > 0,
+    }
 
 
-def validate_all_phenomena(
-    tables: dict[str, pd.DataFrame],
-) -> list[dict[str, Any]]:
-    """
-    Run all 10 validators against the generated tables.
-
-    Returns a list of validation results (P06 returns 2 entries).
-    """
+# ── Run all ──
+def validate_all_phenomena(tables: dict[str, pd.DataFrame]) -> list[dict[str, Any]]:
     results: list[dict[str, Any]] = []
-
     results.append(validate_p01_ocr_latency(tables))
     results.append(validate_p02_complex_edit(tables))
     results.append(validate_p03_mobile_export(tables))
-    results.append(validate_p04_paid_search_retention(tables))
+    results.append(validate_p04_d7_retention(tables))
     results.append(validate_p05_prompt_cost(tables))
     results.extend(validate_p06_experiment_b(tables))
     results.append(validate_p07_duplicate_rate(tables))
     results.append(validate_p08_contamination(tables))
     results.append(validate_p09_high_risk_retry(tables))
     results.append(validate_p10_ocr_failure_export(tables))
-
     return results

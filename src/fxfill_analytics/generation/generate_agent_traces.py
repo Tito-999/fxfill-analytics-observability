@@ -139,12 +139,19 @@ def generate_agent_runs(
     output_tokens = rng.integers(500, 5001, size=n)
     costs = _estimate_cost(model_names, input_tokens, output_tokens)
 
+    # Deterministic experiment group assignment (avoid spurious correlation)
+    assigned_user_ids = list(rng.choice(user_ids, size=n))
+    exp_groups = [
+        ("A" if hash(uid) % 2 == 0 else "B") if rng.random() < experiment_fraction else None
+        for uid in assigned_user_ids
+    ]
+
     return pd.DataFrame(
         {
             "agent_run_id": run_ids,
             "trace_id": trace_ids,
             "task_id": task_ids,
-            "user_id": list(rng.choice(user_ids, size=n)),
+            "user_id": assigned_user_ids,
             "document_id": list(rng.choice(doc_ids, size=n)),
             "started_at": started_ats,
             "ended_at": ended_ats,
@@ -163,10 +170,7 @@ def generate_agent_runs(
             "error_type": weighted_choice(
                 rng, RUN_ERROR_TYPES, [float(w) for w in RUN_ERROR_WEIGHTS], n
             ),
-            "experiment_group": [
-                rng.choice(EXPERIMENT_GROUPS) if rng.random() < experiment_fraction else None
-                for _ in range(n)
-            ],
+            "experiment_group": exp_groups,
         }
     )
 

@@ -1,9 +1,10 @@
 """
 Synthetic A/B test experiment assignment generation.
 
-Each user in the experiment is assigned to exactly one group (A or B).
-By default there is no cross-contamination — that is injected as a
-configurable anomaly in Phase 1.
+Each assignment has a unique assignment_id (physical PK).
+The business key is (experiment_id, user_id), which is normally unique.
+P08 creates intentional contamination by duplicating (experiment_id, user_id)
+with different groups.
 """
 
 from datetime import datetime
@@ -28,7 +29,8 @@ def generate_experiment_assignments(
     """
     Generate synthetic experiment assignment records.
 
-    Each user is assigned to exactly one group. No user appears more than once.
+    Each row has a unique assignment_id. Normally (experiment_id, user_id)
+    is unique, but P08 can inject contamination duplicates.
 
     Args:
         rng: Seeded NumPy random generator.
@@ -39,10 +41,8 @@ def generate_experiment_assignments(
         experiment_id: Experiment identifier.
 
     Returns:
-        DataFrame with experiment_id, user_id, experiment_group, assigned_at.
-
-    Raises:
-        ValueError: If count exceeds available user_ids.
+        DataFrame with assignment_id, experiment_id, user_id,
+        experiment_group, assigned_at, is_intentional_contamination.
     """
     if count <= 0:
         raise ValueError(f"count must be positive, got {count}")
@@ -51,12 +51,15 @@ def generate_experiment_assignments(
 
     assigned_users = list(rng.choice(user_ids, size=count, replace=False))
     assigned_ats = generate_timestamps(rng, start_date, end_date, count)
+    groups = list(rng.choice(EXPERIMENT_GROUPS, size=count))
 
     return pd.DataFrame(
         {
+            "assignment_id": [f"ASGN_{i:07d}" for i in range(1, count + 1)],
             "experiment_id": [experiment_id] * count,
             "user_id": assigned_users,
-            "experiment_group": list(rng.choice(EXPERIMENT_GROUPS, size=count)),
+            "experiment_group": groups,
             "assigned_at": assigned_ats,
+            "is_intentional_contamination": [False] * count,
         }
     )
