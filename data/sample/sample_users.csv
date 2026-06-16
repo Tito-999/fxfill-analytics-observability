@@ -1,0 +1,6 @@
+user_id,signup_time,acquisition_channel,country,device_type,user_segment,company_size,experience_level,is_returning_user
+U00001,2026-03-15T08:30:00,organic,US,desktop,individual,1-50,intermediate,false
+U00002,2026-04-02T14:15:00,paid_search,GB,mobile,small_business,51-200,new,false
+U00003,2026-04-20T09:00:00,referral,DE,desktop,enterprise_trial,501-1000,expert,false
+U00004,2026-05-10T11:45:00,social,JP,tablet,student,1-50,new,false
+U00005,2026-05-22T16:20:00,organic,CN,desktop,individual,1-50,intermediate,true

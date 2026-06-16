@@ -1,0 +1,53 @@
+# FxFill Analytics — Experiment Configuration
+
+experiments:
+  validation_before_autofill_v1:
+    name: "Validation Before Autofill v1"
+    description: >
+      Test whether adding a field-confidence validation step before autofill
+      improves export rate and field accuracy.
+    hypothesis:
+      null: "Export rate in group B is not higher than group A."
+      alternative: "Export rate in group B is higher than group A."
+    design:
+      randomization_unit: "user_id"
+      analysis_unit: "task_id"
+      traffic_split: [0.50, 0.50]
+      start_date: "2026-05-01"
+      end_date: "2026-06-01"
+      groups:
+        A:
+          name: "control"
+          description: "OCR → field mapping → autofill (current flow)"
+        B:
+          name: "treatment"
+          description: "OCR → field validation → field mapping → autofill"
+    metrics:
+      primary:
+        - name: "form_export_rate"
+          direction: "higher_is_better"
+          mde_relative: 0.05
+      secondary:
+        - name: "task_success_rate"
+          direction: "higher_is_better"
+        - name: "field_accuracy"
+          direction: "higher_is_better"
+        - name: "manual_edit_rate"
+          direction: "lower_is_better"
+    guardrails:
+      - name: "p95_latency_ms"
+        threshold_relative: 1.15
+      - name: "cost_per_successful_task_usd"
+        threshold_relative: 1.10
+      - name: "abandonment_rate"
+        threshold_relative: 1.05
+      - name: "agent_error_rate"
+        threshold_relative: 1.05
+    analysis:
+      significance_level: 0.05
+      bootstrap_iterations: 10000
+      segment_dimensions:
+        - "device_type"
+        - "user_segment"
+        - "document_complexity"
+        - "acquisition_channel"

@@ -1,0 +1,38 @@
+# ── FxFill Analytics — Core Dependencies ──
+# Python 3.11 required. Install: pip install -r requirements.txt
+
+# Data processing
+pandas>=2.1.0,<2.3
+numpy>=1.25.0,<1.27
+pyarrow>=14.0.0,<16.0
+
+# Database & OLAP
+duckdb>=0.10.0,<0.11
+
+# Data transformation (dbt)
+dbt-core>=1.7.0,<1.9
+dbt-duckdb>=1.7.0,<1.9
+
+# Statistical analysis
+scipy>=1.11.0,<1.13
+statsmodels>=0.14.0,<0.15
+
+# Dashboard
+streamlit>=1.28.0,<1.32
+plotly>=5.17.0,<5.19
+
+# API
+fastapi>=0.104.0,<0.111
+uvicorn[standard]>=0.24.0,<0.28
+pydantic>=2.5.0,<2.7
+
+# Data quality
+pandera>=0.18.0,<0.20
+
+# Configuration & environment
+pyyaml>=6.0,<6.1
+python-dotenv>=1.0.0,<1.1
+
+# Utilities
+click>=8.1.0,<8.2
+tqdm>=4.66.0,<4.67

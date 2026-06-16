@@ -1,0 +1,146 @@
+# FxFill Analytics — Metric Definitions
+# Every metric includes: name, display_name, description, formula, grain, dimensions, caveats
+
+metrics:
+  # ── North Star ──
+  - name: weekly_successful_exported_tasks
+    display_name: "Weekly Successful Exported Tasks"
+    description: "Number of distinct tasks that successfully completed agent processing and were exported by users within a calendar week."
+    formula: "COUNT(DISTINCT task_id) WHERE event_name = 'form_exported' AND event_status = 'success'"
+    grain: "weekly"
+    owner: "product"
+    refresh_frequency: "daily"
+    caveats: "Excludes tasks abandoned before export."
+
+  # ── Product KPIs ──
+  - name: dau
+    display_name: "Daily Active Users"
+    description: "Number of distinct users with at least one product event on a given day."
+    formula: "COUNT(DISTINCT user_id) per day"
+    grain: "daily"
+    owner: "product"
+
+  - name: wau
+    display_name: "Weekly Active Users"
+    description: "Number of distinct users with at least one product event in a trailing 7-day window."
+    formula: "COUNT(DISTINCT user_id) over trailing 7 days"
+    grain: "daily"
+    owner: "product"
+
+  - name: mau
+    display_name: "Monthly Active Users"
+    description: "Number of distinct users with at least one product event in a trailing 30-day window."
+    formula: "COUNT(DISTINCT user_id) over trailing 30 days"
+    grain: "daily"
+    owner: "product"
+
+  - name: new_users
+    display_name: "New Users"
+    description: "Number of users who signed up on a given day."
+    formula: "COUNT(DISTINCT user_id) WHERE event_name = 'user_signed_up'"
+    grain: "daily"
+    owner: "product"
+
+  - name: activation_rate
+    display_name: "Activation Rate"
+    description: "Percentage of new users who complete at least one successful form export within 7 days of signup."
+    formula: "users with form_exported within 7 days of signup / total new users"
+    grain: "weekly cohort"
+    owner: "product"
+    caveats: "Uses cohort-level aggregation."
+
+  - name: task_completion_rate
+    display_name: "Task Completion Rate"
+    description: "Percentage of started tasks that reach form_exported."
+    formula: "tasks with form_exported / tasks with document_uploaded"
+    grain: "daily"
+    owner: "product"
+    caveats: "Not all tasks on a given day complete on the same day."
+
+  - name: form_export_rate
+    display_name: "Form Export Rate"
+    description: "Percentage of document_uploaded events that result in a form_exported event."
+    formula: "COUNT(DISTINCT task_id) with form_exported / COUNT(DISTINCT task_id) with document_uploaded"
+    grain: "daily"
+    owner: "product"
+
+  # ── Retention ──
+  - name: d1_retention
+    display_name: "Day-1 Retention"
+    description: "Percentage of new users who return 1 day after their first active day."
+    formula: "users active on day N+1 / users active on day N"
+    grain: "cohort"
+    owner: "product"
+
+  - name: d7_retention
+    display_name: "Day-7 Retention"
+    description: "Percentage of new users who return 7 days after their first active day."
+    grain: "cohort"
+    owner: "product"
+
+  - name: d30_retention
+    display_name: "Day-30 Retention"
+    description: "Percentage of new users who return 30 days after their first active day."
+    grain: "cohort"
+    owner: "product"
+
+  # ── Feature Adoption ──
+  - name: anonymization_adoption
+    display_name: "Anonymization Feature Adoption"
+    description: "Percentage of tasks that use the anonymization feature."
+    formula: "tasks with anonymization_completed / total tasks"
+    grain: "daily"
+    owner: "product"
+
+  - name: risk_detection_adoption
+    display_name: "Risk Detection Adoption"
+    description: "Percentage of tasks that use risk detection."
+    grain: "daily"
+    owner: "product"
+
+  - name: autofill_adoption
+    display_name: "Autofill Adoption"
+    description: "Percentage of tasks that use autofill."
+    grain: "daily"
+    owner: "product"
+
+  # ── Agent KPIs ──
+  - name: agent_success_rate
+    display_name: "Agent Success Rate"
+    description: "Percentage of agent runs that complete successfully."
+    formula: "COUNT(agent_runs with success_flag=true) / COUNT(all agent_runs)"
+    grain: "daily"
+    owner: "platform"
+
+  - name: agent_p95_latency
+    display_name: "Agent P95 Latency (ms)"
+    description: "95th percentile of agent run total latency."
+    grain: "daily"
+    owner: "platform"
+    caveats: "P95 chosen to capture tail latency without being overly sensitive to outliers."
+
+  - name: cost_per_successful_task
+    display_name: "Cost per Successful Task (USD)"
+    description: "Total estimated agent cost divided by number of successfully exported tasks."
+    grain: "daily"
+    owner: "platform"
+    caveats: "Costs based on simulated pricing, not real provider pricing."
+
+  # ── Guardrails ──
+  - name: error_rate
+    display_name: "Error Rate"
+    description: "Percentage of agent runs that encountered an error."
+    grain: "daily"
+    owner: "platform"
+
+  - name: manual_edit_rate
+    display_name: "Manual Edit Rate"
+    description: "Average number of manual field edits per task."
+    grain: "daily"
+    owner: "product"
+
+  - name: abandonment_rate
+    display_name: "Task Abandonment Rate"
+    description: "Percentage of tasks abandoned before completion."
+    grain: "daily"
+    owner: "product"

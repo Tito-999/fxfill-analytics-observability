@@ -1,0 +1,6 @@
+event_id,event_time,event_date,user_id,session_id,document_id,task_id,event_name,event_status,platform,app_version,experiment_id,experiment_group,latency_ms,error_type,metadata_json
+EVT00001,2026-06-01T09:00:00,2026-06-01,U00001,SES00001,DOC00001,TSK00001,document_uploaded,success,web,2.2.0,,,120,,"{""file_type"":""pdf""}"
+EVT00002,2026-06-01T09:00:01,2026-06-01,U00001,SES00001,DOC00001,TSK00001,ocr_started,success,web,2.2.0,,,5,,{}
+EVT00003,2026-06-01T09:00:05,2026-06-01,U00001,SES00001,DOC00001,TSK00001,ocr_completed,success,web,2.2.0,,,3500,,{}
+EVT00004,2026-06-01T09:00:06,2026-06-01,U00001,SES00001,DOC00001,TSK00001,form_exported,success,web,2.2.0,,,200,,{}
+EVT00005,2026-06-01T10:30:00,2026-06-01,U00002,SES00002,DOC00002,TSK00002,document_uploaded,success,web,2.3.0,EXP001,A,150,,"{""file_type"":""pdf""}"

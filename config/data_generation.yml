@@ -1,0 +1,145 @@
+# FxFill Analytics — Data Generation Configuration
+# Controls synthesis parameters and embedded phenomena for analysis detection.
+
+generation:
+  seed: 20260616
+  date_range_days: 120
+  end_date: "2026-06-14"
+
+# ── User Generation ──
+users:
+  acquisition_channels:
+    organic: 0.35
+    paid_search: 0.25
+    social: 0.20
+    referral: 0.15
+    campus: 0.05
+  device_types:
+    desktop: 0.60
+    mobile: 0.30
+    tablet: 0.10
+  user_segments:
+    student: 0.20
+    individual: 0.35
+    small_business: 0.30
+    enterprise_trial: 0.15
+  experience_levels:
+    new: 0.45
+    intermediate: 0.35
+    expert: 0.20
+
+# ── Document Generation ──
+documents:
+  types:
+    bank_transfer_form: 0.25
+    invoice: 0.25
+    identity_document: 0.15
+    beneficiary_form: 0.20
+    exchange_declaration: 0.15
+  complexity_levels:
+    simple: 0.40
+    medium: 0.35
+    complex: 0.25
+  pii_probability: 0.55
+  high_risk_probability: 0.25
+
+# ── Agent Run Generation ──
+agent:
+  model_versions:
+    - name: "gpt-4o-mini-2024-07-18"
+      input_price_per_million: 0.150
+      output_price_per_million: 0.600
+      weight: 0.40
+    - name: "gpt-4o-2024-08-06"
+      input_price_per_million: 2.500
+      output_price_per_million: 10.000
+      weight: 0.35
+    - name: "claude-haiku-3.5-20241022"
+      input_price_per_million: 0.250
+      output_price_per_million: 1.250
+      weight: 0.25
+  prompt_versions: ["v1.0.0", "v1.1.0", "v2.0.0-beta"]
+  success_rate: 0.88
+  retry_probability: 0.08
+
+# ── Embedded Phenomena (configurable) ──
+phenomena:
+  # 1. app_version 2.3.0 OCR latency increase in last 14 days
+  ocr_latency_spike:
+    enabled: true
+    affected_version: "2.3.0"
+    latency_multiplier: 1.8
+    days_ago_start: 14
+
+  # 2. Complex documents have higher field edit rates
+  complex_document_edit_rate:
+    enabled: true
+    simple_edit_probability: 0.15
+    medium_edit_probability: 0.35
+    complex_edit_probability: 0.65
+
+  # 3. Mobile users drop off more at form_review_started → form_exported
+  mobile_review_dropoff:
+    enabled: true
+    mobile_abandon_multiplier: 1.5
+
+  # 4. paid_search users have higher signups but lower D7 retention
+  paid_search_retention:
+    enabled: true
+    paid_search_d7_multiplier: 0.65
+    paid_search_signup_boost: 1.3
+
+  # 5. prompt v2.0.0-beta has higher cost but limited quality improvement
+  prompt_cost_quality:
+    enabled: true
+    affected_prompt: "v2.0.0-beta"
+    cost_multiplier: 1.35
+    quality_improvement: 0.03
+
+  # 6. Experiment B group improves export rate and accuracy but adds latency
+  experiment_b_effects:
+    enabled: true
+    export_rate_uplift: 0.06
+    field_accuracy_uplift: 0.04
+    latency_increase_ms: 450
+    cost_increase_usd: 0.015
+
+  # 7. Duplicate document_uploaded events on a specific day (~8%)
+  duplicate_events:
+    enabled: true
+    affected_event: "document_uploaded"
+    duplicate_rate: 0.08
+    affected_day_offset: 45
+
+  # 8. Cross-contamination: some users assigned to both experiment groups
+  experiment_contamination:
+    enabled: true
+    contamination_rate: 0.03
+
+  # 9. High-risk documents have higher agent retry_count
+  high_risk_retry:
+    enabled: true
+    high_risk_retry_multiplier: 2.5
+
+  # 10. OCR tool failure is a major contributor to export rate decline
+  ocr_tool_failure_export:
+    enabled: true
+    ocr_failure_export_penalty: 0.30
+
+# ── Latency Distributions (ms, lognormal parameters) ──
+latency:
+  ocr_extraction:
+    mu: 5.5
+    sigma: 0.6
+  anonymization:
+    mu: 4.0
+    sigma: 0.4
+  risk_detection:
+    mu: 5.0
+    sigma: 0.5
+  autofill:
+    mu: 5.8
+    sigma: 0.3
+  form_review:
+    mu: 6.0
+    sigma: 0.8

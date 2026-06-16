@@ -1,0 +1,85 @@
+# Python
+__pycache__/
+.pytest_cache/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+eggs/
+*.egg
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Project data files
+data/raw/*
+data/generated/*
+data/processed/*
+!data/raw/.gitkeep
+!data/generated/.gitkeep
+!data/processed/.gitkeep
+!data/sample/*
+data/sample/*
+!data/sample/sample_users.csv
+!data/sample/sample_events.csv
+!data/sample/sample_agent_runs.csv
+
+# DuckDB
+warehouse/*.duckdb
+warehouse/*.duckdb.wal
+
+# dbt
+dbt_fxfill/target/
+dbt_fxfill/dbt_packages/
+dbt_fxfill/logs/
+dbt_fxfill/profiles.yml
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Coverage
+htmlcov/
+.coverage
+coverage.xml
+
+# Reports (generated)
+reports/*.html
+reports/*.png
+
+# Environment
+.env
+.env.local
+*.env
+
+# Logs
+logs/
+*.log
+
+# Ruff / Mypy cache
+.ruff_cache/
+.mypy_cache/
+
+# Schemas (generated)
+config/schema.json
+
+# Streamlit
+.streamlit/secrets.toml

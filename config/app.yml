@@ -1,0 +1,77 @@
+# FxFill Analytics — Application Configuration
+
+project:
+  name: "FxFill Analytics & AI Agent Observability"
+  version: "0.1.0"
+  environment: "development"
+
+paths:
+  data_dir: "./data"
+  raw_dir: "./data/raw"
+  generated_dir: "./data/generated"
+  processed_dir: "./data/processed"
+  warehouse_path: "./warehouse/fxfill.duckdb"
+  config_dir: "./config"
+  reports_dir: "./reports"
+  dbt_project_dir: "./dbt_fxfill"
+
+database:
+  duckdb:
+    path: "./warehouse/fxfill.duckdb"
+    read_only: false
+    memory_limit: "2GB"
+    threads: 4
+
+api:
+  host: "127.0.0.1"
+  port: 8000
+  api_key_env: "API_KEY"
+  batch_max_size: 1000
+
+dashboard:
+  port: 8501
+  cache_ttl_seconds: 600
+
+data_generation:
+  default_size: "medium"
+  default_seed: 20260616
+  chunk_size: 50000
+  available_sizes:
+    tiny:
+      users: 200
+      sessions: 600
+      events: 4000
+      documents: 800
+      agent_runs: 800
+      agent_spans: 3000
+      experiment_users: 120
+    small:
+      users: 2000
+      sessions: 6000
+      events: 40000
+      documents: 8000
+      agent_runs: 8000
+      agent_spans: 30000
+      experiment_users: 1200
+    medium:
+      users: 20000
+      sessions: 60000
+      events: 400000
+      documents: 80000
+      agent_runs: 80000
+      agent_spans: 300000
+      experiment_users: 12000
+    large:
+      users: 100000
+      sessions: 300000
+      events: 2000000
+      documents: 400000
+      agent_runs: 400000
+      agent_spans: 1500000
+      experiment_users: 60000
+
+logging:
+  level: "INFO"
+  format: "structured"
+  output: ["console", "file"]
+  log_dir: "./logs"
