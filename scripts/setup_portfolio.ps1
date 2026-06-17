@@ -1,41 +1,34 @@
-# FxFill Analytics — Portfolio Setup Script
-# Usage: .\scripts\setup_portfolio.ps1 [-Profile demo]
+# FxFill Analytics — Portfolio Setup
+# Prerequisite: conda activate fxfill_analytics
 param([string]$Profile = "demo")
-
 $ErrorActionPreference = "Stop"
 Write-Host "=== FxFill Portfolio Setup ===" -ForegroundColor Cyan
 
-$required_python = "3.11"
-$py = python --version 2>&1
-if ($LASTEXITCODE -ne 0) { Write-Host "ERROR: Python not found. Install Python 3.11." -ForegroundColor Red; exit 1 }
-$py_ver = (python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
-if ($py_ver -ne $required_python) { Write-Host "WARNING: Expected Python $required_python, found $py_ver" -ForegroundColor Yellow }
+$pv = python -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')"
+if ($pv -ne "3.11") { Write-Host "WARNING: Expected Python 3.11, found $pv" -ForegroundColor Yellow }
 
-$env_name = "fxfill_analytics"
-$conda_check = conda env list 2>&1
-if ($conda_check -notmatch $env_name) {
-    Write-Host "Creating conda environment '$env_name'..." -ForegroundColor Yellow
-    conda create -n $env_name python=3.11 -y
-    conda run -n $env_name python -m pip install -r requirements.txt
-    conda run -n $env_name python -m pip install -r requirements-dev.txt
-}
-Write-Host "Environment '$env_name' ready." -ForegroundColor Green
+Write-Host "Checking imports..." -ForegroundColor Cyan
+python -c "import numpy,pandas,pyarrow,scipy,duckdb,streamlit,pandera,fastapi; print('Core imports OK')"
+if ($LASTEXITCODE -ne 0) { Write-Host "ERROR: Missing dependencies. Run: pip install -r requirements.txt -r requirements-dev.txt" -ForegroundColor Red; exit 1 }
 
 $size = if ($Profile -eq "demo") { "small" } else { "medium" }
+$outDir = "data/generated/portfolio_demo"
 Write-Host "Generating $size synthetic data..." -ForegroundColor Cyan
-$env:PYTHONNOUSERSITE="1"
-conda run -n $env_name python scripts/generate_data.py --size $size --seed 20260616 --output-dir data/generated/demo_in --overwrite
-$run_dir = (Get-ChildItem data/generated/demo_in -Directory | Select-Object -First 1).FullName
+python scripts/generate_data.py --size $size --seed 20260616 --output-dir $outDir --overwrite
+if ($LASTEXITCODE -ne 0) { Write-Host "ERROR: Data generation failed" -ForegroundColor Red; exit 1 }
 
-Write-Host "Building warehouse..." -ForegroundColor Cyan
+$runDir = (Get-ChildItem $outDir -Directory | Select-Object -First 1).FullName
 $env:FXFILL_DUCKDB_PATH = "$PWD\warehouse\fxfill.duckdb"
-conda run -n $env_name python scripts/build_warehouse.py --input-run $run_dir --database $env:FXFILL_DUCKDB_PATH --full-refresh --skip-dbt
+
+Write-Host "Building DuckDB warehouse..." -ForegroundColor Cyan
+python scripts/build_warehouse.py --input-run $runDir --database $env:FXFILL_DUCKDB_PATH --full-refresh --skip-dbt
+if ($LASTEXITCODE -ne 0) { Write-Host "ERROR: Warehouse build failed" -ForegroundColor Red; exit 1 }
 
 Write-Host "Running dbt..." -ForegroundColor Cyan
-conda run -n $env_name dbt run --project-dir dbt_fxfill --profiles-dir dbt_fxfill
-conda run -n $env_name dbt test --project-dir dbt_fxfill --profiles-dir dbt_fxfill
+dbt run --project-dir dbt_fxfill --profiles-dir dbt_fxfill
+dbt test --project-dir dbt_fxfill --profiles-dir dbt_fxfill
 
 Write-Host "Running experiment analysis..." -ForegroundColor Cyan
-conda run -n $env_name python scripts/run_experiment_analysis.py --experiment validation_before_autofill_v1 --database warehouse/fxfill.duckdb --output-dir reports/phase4 --overwrite
+python scripts/run_experiment_analysis.py --experiment validation_before_autofill_v1 --database $env:FXFILL_DUCKDB_PATH --output-dir reports/phase4 --overwrite
 
 Write-Host "Setup complete! Run: .\scripts\run_portfolio_demo.ps1" -ForegroundColor Green

@@ -378,7 +378,7 @@
     }
   },
   "performance": {
-    "total_duration_seconds": 1.3,
+    "total_duration_seconds": 1.2,
     "peak_memory_mb": "see_diagnostic"
   }
 }
