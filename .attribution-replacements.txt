@@ -1,0 +1,10 @@
+regex:Co-Authored-By: Claude <noreply@anthropic\.com>\n?==>
+regex:Co-Authored-By: Claude <noreply@anthropic\.com>==>
+regex:Co-authored-by: Claude <noreply@anthropic\.com>\n?==>
+regex:Co-authored-by: Claude <noreply@anthropic\.com>==>
+regex:built with Claude Code\n?==>
+regex:developed with Claude Code\n?==>
+regex:Development workflow included AI-assisted coding and automated verification\.\n?==>Development workflow included automated verification.
+regex:AI-assisted coding and automated verification\.==>automated verification.
+regex:AI-assisted coding\n?==>
+regex:AI-assisted development\n?==>
