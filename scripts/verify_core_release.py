@@ -35,7 +35,7 @@ def _data_check(output_dir: Path):
         [sys.executable, str(PROJECT / "scripts/generate_data.py"),
          "--size", "small", "--seed", "20260616", "--output-dir", str(output_dir), "--overwrite"],
         capture_output=True, text=True, timeout=300, cwd=str(PROJECT),
-        env={**os.environ, "PYTHONNOUSERSITE": "1"}
+        env={**os.environ}
     )
     if r.returncode != 0:
         fail(f"Data generation failed: {r.stderr[:200]}")
@@ -58,7 +58,7 @@ def _warehouse_check(run_dir: Path, db_path: Path):
         [sys.executable, str(PROJECT / "scripts/build_warehouse.py"),
          "--input-run", str(run_dir), "--database", str(db_path), "--full-refresh", "--skip-dbt"],
         capture_output=True, text=True, timeout=120, cwd=str(PROJECT),
-        env={**os.environ, "PYTHONNOUSERSITE": "1"}
+        env={**os.environ}
     )
     if r.returncode != 0:
         fail(f"Warehouse build failed: {r.stderr[:200]}")
@@ -70,7 +70,7 @@ def _warehouse_check(run_dir: Path, db_path: Path):
     if not dbt_exe or not Path(dbt_exe).exists():
         dbt_exe = "dbt"
 
-    db_env = {**os.environ, "FXFILL_DUCKDB_PATH": str(db_path), "PYTHONNOUSERSITE": "1"}
+    db_env = {**os.environ, "FXFILL_DUCKDB_PATH": str(db_path)}
     r = subprocess.run([dbt_exe, "run", "--project-dir", str(PROJECT / "dbt_fxfill"),
                         "--profiles-dir", str(PROJECT / "dbt_fxfill")],
                        capture_output=True, text=True, timeout=180, cwd=str(PROJECT), env=db_env)
@@ -98,7 +98,7 @@ def _experiment_check(db_path: Path):
          "--experiment", "validation_before_autofill_v1", "--database", str(db_path),
          "--output-dir", str(PROJECT / "reports/phase4"), "--overwrite"],
         capture_output=True, text=True, timeout=180, cwd=str(PROJECT),
-        env={**os.environ, "PYTHONNOUSERSITE": "1"}
+        env={**os.environ}
     )
     if r.returncode == 0:
         pass_gate("Experiment analysis passed")
@@ -119,8 +119,7 @@ def _dashboard_check(db_path: Path):
          "--browser.gatherUsageStats=false"],
         cwd=str(PROJECT), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         env={**os.environ, "FXFILL_DUCKDB_PATH": str(db_path),
-             "NO_PROXY": "127.0.0.1,localhost", "no_proxy": "127.0.0.1,localhost",
-             "PYTHONNOUSERSITE": "1"}
+             "NO_PROXY": "127.0.0.1,localhost", "no_proxy": "127.0.0.1,localhost"}
     )
     time.sleep(5)
     health_ok = home_ok = False
@@ -230,7 +229,7 @@ def _pytest(db_path: Path):
     """Run full pytest with temporary warehouse available."""
     env = {**os.environ, "FXFILL_DUCKDB_PATH": str(db_path),
            "NO_PROXY": "127.0.0.1,localhost", "no_proxy": "127.0.0.1,localhost",
-           "PYTHONNOUSERSITE": "1", "PYTHONPATH": str(PROJECT)}
+           "PYTHONPATH": str(PROJECT)}
     junit_path = str(R / "core_release_pytest.xml")
     r = subprocess.run(
         [sys.executable, "-m", "pytest", str(PROJECT / "tests"), "-v",
