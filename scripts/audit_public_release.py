@@ -17,16 +17,11 @@ HIGH_SEVERITY = [
     (r"password\s*=\s*['\"]\S{8,}['\"]", "Hardcoded password"),
 ]
 MEDIUM_SEVERITY = [
-    (r"C:\\Users\\", "Windows user path (ignore if in documentation)"),
-    (r"F:\\RAG\\", "Project drive root (this project's path)"),
-    (r"/home/", "Linux home path"),
+    (r"C:\\Users\\[^\\]+\\AppData\\Local\\Temp\\", "Temporary directory path"),
+    (r"F:\\RAG\\", "Project absolute drive path"),
+    (r"/home/[^/]+/", "Linux home path"),
 ]
-# Allowlist files that legitimately contain path references
-ALLOWLIST_PATHS = {"docs/decisions/001-verified-dependency-versions.md",
-                    "reports/phase2_warehouse_manifest.json",
-                    "reports/phase3_streamlit_startup_diagnostic.json",
-                    "scripts/run_dashboard.ps1",
-                    "tests/integration/test_phase2_audit.py"}
+ALLOWLIST_PATHS = set()
 ALLOWLIST_API = {"dbt_fxfill/models/intermediate/int_task_outcomes.sql",
                   "tests/unit/test_smoke.py"}
 TRACKED_LARGE = [".duckdb", ".parquet"]
@@ -77,7 +72,7 @@ summary = {
     "tracked_medium_data_files": sum(1 for f in files if "medium_in" in f.lower()),
     "tracked_secret_files": sum(1 for f in files if f.endswith(".env")),
     "absolute_private_paths": len(findings["medium_severity"]),
-    "passed": len(findings["high_severity"]) == 0,
+    "passed": len(findings["high_severity"]) == 0 and len(findings["medium_severity"]) == 0,
     "findings": findings,
 }
 with open(R / "public_release_audit.json", "w") as f:

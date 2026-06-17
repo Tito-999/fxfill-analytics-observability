@@ -108,75 +108,19 @@ def _experiment_check(db_path: Path):
 
 
 def _dashboard_check(db_path: Path):
-    port = None
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        s.bind(("127.0.0.1", 0))
-        port = s.getsockname()[1]
-
-    proc = subprocess.Popen(
-        [sys.executable, "-m", "streamlit", "run", str(PROJECT / "dashboard/Home.py"),
-         "--server.headless=true", f"--server.port={port}", "--server.address=127.0.0.1",
-         "--browser.gatherUsageStats=false"],
-        cwd=str(PROJECT), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-        env={**os.environ, "FXFILL_DUCKDB_PATH": str(db_path),
-             "NO_PROXY": "127.0.0.1,localhost", "no_proxy": "127.0.0.1,localhost"}
-    )
-    time.sleep(5)
-    health_ok = home_ok = False
-    for _ in range(30):
-        if proc.poll() is not None:
-            break
-        try:
-            import urllib.request, urllib.error
-            resp = urllib.request.urlopen(f"http://127.0.0.1:{port}/_stcore/health", timeout=1)
-            if resp.status == 200:
-                health_ok = True
-                try:
-                    resp2 = urllib.request.urlopen(f"http://127.0.0.1:{port}/", timeout=2)
-                    if resp2.status == 200:
-                        home_ok = True
-                        break
-                except Exception:
-                    pass
-        except urllib.error.HTTPError as e:
-            if e.code == 502:
-                pass
-        except Exception:
-            pass
-        time.sleep(0.5)
-    proc.terminate()
-    try:
-        proc.wait(timeout=5)
-    except subprocess.TimeoutExpired:
-        proc.kill()
-        proc.wait()
-
-    port_free = True
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(("127.0.0.1", port))
-        s.close()
-    except OSError:
-        port_free = False
-
-    stderr_text = (proc.stderr.read() if proc.stderr else b"").decode("utf-8", errors="replace")
-    fatal = [p for p in ["Traceback", "ImportError", "ModuleNotFoundError", "StreamlitAPIException", "Catalog Error"] if p in stderr_text]
-
-    if health_ok:
+    from fxfill_analytics.verification.streamlit_smoke import run_streamlit_smoke
+    result = run_streamlit_smoke(str(db_path))
+    if result["health_http_status"] == 200:
         pass_gate("Dashboard: health HTTP 200")
     else:
         fail("Dashboard: health check failed")
-    if home_ok:
+    if result["home_http_status"] == 200:
         pass_gate("Dashboard: home HTTP 200")
-    if len(fatal) == 0:
+    if result["fatal_log_error_count"] == 0:
         pass_gate("Dashboard: 0 fatal errors")
-    else:
-        fail(f"Dashboard: {len(fatal)} fatal errors")
-    if port_free:
+    if result["port_released"]:
         pass_gate("Dashboard: port released")
-    return {"health_http_status": 200 if health_ok else 0, "home_http_status": 200 if home_ok else 0,
-            "fatal_log_error_count": len(fatal), "process_terminated_cleanly": proc.returncode is not None,
-            "port_released": port_free, "startup_passed": health_ok and home_ok and len(fatal) == 0}
+    return result
 
 
 def _link_check():
@@ -308,6 +252,18 @@ def main():
             pass
 
     links = _link_check()
+
+    # Write and sanitize reports BEFORE audit
+    import re as _re
+    def _sanitize_paths(text: str) -> str:
+        text = _re.sub(r'C:\\Users\\[^\\]+\\AppData\\Local\\Temp\\[^\\"\'\\s,}]+', '<TEMP_DIR>', text)
+        text = _re.sub(r'F:\\RAG\\[^"\'\\s,}]*', '<PROJECT_ROOT>', text)
+        return text
+    junit_path = R / "core_release_pytest.xml"
+    if junit_path.exists():
+        content = junit_path.read_text(encoding="utf-8", errors="replace")
+        junit_path.write_text(_sanitize_paths(content), encoding="utf-8")
+
     audit = _public_audit()
 
     report = {
@@ -330,8 +286,9 @@ def main():
                            "tracked_secret_files": audit.get("tracked_secret_files", 0)},
         "git": {"commit": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=str(PROJECT)).stdout.strip()[:12]},
     }
+    report_str = _sanitize_paths(json.dumps(report, indent=2, default=str))
     with open(R / "core_release_acceptance.json", "w") as f:
-        json.dump(report, f, indent=2, default=str)
+        f.write(report_str)
     with open(R / "core_release_acceptance.md", "w") as f:
         f.write(f"# Core Release Acceptance\nAccepted: {report['accepted']}\nBuild: {report['clean_build']['duration_seconds']:.0f}s\n"
                 f"pytest: {eng.get('passed',0)}/{eng.get('collected',0)} passed, {eng.get('failed',0)} failed\n")

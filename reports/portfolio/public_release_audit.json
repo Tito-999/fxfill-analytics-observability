@@ -1,20 +1,14 @@
 {
   "high_severity_findings": 0,
-  "medium_severity_findings": 1,
+  "medium_severity_findings": 0,
   "tracked_database_files": 0,
   "tracked_medium_data_files": 0,
   "tracked_secret_files": 0,
-  "absolute_private_paths": 1,
+  "absolute_private_paths": 0,
   "passed": true,
   "findings": {
     "high_severity": [],
-    "medium_severity": [
-      {
-        "file": "reports/portfolio/core_release_pytest.xml",
-        "pattern": "C:\\\\Users\\\\",
-        "description": "Windows user path (ignore if in documentation)"
-      }
-    ],
+    "medium_severity": [],
     "tracked_large_files": []
   }
 }
