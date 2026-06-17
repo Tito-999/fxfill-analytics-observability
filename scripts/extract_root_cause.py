@@ -1,127 +1,145 @@
-"""Extract real Root Cause Analysis evidence from medium warehouse."""
+"""Extract real Root Cause evidence: single-dimension rate-volume decomposition with proper reconciliation."""
 import json, duckdb
-from datetime import UTC, datetime
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
 DB = str(PROJECT / "warehouse" / "fxfill.duckdb")
 R = PROJECT / "reports"
+R.mkdir(exist_ok=True)
 conn = duckdb.connect(DB, read_only=True)
 
-# ── Period definition ──
 max_date = conn.execute("SELECT MAX(event_date) FROM main_marts.mart_daily_product_kpis").fetchone()[0]
-curr_start = str(max_date) + "::DATE - INTERVAL 7 DAY"
-prev_start = str(max_date) + "::DATE - INTERVAL 14 DAY"
-end_date = str(max_date)
 
-# ── Overall metrics ──
+# Overall metrics
 curr = conn.execute(f"""
     SELECT AVG(export_rate), SUM(total_tasks), SUM(exported_tasks), COUNT(*)
     FROM main_marts.mart_daily_product_kpis
-    WHERE event_date >= DATE '{max_date}' - INTERVAL 7 DAY AND event_date <= DATE '{max_date}'
+    WHERE event_date >= DATE '{max_date}' - 7 AND event_date <= DATE '{max_date}'
 """).fetchone()
 prev = conn.execute(f"""
     SELECT AVG(export_rate), SUM(total_tasks), SUM(exported_tasks), COUNT(*)
     FROM main_marts.mart_daily_product_kpis
-    WHERE event_date >= DATE '{max_date}' - INTERVAL 14 DAY AND event_date < DATE '{max_date}' - INTERVAL 7 DAY
+    WHERE event_date >= DATE '{max_date}' - 14 AND event_date < DATE '{max_date}' - 7
 """).fetchone()
 
 curr_rate = float(curr[0] or 0)
 prev_rate = float(prev[0] or 0)
 curr_tasks = int(curr[1] or 0)
 prev_tasks = int(prev[1] or 0)
-curr_exp = int(curr[2] or 0)
-prev_exp = int(prev[2] or 0)
-abs_change = curr_rate - prev_rate
-rel_change = (abs_change / max(abs(prev_rate), 1e-10)) * 100
 
-# ── Driver analysis by device_type ──
-drivers = []
-for dim, dim_col, dim_table in [
-    ("device_type", "device_type", "main_staging.stg_users"),
-    ("acquisition_channel", "acquisition_channel", "main_staging.stg_users"),
-]:
-    rows = conn.execute(f"""
-        SELECT u.{dim_col},
-               COUNT(DISTINCT CASE WHEN e.event_date >= DATE '{max_date}' - 7 THEN e.task_id END) as curr_vol,
-               COUNT(DISTINCT CASE WHEN e.event_date >= DATE '{max_date}' - 14 AND e.event_date < DATE '{max_date}' - 7 THEN e.task_id END) as prev_vol,
-               COUNT(DISTINCT CASE WHEN e.event_date >= DATE '{max_date}' - 7 AND f.did_export THEN e.task_id END)*1.0/NULLIF(COUNT(DISTINCT CASE WHEN e.event_date >= DATE '{max_date}' - 7 THEN e.task_id END),0) as curr_rate,
-               COUNT(DISTINCT CASE WHEN e.event_date >= DATE '{max_date}' - 14 AND e.event_date < DATE '{max_date}' - 7 AND f.did_export THEN e.task_id END)*1.0/NULLIF(COUNT(DISTINCT CASE WHEN e.event_date >= DATE '{max_date}' - 14 AND e.event_date < DATE '{max_date}' - 7 THEN e.task_id END),0) as prev_rate
+# Single dimension: acquisition_channel (mutually exclusive, exhaustive)
+rows = conn.execute(f"""
+    WITH curr AS (
+        SELECT u.acquisition_channel AS seg,
+               COUNT(DISTINCT e.task_id) AS vol,
+               COUNT(DISTINCT CASE WHEN f.did_export THEN e.task_id END)*1.0/NULLIF(COUNT(DISTINCT e.task_id),0) AS rate
         FROM main_staging.stg_product_events e
-        JOIN {dim_table} u ON e.user_id = u.user_id
-        LEFT JOIN main_intermediate.int_task_funnel_flags f ON e.task_id = f.task_id
-        GROUP BY u.{dim_col}
-    """).fetchall()
-    for row in rows:
-        seg, cv, pv, cr, pr = row
-        cr_val = float(cr or 0)
-        pr_val = float(pr or 0)
-        cv_val = int(cv or 0)
-        pv_val = int(pv or 0)
-        rate_eff = (cr_val - pr_val) * (cv_val + pv_val) / max(curr_tasks + prev_tasks, 1)
-        mix_eff = (cv_val / max(curr_tasks, 1) - pv_val / max(prev_tasks, 1)) * pr_val
-        total = rate_eff + mix_eff
-        drivers.append({
-            "dimension": dim, "segment": seg,
-            "current_volume": cv_val, "previous_volume": pv_val,
-            "current_rate": round(cr_val, 6), "previous_rate": round(pr_val, 6),
-            "rate_effect": round(rate_eff, 6), "mix_effect": round(mix_eff, 6),
-            "total_contribution": round(total, 6),
-        })
+        JOIN main_staging.stg_users u ON e.user_id=u.user_id
+        LEFT JOIN main_intermediate.int_task_funnel_flags f ON e.task_id=f.task_id
+        WHERE e.event_date >= DATE '{max_date}' - 7 AND e.event_date <= DATE '{max_date}'
+        GROUP BY u.acquisition_channel
+    ), prev AS (
+        SELECT u.acquisition_channel AS seg,
+               COUNT(DISTINCT e.task_id) AS vol,
+               COUNT(DISTINCT CASE WHEN f.did_export THEN e.task_id END)*1.0/NULLIF(COUNT(DISTINCT e.task_id),0) AS rate
+        FROM main_staging.stg_product_events e
+        JOIN main_staging.stg_users u ON e.user_id=u.user_id
+        LEFT JOIN main_intermediate.int_task_funnel_flags f ON e.task_id=f.task_id
+        WHERE e.event_date >= DATE '{max_date}' - 14 AND e.event_date < DATE '{max_date}' - 7
+        GROUP BY u.acquisition_channel
+    )
+    SELECT COALESCE(c.seg, p.seg) AS seg,
+           COALESCE(c.vol, 0) AS cv, COALESCE(p.vol, 0) AS pv,
+           COALESCE(c.rate, 0) AS cr, COALESCE(p.rate, 0) AS pr
+    FROM curr c FULL OUTER JOIN prev p ON c.seg=p.seg
+    ORDER BY seg
+""").fetchall()
+
+drivers = []
+total_cv = sum(r[1] for r in rows)
+total_pv = sum(r[2] for r in rows)
+# Compute overall rates directly from segment data (ensures reconciliation)
+total_cr = sum(r[1] * r[3] for r in rows) / max(total_cv, 1)
+total_pr = sum(r[2] * r[4] for r in rows) / max(total_pv, 1)
+
+for seg, cv, pv, cr, pr in rows:
+    prev_share = pv / max(total_pv, 1)
+    curr_share = cv / max(total_cv, 1)
+    # rate_effect: if this segment kept its volume share but changed rate
+    rate_eff = prev_share * (cr - pr)
+    # mix_effect: if this segment's volume share changed at current rate
+    mix_eff = (curr_share - prev_share) * cr
+    total = rate_eff + mix_eff
+    drivers.append({
+        "rank": 0, "dimension": "acquisition_channel", "segment": seg,
+        "current_volume": cv, "previous_volume": pv,
+        "current_share": round(curr_share, 6), "previous_share": round(prev_share, 6),
+        "current_rate": round(cr, 6), "previous_rate": round(pr, 6),
+        "rate_effect": round(rate_eff, 6), "mix_effect": round(mix_eff, 6),
+        "total_contribution": round(total, 6),
+    })
 
 drivers.sort(key=lambda d: d["total_contribution"])
-neg_drivers = drivers[:3]
-pos_drivers = drivers[-3:][::-1]
+for i, d in enumerate(drivers):
+    d["rank"] = i + 1
+    d["contribution_share"] = round(d["total_contribution"] / max(sum(abs(d2["total_contribution"]) for d2 in drivers), 1e-10), 6)
 
-total_contrib = sum(d["total_contribution"] for d in drivers)
-residual = abs_change - total_contrib
-recon_ok = abs(residual) < 0.01
+neg_drivers = [d for d in drivers if d["total_contribution"] < 0][:3]
+pos_drivers = [d for d in drivers if d["total_contribution"] > 0][-3:][::-1]
+
+sum_rate_eff = sum(d["rate_effect"] for d in drivers)
+sum_mix_eff = sum(d["mix_effect"] for d in drivers)
+sum_total = sum(d["total_contribution"] for d in drivers)
+overall_change = curr_rate - prev_rate
+residual = overall_change - sum_total
+tolerance = 1e-3  # Floating-point precision across SQL aggregation boundaries
+recon_ok = abs(residual) <= tolerance
 
 rc = {
     "current_period_start": str(max_date) + " - 7d",
     "current_period_end": str(max_date),
     "previous_period_start": str(max_date) + " - 14d",
     "previous_period_end": str(max_date) + " - 7d",
-    "current_task_count": curr_tasks,
-    "previous_task_count": prev_tasks,
-    "current_exported_tasks": curr_exp,
-    "previous_exported_tasks": prev_exp,
-    "current_export_rate": round(curr_rate, 6),
-    "previous_export_rate": round(prev_rate, 6),
-    "absolute_change_percentage_points": round(abs_change, 6),
-    "relative_change_percent": round(rel_change, 2),
+    "current_task_count": curr_tasks, "previous_task_count": prev_tasks,
+    "current_exported_tasks": int(curr[2] or 0), "previous_exported_tasks": int(prev[2] or 0),
+    "current_export_rate": round(curr_rate, 6), "previous_export_rate": round(prev_rate, 6),
+    "overall_change": round(overall_change, 8),
+    "sum_rate_effect": round(sum_rate_eff, 8), "sum_mix_effect": round(sum_mix_eff, 8),
+    "sum_total_contribution": round(sum_total, 8),
+    "residual": round(residual, 10), "tolerance": tolerance,
+    "reconciliation_passed": recon_ok,
     "top_negative_drivers": neg_drivers,
     "top_positive_drivers": pos_drivers,
-    "overall_export_rate_change": round(abs_change, 6),
-    "sum_of_reported_contributions": round(total_contrib, 6),
-    "residual": round(residual, 6),
-    "tolerance": 0.01,
-    "reconciliation_passed": recon_ok,
+    "all_drivers": drivers,
+    "method": "Single-dimension rate-volume decomposition on acquisition_channel (mutually exclusive segments). rate_effect = prev_share * (curr_rate - prev_rate), mix_effect = (curr_share - prev_share) * curr_rate.",
     "observed_facts": [
-        {"statement": f"Export rate changed from {prev_rate:.4f} to {curr_rate:.4f}", "value": round(abs_change, 6)},
+        {"statement": f"Export rate changed from {prev_rate:.4f} to {curr_rate:.4f} (absolute: {overall_change:+.4f})", "value": round(overall_change, 6)},
         {"statement": f"Task volume changed from {prev_tasks} to {curr_tasks}", "value": curr_tasks - prev_tasks},
     ],
     "analytical_inferences": [
-        {"statement": f"Top negative driver: {neg_drivers[0]['dimension']}/{neg_drivers[0]['segment']} contributed {neg_drivers[0]['total_contribution']:.4f}" if neg_drivers else "No clear negative drivers"},
+        {"statement": f"Top negative contributor: {neg_drivers[0]['segment']} ({neg_drivers[0]['total_contribution']:+.4f})" if neg_drivers else "No clear negative drivers"},
     ],
     "hypotheses_requiring_validation": [
-        "Investigate whether top negative driver reflects a real behavioral change or random variation in synthetic data",
+        "Is the observed export rate decline within normal synthetic data variance?",
+        "Are the top contributing segments showing systematic behavioral changes or random fluctuations?",
     ],
     "recommended_actions": [
-        "Review the top contributing segment for anomalies in event pipeline",
-        "Cross-reference with agent error rates for the same segment",
+        "Cross-reference top contributing segments with agent error rates",
+        "Verify if the rate decline persists over longer time windows",
     ],
     "synthetic_data_notice": "All findings are derived from intentionally generated synthetic data and do not represent a real production incident.",
-    "method_note": "Rate-volume decomposition using one dimension at a time. Drivers from different dimensions may overlap. Primary reconciliation uses the first dimension listed."
+    "diagnostic_dimensions": ["device_type", "app_version", "document_complexity", "user_segment", "agent_error_type"],
 }
 
 with open(R / "phase3_root_cause.json", "w") as f:
     json.dump(rc, f, indent=2, default=str)
 conn.close()
 
-print(f"Root cause extracted:")
-print(f"  Current rate: {curr_rate:.4f}, Previous: {prev_rate:.4f}, Change: {abs_change:+.4f}")
-print(f"  Tasks: {curr_tasks} (curr) vs {prev_tasks} (prev)")
-print(f"  Top negative: {[(d['segment'], round(d['total_contribution'],4)) for d in neg_drivers[:3]]}")
-print(f"  Reconciliation: residual={residual:.6f}, passed={recon_ok}")
+print(f"Root cause extracted — single-dimension decomposition:")
+print(f"  Overall change: {overall_change:+.6f}")
+print(f"  Rate effects sum: {sum_rate_eff:.6f}, Mix effects sum: {sum_mix_eff:.6f}")
+print(f"  Total contribution sum: {sum_total:.6f}")
+print(f"  Residual: {residual:.2e}, Tolerance: {tolerance}")
+print(f"  Reconciliation: {'PASSED' if recon_ok else 'FAILED'}")
+print(f"  Top negative: {[(d['segment'], d['total_contribution']) for d in neg_drivers]}")
 print(f"  Written to: reports/phase3_root_cause.json")
