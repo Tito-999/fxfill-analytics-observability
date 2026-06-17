@@ -569,24 +569,71 @@ def main():
         and bi_result.get("accepted", False)
     )
 
+    accepted = results["accepted"] and len(results["failed_gates"]) == 0
+    mdbt = dbt_stats
+    me_model_count = mdbt.get("model_count", 0)
+    me_model_exec = mdbt.get("model_execution_count", me_model_count)
+    me_model_success = mdbt.get("model_success_count", 0)
+    me_model_fail = mdbt.get("model_fail_count", 0)
+    me_model_error = mdbt.get("model_error_count", 0)
+    me_model_skip = mdbt.get("model_skip_count", 0)
+    me_generic = mdbt.get("generic_test_count", 0)
+    me_singular = mdbt.get("singular_test_count", 0)
+    me_test_def = mdbt.get("test_definition_count", 0)
+    me_test_exec = mdbt.get("test_execution_count", 0)
+    me_test_pass = mdbt.get("test_pass", 0)
+    me_test_fail = mdbt.get("test_fail", 0)
+    me_test_error = mdbt.get("test_error", 0)
+    me_test_skip = mdbt.get("test_skip", 0)
+    me_model_hash = mdbt.get("model_results_hash", "")
+    me_test_hash = mdbt.get("test_results_hash", "")
+    me_artifacts_sep = mdbt.get(
+        "artifacts_separated", me_model_hash != me_test_hash if me_model_hash else False
+    )
+    me_dbt_measure = mdbt.get("accepted", False) and me_model_exec > 0 and me_test_exec > 0
+
+    gates = {
+        "dbt_models": (
+            "PASS" if (me_model_success == me_model_count and me_model_fail == 0) else "FAIL"
+        ),
+        "dbt_tests": "PASS" if (me_test_pass == me_test_def and me_test_fail == 0) else "FAIL",
+        "pytest": "PASS" if (eng.get("failed", 0) == 0 and eng.get("errors", 0) == 0) else "FAIL",
+        "business_metric_integrity": "PASS" if bi_result.get("accepted") else "FAIL",
+        "strict_reconciliation": "PASS" if snap_result.get("accepted") else "FAIL",
+        "dashboard_truthfulness": "PASS" if truth_result.get("accepted") else "FAIL",
+        "streamlit_smoke": "PASS" if dash_result.get("health_http_status") == 200 else "FAIL",
+        "public_audit": "PASS" if audit.get("high_severity_findings", 0) == 0 else "FAIL",
+    }
+
     report = {
-        "accepted": results["accepted"] and len(results["failed_gates"]) == 0,
+        "schema_version": "2.0.0",
+        "accepted": accepted,
         "failed_gates": results["failed_gates"],
         "warnings": results["warnings"],
         "git": {
             "verified_code_commit": code_commit,
             "report_generation_head": code_commit,
         },
+        "gates": gates,
         "dbt": {
-            "model_count": dbt_stats.get("model_count", 0),
-            "model_success_count": dbt_stats.get("model_success_count", 0),
-            "model_fail_count": dbt_stats.get("model_fail_count", 0),
-            "generic_test_count": dbt_stats.get("generic_test_count", 0),
-            "singular_test_count": dbt_stats.get("singular_test_count", 0),
-            "test_pass": dbt_stats.get("test_pass", 0),
-            "test_fail": dbt_stats.get("test_fail", 0),
-            "test_error": dbt_stats.get("test_error", 0),
-            "test_skip": dbt_stats.get("test_skip", 0),
+            "model_count": me_model_count,
+            "model_execution_count": me_model_exec,
+            "model_success_count": me_model_success,
+            "model_fail_count": me_model_fail,
+            "model_error_count": me_model_error,
+            "model_skip_count": me_model_skip,
+            "generic_test_count": me_generic,
+            "singular_test_count": me_singular,
+            "test_definition_count": me_test_def,
+            "test_execution_count": me_test_exec,
+            "test_pass": me_test_pass,
+            "test_fail": me_test_fail,
+            "test_error": me_test_error,
+            "test_skip": me_test_skip,
+            "model_results_sha256": me_model_hash,
+            "test_results_sha256": me_test_hash,
+            "artifacts_separated": me_artifacts_sep,
+            "measurement_completed": me_dbt_measure,
         },
         "engineering": eng,
         "business_metric_integrity": {
@@ -596,21 +643,9 @@ def main():
         "dashboard_truthfulness": {
             "accepted": truth_result.get("accepted", False),
             "failures": truth_result.get("failures", []),
-            "retention": {
-                "unmatured_points_plotted": truth_result.get("retention", {}).get(
-                    "unmatured_points_plotted", 0
-                ),
-                "empty_traces_rendered": truth_result.get("retention", {}).get(
-                    "empty_traces_rendered", 0
-                ),
-            },
-            "agent": {
-                "visible_nan_count": truth_result.get("agent", {}).get("visible_nan_count", 0),
-                "visible_none_count": truth_result.get("agent", {}).get("visible_none_count", 0),
-                "date_filter_violation_count": truth_result.get("agent", {}).get(
-                    "date_filter_violation_count", 0
-                ),
-            },
+            "retention": truth_result.get("retention", {}),
+            "feature_adoption": truth_result.get("feature_adoption", {}),
+            "agent": truth_result.get("agent", {}),
         },
         "data_quality": {
             "accepted": dq_passed,
@@ -618,11 +653,14 @@ def main():
                 "provenance_matches", False
             ),
             "strict_reconciliation_passed": snap_result.get("accepted", False),
+            "measurement_completed": truth_result.get("data_quality", {}).get(
+                "measurement_completed", False
+            ),
+            "reconciliation_row_count": truth_result.get("data_quality", {}).get(
+                "reconciliation_row_count", 0
+            ),
             "incomplete_reconciliation_rows": truth_result.get("data_quality", {}).get(
                 "incomplete_reconciliation_rows", 0
-            ),
-            "incorrect_pass_flag_count": truth_result.get("data_quality", {}).get(
-                "hardcoded_pass_count", 0
             ),
             "stale_artifact_count": truth_result.get("data_quality", {}).get(
                 "stale_artifact_count", 0
