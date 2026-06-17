@@ -3,6 +3,7 @@ import json, sys, time, os, socket, subprocess, struct, re, shutil, tempfile
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT / "src"))  # Ensure fxfill_analytics is importable
 R = PROJECT / "reports" / "portfolio"
 R.mkdir(parents=True, exist_ok=True)
 results = {"accepted": True, "failed_gates": [], "warnings": [], "passed_gates": []}
