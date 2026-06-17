@@ -198,7 +198,7 @@ def _warehouse_check(run_dir: Path, db_path: Path):
     else:
         fail("dbt test failed")
         return False
-    return True
+    return True, dbt_model_count, dbt_model_pass, dbt_test_count, dbt_test_pass
 
 
 def _experiment_check(db_path: Path):
@@ -373,8 +373,33 @@ def _pytest(db_path: Path):
     }
 
 
+def _run_check_script(args: list[str], label: str) -> tuple[bool, dict]:
+    """Run a Python acceptance check script, return (success, parsed_json)."""
+    try:
+        r = subprocess.run(
+            [sys.executable] + args,
+            capture_output=True,
+            text=True,
+            timeout=300,
+            cwd=str(PROJECT),
+            env={**os.environ},
+        )
+        success = r.returncode == 0
+        parsed = {}
+        # Find output JSON file
+        for a in args:
+            if a.endswith(".json") and Path(a).exists():
+                with open(a, encoding="utf-8") as f:
+                    parsed = json.load(f)
+                break
+        return success, parsed
+    except Exception as e:
+        fail(f"{label}: {e}")
+        return False, {}
+
+
 def main():
-    env_py = _env_check()
+    _env_py = _env_check()
 
     tmp = Path(tempfile.mkdtemp(prefix="fxfill_core_"))
     db_path = tmp / "warehouse" / "fxfill.duckdb"
@@ -383,91 +408,218 @@ def main():
 
     wh_ok = exp_ok = False
     dash_result = {}
-    eng = links = audit = {}
+    eng = audit = {}
+    bi_result = {}
+    truth_result = {}
+    snap_result = {}
+    dbt_stats = {}
     t0 = time.perf_counter()
 
+    code_commit = subprocess.run(
+        ["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=str(PROJECT)
+    ).stdout.strip()
+
+    run_dir = None
     try:
         run_dir = _data_check(gen_dir)
         if run_dir:
             wh_ok = _warehouse_check(run_dir, db_path)
             if wh_ok:
+                # Unpack tuple: (ok, model_count, model_pass, test_count, test_pass)
+                if isinstance(wh_ok, tuple):
+                    wh_ok = wh_ok[0]
+                # Save model run_results
+                model_results_path = tmp / "dbt_model_run_results.json"
+                shutil.copy(
+                    str(Path("dbt_fxfill/target/run_results.json")), str(model_results_path)
+                )
+
                 exp_ok = _experiment_check(db_path)
+
                 # Pytest with DB alive
                 eng = _pytest(db_path)
+                junit_path = R / "core_release_pytest.xml"
+
+                # Save test run_results after dbt test
+                test_results_path = tmp / "dbt_test_run_results.json"
+                test_rr = PROJECT / "dbt_fxfill" / "target" / "run_results.json"
+                if test_rr.exists():
+                    shutil.copy(str(test_rr), str(test_results_path))
+
+                manifest_path = PROJECT / "dbt_fxfill" / "target" / "manifest.json"
+
+                # Business metric integrity
+                bi_out = str(tmp / "business_integrity.json")
+                bi_ok, bi_result = _run_check_script(
+                    [
+                        "scripts/check_business_metric_integrity.py",
+                        "--database",
+                        str(db_path),
+                        "--output",
+                        bi_out,
+                    ],
+                    "business integrity",
+                )
+                if bi_ok:
+                    pass_gate("Business metric integrity: accepted")
+                else:
+                    fail("Business metric integrity: failed")
+
+                # Data quality snapshot
+                snap_out = str(tmp / "snapshot.json")
+                snap_args = [
+                    "scripts/generate_data_quality_snapshot.py",
+                    "--input-run",
+                    str(run_dir),
+                    "--database",
+                    str(db_path),
+                    "--dbt-manifest",
+                    str(manifest_path),
+                    "--dbt-model-results",
+                    str(model_results_path),
+                    "--dbt-test-results",
+                    str(test_results_path),
+                    "--pytest-junit",
+                    str(junit_path),
+                    "--verified-code-commit",
+                    code_commit,
+                    "--output",
+                    snap_out,
+                ]
+                _, snap_result = _run_check_script(snap_args, "data quality snapshot")
+                if snap_result.get("accepted"):
+                    pass_gate("Data quality snapshot: accepted")
+                else:
+                    fail("Data quality snapshot: not accepted")
+
+                # Dashboard truthfulness
+                truth_out = str(tmp / "dashboard_truthfulness.json")
+                truth_ok, truth_result = _run_check_script(
+                    [
+                        "scripts/check_dashboard_truthfulness.py",
+                        "--database",
+                        str(db_path),
+                        "--snapshot",
+                        snap_out,
+                        "--output",
+                        truth_out,
+                    ],
+                    "dashboard truthfulness",
+                )
+                if truth_ok:
+                    pass_gate("Dashboard truthfulness: accepted")
+                else:
+                    fail("Dashboard truthfulness: failed")
+
+                dbt_stats = snap_result.get("dbt", {})
                 # Streamlit smoke
                 dash_result = _dashboard_check(db_path)
             t1 = time.perf_counter()
         else:
             t1 = time.perf_counter()
     finally:
-        # Cleanup only after all tests complete
         try:
             shutil.rmtree(tmp, ignore_errors=True)
         except Exception:
             pass
 
-    links = _link_check()
-
-    # Write and sanitize reports BEFORE audit
-    import re as _re
-
-    def _sanitize_paths(text: str) -> str:
-        text = _re.sub(
-            r'C:\\Users\\[^\\]+\\AppData\\Local\\Temp\\[^\\"\'\\s,}]+', "<TEMP_DIR>", text
-        )
-        text = _re.sub(r'F:\\RAG\\[^"\'\\s,}]*', "<PROJECT_ROOT>", text)
-        return text
-
-    junit_path = R / "core_release_pytest.xml"
-    if junit_path.exists():
-        content = junit_path.read_text(encoding="utf-8", errors="replace")
-        junit_path.write_text(_sanitize_paths(content), encoding="utf-8")
-
+    _links = _link_check()
     audit = _public_audit()
+
+    # Data quality passed: snapshot accepted AND provenance matched
+    dq_passed = (
+        snap_result.get("accepted", False)
+        and snap_result.get("provenance", {}).get("provenance_matches", False)
+        and truth_result.get("data_quality", {}).get("provenance_matches", False)
+        and bi_result.get("accepted", False)
+    )
 
     report = {
         "accepted": results["accepted"] and len(results["failed_gates"]) == 0,
         "failed_gates": results["failed_gates"],
         "warnings": results["warnings"],
-        "environment": {
-            "python_version": env_py,
-            "temporary_environment_used": True,
-            "clean_build_duration_seconds": round(t1 - t0, 1),
+        "git": {
+            "verified_code_commit": code_commit,
+            "report_generation_head": code_commit,
+        },
+        "dbt": {
+            "model_count": dbt_stats.get("model_count", 0),
+            "model_success_count": dbt_stats.get("model_success_count", 0),
+            "model_fail_count": dbt_stats.get("model_fail_count", 0),
+            "generic_test_count": dbt_stats.get("generic_test_count", 0),
+            "singular_test_count": dbt_stats.get("singular_test_count", 0),
+            "test_pass": dbt_stats.get("test_pass", 0),
+            "test_fail": dbt_stats.get("test_fail", 0),
+            "test_error": dbt_stats.get("test_error", 0),
+            "test_skip": dbt_stats.get("test_skip", 0),
+        },
+        "engineering": eng,
+        "business_metric_integrity": {
+            "accepted": bi_result.get("accepted", False),
+            "failures": bi_result.get("failures", []),
+        },
+        "dashboard_truthfulness": {
+            "accepted": truth_result.get("accepted", False),
+            "failures": truth_result.get("failures", []),
+            "retention": {
+                "unmatured_points_plotted": truth_result.get("retention", {}).get(
+                    "unmatured_points_plotted", 0
+                ),
+                "empty_traces_rendered": truth_result.get("retention", {}).get(
+                    "empty_traces_rendered", 0
+                ),
+            },
+            "agent": {
+                "visible_nan_count": truth_result.get("agent", {}).get("visible_nan_count", 0),
+                "visible_none_count": truth_result.get("agent", {}).get("visible_none_count", 0),
+                "date_filter_violation_count": truth_result.get("agent", {}).get(
+                    "date_filter_violation_count", 0
+                ),
+            },
+        },
+        "data_quality": {
+            "accepted": dq_passed,
+            "provenance_matches": snap_result.get("provenance", {}).get(
+                "provenance_matches", False
+            ),
+            "strict_reconciliation_passed": snap_result.get("accepted", False),
+            "incomplete_reconciliation_rows": truth_result.get("data_quality", {}).get(
+                "incomplete_reconciliation_rows", 0
+            ),
+            "incorrect_pass_flag_count": truth_result.get("data_quality", {}).get(
+                "hardcoded_pass_count", 0
+            ),
+            "stale_artifact_count": truth_result.get("data_quality", {}).get(
+                "stale_artifact_count", 0
+            ),
+        },
+        "dashboard": dash_result,
+        "public_release": {
+            "high_severity_findings": audit.get("high_severity_findings", 0),
+            "medium_severity_findings": audit.get("medium_severity_findings", 0),
+            "tracked_database_files": audit.get("tracked_database_files", 0),
+            "tracked_secret_files": audit.get("tracked_secret_files", 0),
         },
         "clean_build": {
             "synthetic_data_generated": run_dir is not None,
-            "data_quality_passed": True,
+            "data_quality_passed": dq_passed,
             "duckdb_built": wh_ok,
             "dbt_run_passed": wh_ok,
             "dbt_test_passed": wh_ok,
             "experiment_analysis_passed": exp_ok,
             "duration_seconds": round(t1 - t0, 1),
         },
-        "dashboard": dash_result,
-        "analytics": {"phase4_acceptance": exp_ok, "bootstrap_iterations": 5000},
-        "engineering": eng,
-        "portfolio": {
-            "broken_link_count": links.get("broken_link_count", 0),
-            "missing_asset_count": links.get("missing_asset_count", 0),
-        },
-        "public_release": {
-            "high_severity_findings": audit.get("high_severity_findings", 0),
-            "tracked_database_files": audit.get("tracked_database_files", 0),
-            "tracked_secret_files": audit.get("tracked_secret_files", 0),
-        },
-        "git": {
-            "commit": subprocess.run(
-                ["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=str(PROJECT)
-            ).stdout.strip()[:12]
-        },
     }
-    report_str = _sanitize_paths(json.dumps(report, indent=2, default=str))
+
+    report_str = json.dumps(report, indent=2, default=str)
     with open(R / "core_release_acceptance.json", "w") as f:
         f.write(report_str)
     with open(R / "core_release_acceptance.md", "w") as f:
         f.write(
-            f"# Core Release Acceptance\nAccepted: {report['accepted']}\nBuild: {report['clean_build']['duration_seconds']:.0f}s\n"
-            f"pytest: {eng.get('passed',0)}/{eng.get('collected',0)} passed, {eng.get('failed',0)} failed\n"
+            f"# Core Release Acceptance\nAccepted: {report['accepted']}\n"
+            f"Verified code commit: {code_commit[:12]}\n"
+            f"dbt: {dbt_stats.get('model_count',0)} models, {dbt_stats.get('singular_test_count',0)} singular + {dbt_stats.get('generic_test_count',0)} generic tests\n"
+            f"pytest: {eng.get('passed',0)}/{eng.get('collected',0)} passed\n"
         )
 
     if report["accepted"]:
@@ -475,7 +627,7 @@ def main():
         sys.exit(0)
     else:
         print(f"CORE RELEASE FAILED: {len(results['failed_gates'])} gates")
-        for g in results["failed_gates"][:5]:
+        for g in results["failed_gates"][:10]:
             print(f"  - {g}")
         sys.exit(1)
 
