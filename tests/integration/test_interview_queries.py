@@ -3,12 +3,14 @@
 import glob
 from pathlib import Path
 
+import os
+
 import duckdb
 import pytest
 
 PROJECT = Path(__file__).resolve().parent.parent.parent
 SQL_DIR = PROJECT / "sql" / "interview_queries"
-DB = str(PROJECT / "warehouse" / "fxfill.duckdb")
+DB = os.environ.get("FXFILL_DUCKDB_PATH", str(PROJECT / "warehouse" / "fxfill.duckdb"))
 
 
 def test_20_query_files_exist():

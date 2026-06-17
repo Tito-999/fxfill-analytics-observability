@@ -1,5 +1,4 @@
 # Core Release Acceptance
-Accepted: **False**
-Clean build: 14s
-Failed gates: 5
-pytest: 214/0 passed
+Accepted: True
+Build: 54s
+pytest: 226/226 passed, 0 failed

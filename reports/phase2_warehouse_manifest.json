@@ -1,10 +1,10 @@
 {
   "input_run_id": "run_small_20260616_b0f5f391e3b8",
   "input_config_hash": "b0f5f391e3b8",
-  "database_path": "C:\\Users\\PCR\\AppData\\Local\\Temp\\fxfill_core_agkx8cjz\\warehouse\\fxfill.duckdb",
-  "build_started_at": "2026-06-17T07:37:20.088772+00:00",
-  "build_finished_at": "2026-06-17T07:37:20.635150+00:00",
-  "build_duration_seconds": 0.546378,
+  "database_path": "C:\\Users\\PCR\\AppData\\Local\\Temp\\fxfill_core_iy7a6_nh\\warehouse\\fxfill.duckdb",
+  "build_started_at": "2026-06-17T07:53:07.156400+00:00",
+  "build_finished_at": "2026-06-17T07:53:07.305575+00:00",
+  "build_duration_seconds": 0.149175,
   "raw_layer": {
     "tables": {
       "users.parquet": 2000,
@@ -71,5 +71,5 @@
     }
   },
   "dbt_status": "skipped",
-  "git_commit": "6c1e0c000421fff6da05c3371eaa5f2997008624"
+  "git_commit": "10e7cc9688c68ffc20a7bdfc4f9d56e38143fa41"
 }

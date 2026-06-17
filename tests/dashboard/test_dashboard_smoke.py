@@ -8,7 +8,9 @@ import pytest
 
 PROJECT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT))
-os.environ["FXFILL_DUCKDB_PATH"] = str(PROJECT / "warehouse" / "fxfill.duckdb")
+# Use env var if set, otherwise default to project warehouse
+_db_path = os.environ.get("FXFILL_DUCKDB_PATH", str(PROJECT / "warehouse" / "fxfill.duckdb"))
+os.environ["FXFILL_DUCKDB_PATH"] = _db_path
 
 
 def test_home_page_exists():
@@ -60,7 +62,8 @@ def test_page_imports():
 def test_database_read_only():
     import duckdb as _duckdb
 
-    conn = _duckdb.connect(str(PROJECT / "warehouse" / "fxfill.duckdb"), read_only=True)
+    db = os.environ.get("FXFILL_DUCKDB_PATH", str(PROJECT / "warehouse" / "fxfill.duckdb"))
+    conn = _duckdb.connect(db, read_only=True)
     result = conn.execute("SELECT 1").fetchone()
     assert result[0] == 1
     try:

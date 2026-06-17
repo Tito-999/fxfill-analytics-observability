@@ -8,18 +8,18 @@
     "srm_alpha": 0.05
   },
   "srm": {
-    "chi2_stat": 4.181333333333333,
-    "p_value": 0.04087153408900628,
+    "chi2_stat": 0.16333333333333333,
+    "p_value": 0.6861059569955557,
     "observed": {
-      "A": 6112,
-      "B": 5888
+      "A": 607,
+      "B": 593
     },
     "expected": {
-      "A": 6000.0,
-      "B": 6000.0
+      "A": 600.0,
+      "B": 600.0
     },
-    "passed": false,
-    "n_total": 12000,
+    "passed": true,
+    "n_total": 1200,
     "srm_alpha": 0.05
   },
   "user_metrics": {
@@ -28,41 +28,123 @@
       "B"
     ],
     "n_users": {
-      "A": 5912,
-      "B": 5728
+      "A": 584,
+      "B": 580
     },
-    "contaminated_excluded": 360,
+    "contaminated_excluded": 36,
     "summary_stats": {
       "A": {
         "total_tasks": {
-          "mean": 2.5182679296346415,
-          "std": 1.5922555692902947,
+          "mean": 2.464041095890411,
+          "std": 1.5993378041199753,
           "p25": 1.0,
           "p50": 2.0,
           "p75": 3.0,
           "min": 0.0,
-          "max": 11.0,
-          "n": 5912
+          "max": 8.0,
+          "n": 584
         },
         "successful_tasks": {
-          "mean": 1.3790595399188093,
-          "std": 1.1792148742626505,
+          "mean": 1.3424657534246576,
+          "std": 1.199990601246118,
+          "p25": 0.0,
+          "p50": 1.0,
+          "p75": 2.0,
+          "min": 0.0,
+          "max": 6.0,
+          "n": 584
+        },
+        "task_success_rate": {
+          "mean": 0.49043745923026744,
+          "std": 0.37644446350151994,
+          "p25": 0.0,
+          "p50": 0.5,
+          "p75": 0.8,
+          "min": 0.0,
+          "max": 1.0,
+          "n": 584
+        },
+        "avg_field_accuracy": {
+          "mean": 0.0,
+          "std": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 584
+        },
+        "avg_agent_latency_ms": {
+          "mean": 0.0,
+          "std": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 584
+        },
+        "total_cost_usd": {
+          "mean": 0.0,
+          "std": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 584
+        },
+        "avg_field_edits": {
+          "mean": 0.7833190639269406,
+          "std": 0.9127694795645551,
+          "p25": 0.0,
+          "p50": 0.5,
+          "p75": 1.3333333333333333,
+          "min": 0.0,
+          "max": 5.0,
+          "n": 584
+        },
+        "avg_task_duration_s": {
+          "mean": 19.69870556099152,
+          "std": 8.940872452395185,
+          "p25": 15.625,
+          "p50": 21.583333333333336,
+          "p75": 26.25,
+          "min": 0.0,
+          "max": 36.0,
+          "n": 584
+        }
+      },
+      "B": {
+        "total_tasks": {
+          "mean": 2.4741379310344827,
+          "std": 1.5904573314793786,
+          "p25": 1.0,
+          "p50": 2.0,
+          "p75": 3.25,
+          "min": 0.0,
+          "max": 9.0,
+          "n": 580
+        },
+        "successful_tasks": {
+          "mean": 1.3758620689655172,
+          "std": 1.2130992502509605,
           "p25": 0.0,
           "p50": 1.0,
           "p75": 2.0,
           "min": 0.0,
           "max": 8.0,
-          "n": 5912
+          "n": 580
         },
         "task_success_rate": {
-          "mean": 0.504911690606041,
-          "std": 0.37058689962975633,
+          "mean": 0.5071907498631637,
+          "std": 0.3744620050935038,
           "p25": 0.0,
           "p50": 0.5,
-          "p75": 0.8333333333333334,
+          "p75": 0.9166666666666666,
           "min": 0.0,
           "max": 1.0,
-          "n": 5912
+          "n": 580
         },
         "avg_field_accuracy": {
           "mean": 0.0,
@@ -72,7 +154,7 @@
           "p75": 0.0,
           "min": 0.0,
           "max": 0.0,
-          "n": 5912
+          "n": 580
         },
         "avg_agent_latency_ms": {
           "mean": 0.0,
@@ -82,7 +164,7 @@
           "p75": 0.0,
           "min": 0.0,
           "max": 0.0,
-          "n": 5912
+          "n": 580
         },
         "total_cost_usd": {
           "mean": 0.0,
@@ -92,109 +174,27 @@
           "p75": 0.0,
           "min": 0.0,
           "max": 0.0,
-          "n": 5912
+          "n": 580
         },
         "avg_field_edits": {
-          "mean": 0.8013330799782086,
-          "std": 0.9313787387918618,
-          "p25": 0.0,
-          "p50": 0.5,
-          "p75": 1.3333333333333333,
-          "min": 0.0,
-          "max": 9.0,
-          "n": 5912
-        },
-        "avg_task_duration_s": {
-          "mean": 19.87513606244154,
-          "std": 8.378075146015735,
-          "p25": 16.333333333333332,
-          "p50": 21.5,
-          "p75": 25.75,
-          "min": 0.0,
-          "max": 39.0,
-          "n": 5912
-        }
-      },
-      "B": {
-        "total_tasks": {
-          "mean": 2.5033170391061454,
-          "std": 1.558247851732017,
-          "p25": 1.0,
-          "p50": 2.0,
-          "p75": 3.0,
-          "min": 0.0,
-          "max": 10.0,
-          "n": 5728
-        },
-        "successful_tasks": {
-          "mean": 1.3943784916201116,
-          "std": 1.1643456910745018,
-          "p25": 1.0,
-          "p50": 1.0,
-          "p75": 2.0,
-          "min": 0.0,
-          "max": 7.0,
-          "n": 5728
-        },
-        "task_success_rate": {
-          "mean": 0.5126739575019952,
-          "std": 0.36944913971428583,
-          "p25": 0.2,
-          "p50": 0.5,
-          "p75": 1.0,
-          "min": 0.0,
-          "max": 1.0,
-          "n": 5728
-        },
-        "avg_field_accuracy": {
-          "mean": 0.0,
-          "std": 0.0,
-          "p25": 0.0,
-          "p50": 0.0,
-          "p75": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "n": 5728
-        },
-        "avg_agent_latency_ms": {
-          "mean": 0.0,
-          "std": 0.0,
-          "p25": 0.0,
-          "p50": 0.0,
-          "p75": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "n": 5728
-        },
-        "total_cost_usd": {
-          "mean": 0.0,
-          "std": 0.0,
-          "p25": 0.0,
-          "p50": 0.0,
-          "p75": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "n": 5728
-        },
-        "avg_field_edits": {
-          "mean": 0.8129313259288818,
-          "std": 0.9513975714039667,
+          "mean": 0.8067350848385331,
+          "std": 0.9831308774403069,
           "p25": 0.0,
           "p50": 0.5,
           "p75": 1.3333333333333333,
           "min": 0.0,
           "max": 7.0,
-          "n": 5728
+          "n": 580
         },
         "avg_task_duration_s": {
-          "mean": 19.937609459519376,
-          "std": 8.38633272313288,
-          "p25": 16.333333333333332,
-          "p50": 21.5,
+          "mean": 19.942551997810618,
+          "std": 8.50099011843699,
+          "p25": 16.458333333333332,
+          "p50": 21.666666666666668,
           "p75": 26.0,
           "min": 0.0,
-          "max": 42.0,
-          "n": 5728
+          "max": 35.0,
+          "n": 580
         }
       }
     }
@@ -203,132 +203,149 @@
     "metric_name": "form_export_rate",
     "direction": "higher_is_better",
     "status": "ok",
-    "a_mean": 0.504911690606041,
-    "b_mean": 0.5126739575019952,
-    "mean_diff": 0.007762266895954162,
-    "p_value": 0.2578533433956314,
-    "ci_lower": -0.005684376972034265,
-    "ci_upper": 0.021208910763942587,
-    "cohens_d": 0.020978053255214027,
+    "a_mean": 0.49043745923026744,
+    "b_mean": 0.5071907498631637,
+    "mean_diff": 0.016753290632896267,
+    "p_value": 0.4467005918107634,
+    "ci_lower": -0.026429448187186004,
+    "ci_upper": 0.05993602945297854,
+    "cohens_d": 0.04462135551670549,
     "is_significant": false,
     "bootstrap": {
-      "estimate": 0.007650412205038794,
-      "std_err": 0.006885921197428099,
-      "ci_lower": -0.005431508003972496,
-      "ci_upper": 0.021439904431095138,
-      "observed_diff": 0.007762266895954162,
-      "bootstrap_mean": 0.00787412158686953,
+      "estimate": 0.016922937778358984,
+      "std_err": 0.02196283129690748,
+      "ci_lower": -0.02554260624498584,
+      "ci_upper": 0.06005006019393262,
+      "observed_diff": 0.016753290632896267,
+      "bootstrap_mean": 0.01658364348743355,
       "seed": 20260616,
       "iterations": 10000
     }
   },
   "secondary_metrics": [
     {
-      "metric": "task_success_rate",
-      "A_n": 6020,
-      "B_n": 5980,
-      "A_mean": 0.72,
-      "B_mean": 0.74,
-      "absolute_effect": 0.02,
-      "relative_effect": 0.028,
-      "CI_lower": 0.005,
-      "CI_upper": 0.035,
-      "Welch_p_value": 0.03,
-      "Mann_Whitney_p_value": 0.04,
-      "bootstrap_CI_lower": 0.006,
-      "bootstrap_CI_upper": 0.034,
-      "effect_size": 0.05,
-      "raw_p_value": 0.03,
-      "BH_adjusted_p_value": 0.045,
-      "rejected_after_adjustment": true
+      "metric_name": "task_success_rate",
+      "direction": "higher_is_better",
+      "status": "ok",
+      "a_mean": 0.49043745923026744,
+      "b_mean": 0.5071907498631637,
+      "mean_diff": 0.016753290632896267,
+      "p_value": 0.4467005918107634,
+      "ci_lower": -0.026429448187186004,
+      "ci_upper": 0.05993602945297854,
+      "cohens_d": 0.04462135551670549,
+      "is_significant": false,
+      "bootstrap": {
+        "estimate": 0.016922937778358984,
+        "std_err": 0.02196283129690748,
+        "ci_lower": -0.02554260624498584,
+        "ci_upper": 0.06005006019393262,
+        "observed_diff": 0.016753290632896267,
+        "bootstrap_mean": 0.01658364348743355,
+        "seed": 20260616,
+        "iterations": 10000
+      },
+      "adjusted_p": 1.0,
+      "bh_rejected": false
     },
     {
-      "metric": "field_accuracy",
-      "A_n": 6020,
-      "B_n": 5980,
-      "A_mean": 0.875,
-      "B_mean": 0.912,
-      "absolute_effect": 0.037,
-      "relative_effect": 0.042,
-      "CI_lower": 0.02,
-      "CI_upper": 0.05,
-      "Welch_p_value": 0.001,
-      "Mann_Whitney_p_value": 0.002,
-      "bootstrap_CI_lower": 0.018,
-      "bootstrap_CI_upper": 0.052,
-      "effect_size": 0.12,
-      "raw_p_value": 0.001,
-      "BH_adjusted_p_value": 0.003,
-      "rejected_after_adjustment": true
+      "metric_name": "field_accuracy",
+      "direction": "higher_is_better",
+      "status": "constant_data",
+      "a_mean": 0.0,
+      "b_mean": 0.0,
+      "mean_diff": 0.0,
+      "p_value": NaN,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "cohens_d": 0.0,
+      "is_significant": false,
+      "bootstrap": {
+        "estimate": 0.0,
+        "std_err": 0.0,
+        "ci_lower": 0.0,
+        "ci_upper": 0.0,
+        "observed_diff": 0.0,
+        "bootstrap_mean": 0.0,
+        "seed": 20260616,
+        "iterations": 10000
+      },
+      "note": "Both groups have constant values \u2014 effect cannot be estimated.",
+      "adjusted_p": NaN,
+      "bh_rejected": false
     },
     {
-      "metric": "manual_edit_rate",
-      "A_n": 6020,
-      "B_n": 5980,
-      "A_mean": 1.58,
-      "B_mean": 1.55,
-      "absolute_effect": -0.03,
-      "relative_effect": -0.019,
-      "CI_lower": -0.06,
-      "CI_upper": 0.0,
-      "Welch_p_value": 0.08,
-      "Mann_Whitney_p_value": 0.09,
-      "bootstrap_CI_lower": -0.058,
-      "bootstrap_CI_upper": -0.002,
-      "effect_size": -0.04,
-      "raw_p_value": 0.08,
-      "BH_adjusted_p_value": 0.08,
-      "rejected_after_adjustment": false
+      "metric_name": "manual_edit_rate",
+      "direction": "lower_is_better",
+      "status": "ok",
+      "a_mean": 0.7833190639269406,
+      "b_mean": 0.8067350848385331,
+      "mean_diff": 0.02341602091159245,
+      "p_value": 0.6738085092538126,
+      "ci_lower": -0.08570273934933191,
+      "ci_upper": 0.13253478117251682,
+      "cohens_d": 0.02468474851415049,
+      "is_significant": false,
+      "bootstrap": {
+        "estimate": 0.022883520185235127,
+        "std_err": 0.0561100122479115,
+        "ci_lower": -0.08393492236880593,
+        "ci_upper": 0.13523603554652067,
+        "observed_diff": 0.02341602091159245,
+        "bootstrap_mean": 0.023948521637949773,
+        "seed": 20260616,
+        "iterations": 10000
+      },
+      "adjusted_p": 0.6738085092538126,
+      "bh_rejected": false
     }
   ],
   "guardrails": [
     {
-      "metric": "p95_latency_ms",
-      "A_value": 5500,
-      "B_value": 5950,
-      "B_minus_A": 450,
-      "CI_lower": 200,
-      "CI_upper": 700,
-      "non_inferiority_margin": 500,
-      "one_sided_p_value": 0.02,
-      "Holm_adjusted_p_value": 0.04,
-      "non_inferiority_passed": true
+      "diff": 0.0,
+      "diff_pct": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "margin": 1.15,
+      "non_inferiority_passed": true,
+      "a_mean": 0.0,
+      "b_mean": 0.0,
+      "note": "Zero variance in both groups \u2014 guardrail passes by default.",
+      "metric_name": "p95_latency_ms",
+      "higher_is_better": false,
+      "status": "ok"
     },
     {
-      "metric": "cost_per_successful_task_usd",
-      "A_value": 0.029,
-      "B_value": 0.044,
-      "B_minus_A": 0.015,
-      "CI_lower": 0.008,
-      "CI_upper": 0.022,
-      "non_inferiority_margin": 0.005,
-      "one_sided_p_value": 0.001,
-      "Holm_adjusted_p_value": 0.004,
-      "non_inferiority_passed": false
+      "diff": 0.0,
+      "diff_pct": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "margin": 1.1,
+      "non_inferiority_passed": true,
+      "a_mean": 0.0,
+      "b_mean": 0.0,
+      "note": "Zero variance in both groups \u2014 guardrail passes by default.",
+      "metric_name": "cost_per_successful_task_usd",
+      "higher_is_better": false,
+      "status": "ok"
     },
     {
-      "metric": "abandonment_rate",
-      "A_value": 0.15,
-      "B_value": 0.14,
-      "B_minus_A": -0.01,
-      "CI_lower": -0.03,
-      "CI_upper": 0.01,
-      "non_inferiority_margin": 0.01,
-      "one_sided_p_value": 0.3,
-      "Holm_adjusted_p_value": 0.3,
-      "non_inferiority_passed": true
+      "diff": 0.033396315540859645,
+      "diff_pct": 2.4876847290640347,
+      "ci_lower": -0.0830398304757224,
+      "ci_upper": 0.14983246155744168,
+      "margin": 1.05,
+      "non_inferiority_passed": false,
+      "a_mean": 1.3424657534246576,
+      "b_mean": 1.3758620689655172,
+      "metric_name": "abandonment_rate",
+      "higher_is_better": false,
+      "status": "ok"
     },
     {
-      "metric": "agent_error_rate",
-      "A_value": 0.08,
-      "B_value": 0.075,
-      "B_minus_A": -0.005,
-      "CI_lower": -0.02,
-      "CI_upper": 0.01,
-      "non_inferiority_margin": 0.005,
-      "one_sided_p_value": 0.15,
-      "Holm_adjusted_p_value": 0.3,
-      "non_inferiority_passed": true
+      "metric_name": "agent_error_rate",
+      "status": "no_data",
+      "note": "Metric column 'agent_error_rate' not available for both groups."
     }
   ],
   "multiplicity_correction": {
@@ -337,152 +354,31 @@
     "n_tests": 3
   },
   "decision": {
-    "recommendation": "SHIP",
-    "decision_reasons": [
-      "Primary metric statistically positive",
-      "Guardrails passed"
-    ],
-    "blocking_conditions": [],
-    "supporting_metrics": [
-      "export_rate"
-    ],
-    "guardrail_summary": "3/4 passed",
-    "uncertainties": [
-      "cost non-inferiority marginal"
-    ],
-    "monitoring_plan": "Monitor cost per task weekly"
+    "decision": "CONTINUE_EXPERIMENT",
+    "reason": "Primary metric is not statistically significant.  Continue collecting data or consider stopping.",
+    "details": {
+      "srm_passed": true,
+      "data_validation_passed": true,
+      "primary_significant": false,
+      "guardrail_failures": [
+        {
+          "diff": 0.033396315540859645,
+          "diff_pct": 2.4876847290640347,
+          "ci_lower": -0.0830398304757224,
+          "ci_upper": 0.14983246155744168,
+          "margin": 1.05,
+          "non_inferiority_passed": false,
+          "a_mean": 1.3424657534246576,
+          "b_mean": 1.3758620689655172,
+          "metric_name": "abandonment_rate",
+          "higher_is_better": false,
+          "status": "ok"
+        }
+      ]
+    }
   },
   "performance": {
-    "total_duration_seconds": 3.0,
+    "total_duration_seconds": 1.2,
     "peak_memory_mb": "see_diagnostic"
-  },
-  "experiment_start": "2026-02-14",
-  "experiment_end": "2026-06-14",
-  "raw_assignment_rows": 12360,
-  "unique_assigned_users": 12000,
-  "canonical_first_assignment_users": 12000,
-  "clean_ITT_users": 12000,
-  "clean_ITT_A_n": 6020,
-  "clean_ITT_B_n": 5980,
-  "contaminated_users": 360,
-  "triggered_users": 8000,
-  "triggered_A_n": 4020,
-  "triggered_B_n": 3980,
-  "users_with_post_assignment_outcomes": 12000,
-  "missing_outcome_users": 0,
-  "raw_assignment_SRM": {
-    "A_count": 6180,
-    "B_count": 6180,
-    "expected_A": 0.5,
-    "expected_B": 0.5,
-    "chi_square": 0.0,
-    "p_value": 1.0,
-    "srm_alpha": 0.001,
-    "srm_detected": false
-  },
-  "clean_ITT_SRM": {
-    "A_count": 6020,
-    "B_count": 5980,
-    "expected_A": 0.5,
-    "expected_B": 0.5,
-    "chi_square": 0.1333,
-    "p_value": 0.715,
-    "srm_alpha": 0.001,
-    "srm_detected": false
-  },
-  "aa_simulation": {
-    "simulation_count": 1000,
-    "false_positive_rate": 0.042,
-    "Monte_Carlo_standard_error": 0.006,
-    "seed": 20260616,
-    "passed": true
-  },
-  "ab_recovery": {
-    "simulation_count": 1000,
-    "injected_effect": 0.05,
-    "mean_estimated_effect": 0.049,
-    "bias": -0.001,
-    "sign_recovery_rate": 0.99,
-    "CI_coverage": 0.94,
-    "empirical_power": 0.78,
-    "target_power": 0.8,
-    "passed": true
-  },
-  "primary": {
-    "metric_name": "form_export_rate",
-    "estimand": "User-level export probability",
-    "A_n": 6020,
-    "B_n": 5980,
-    "A_successes": 3491,
-    "B_successes": 3647,
-    "A_value": 0.58,
-    "B_value": 0.61,
-    "absolute_effect": 0.03,
-    "relative_uplift": 0.0517,
-    "risk_ratio": 1.0517,
-    "risk_ratio_CI_lower": 1.01,
-    "risk_ratio_CI_upper": 1.09,
-    "odds_ratio": 1.13,
-    "odds_ratio_CI_lower": 1.03,
-    "odds_ratio_CI_upper": 1.24,
-    "absolute_effect_CI_lower": 0.005,
-    "absolute_effect_CI_upper": 0.055,
-    "raw_p_value": 0.02,
-    "practical_threshold": 0.015,
-    "statistically_positive": true,
-    "practically_meaningful": true
-  },
-  "bootstrap": {
-    "estimate": 0.03,
-    "standard_error": 0.012,
-    "CI_lower": 0.006,
-    "CI_upper": 0.054,
-    "iterations": 5000,
-    "seed": 20260616,
-    "resampling_unit": "user_id",
-    "stratified_by_group": true
-  },
-  "CUPED_status": "unavailable",
-  "cuped": {
-    "cuped_status": "unavailable",
-    "candidate_covariates": [],
-    "selected_covariate": null,
-    "pre_assignment_verified": false,
-    "correlation": 0,
-    "missingness": 0,
-    "variance_reduction_percent": 0,
-    "raw_effect": 0.03,
-    "adjusted_effect": 0.03
-  },
-  "sensitivity": {
-    "effect_direction_stable": true,
-    "effect_magnitude_stable": true,
-    "CI_conclusion_stable": true,
-    "decision_stable": true,
-    "analyses": []
-  },
-  "business_impact": {
-    "conservative": {
-      "net_value": 1000
-    },
-    "base": {
-      "net_value": 2500
-    },
-    "optimistic": {
-      "net_value": 5000
-    },
-    "synthetic_scenario_assumptions": true
-  },
-  "segment_analysis": {
-    "eligible_segment_count": 6,
-    "tested_interaction_count": 6,
-    "significant_interaction_count": 1,
-    "exploratory": true,
-    "results": []
-  },
-  "randomization_balance": {
-    "max_absolute_SMD": 0.04,
-    "material_imbalance_count": 0,
-    "balance_passed": true
   }
 }

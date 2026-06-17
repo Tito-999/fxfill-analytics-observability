@@ -4,7 +4,7 @@ from pathlib import Path
 import pytest
 
 PROJECT = Path(__file__).resolve().parent.parent.parent
-DB_PATH = str((PROJECT / "warehouse" / "fxfill.duckdb").resolve())
+DB_PATH = os.environ.get("FXFILL_DUCKDB_PATH", str((PROJECT / "warehouse" / "fxfill.duckdb").resolve()))
 
 
 def _find_free_port() -> int:
