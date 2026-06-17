@@ -1,0 +1,40 @@
+name: 'fxfill_analytics'
+version: '0.2.0'
+config-version: 2
+
+profile: 'fxfill_analytics'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+models:
+  fxfill_analytics:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts
+
+vars:
+  synthetic_data: true
+  experiment_start_date: '2026-05-01'
+  experiment_end_date: '2026-06-01'
+  d7_window_days: 7
+  d30_window_days: 30
+
+seeds:
+  fxfill_analytics:
+    +schema: seeds

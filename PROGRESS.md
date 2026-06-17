@@ -1,8 +1,10 @@
 # Project Progress Log — FxFill Analytics
 
 **Last Updated:** 2026-06-17
-**Current Phase:** Phase 1 (Synthetic Data Generation) — ✅ Complete
-**Current Status:** Ready for Phase 2
+**Current Phase:** Phase 2 (DuckDB + dbt Warehouse) — ✅ Complete
+**Current Status:** Ready for Phase 3
+
+dbt: 20 models, 21 tests, all passing
 
 ---
 

@@ -1,0 +1,70 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw Parquet data ingested into DuckDB via Phase 2A ingestion pipeline"
+    schema: raw
+    tables:
+      - name: raw_users
+        description: "Synthetic user dimension table"
+        columns:
+          - name: user_id
+            description: "Primary key"
+            tests:
+              - not_null
+              - unique
+          - name: signup_time
+            description: "UTC timestamp of user signup"
+          - name: acquisition_channel
+            tests:
+              - accepted_values:
+                  values: ['organic','paid_search','social','referral','campus']
+
+      - name: raw_documents
+        description: "Synthetic document dimension table"
+        columns:
+          - name: document_id
+            tests: [not_null, unique]
+          - name: user_id
+            tests: [not_null]
+
+      - name: raw_sessions
+        description: "Synthetic session dimension table"
+        columns:
+          - name: session_id
+            tests: [not_null, unique]
+          - name: user_id
+            tests: [not_null]
+
+      - name: raw_product_events
+        description: "Synthetic product event fact table with task pipelines"
+        columns:
+          - name: event_id
+            tests: [not_null, unique]
+          - name: user_id
+            tests: [not_null]
+
+      - name: raw_agent_runs
+        description: "Synthetic agent run fact table"
+        columns:
+          - name: agent_run_id
+            tests: [not_null, unique]
+          - name: trace_id
+            tests: [not_null, unique]
+
+      - name: raw_agent_spans
+        description: "Synthetic agent span fact table"
+        columns:
+          - name: span_id
+            tests: [not_null, unique]
+
+      - name: raw_experiment_assignments
+        description: "Synthetic experiment assignment table"
+        columns:
+          - name: assignment_id
+            tests: [not_null, unique]
+          - name: user_id
+          - name: experiment_group
+            tests:
+              - accepted_values:
+                  values: ['A', 'B']

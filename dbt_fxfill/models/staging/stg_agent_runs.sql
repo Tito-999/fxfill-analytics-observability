@@ -1,0 +1,27 @@
+-- Staging: agent runs fact table
+SELECT
+    agent_run_id,
+    trace_id,
+    task_id,
+    user_id,
+    document_id,
+    CAST(started_at AS TIMESTAMP) AS started_at,
+    CAST(ended_at AS TIMESTAMP) AS ended_at,
+    CAST(total_latency_ms AS BIGINT) AS total_latency_ms,
+    CAST(total_input_tokens AS BIGINT) AS total_input_tokens,
+    CAST(total_output_tokens AS BIGINT) AS total_output_tokens,
+    CAST(estimated_cost_usd AS DOUBLE) AS estimated_cost_usd,
+    model_name,
+    prompt_version,
+    CAST(tool_call_count AS INTEGER) AS tool_call_count,
+    CAST(retry_count AS INTEGER) AS retry_count,
+    CAST(success_flag AS BOOLEAN) AS success_flag,
+    CAST(quality_score AS DOUBLE) AS quality_score,
+    CAST(field_accuracy AS DOUBLE) AS field_accuracy,
+    CAST(manual_edit_count AS INTEGER) AS manual_edit_count,
+    error_type,
+    experiment_group,
+    _source_run_id,
+    _source_config_hash,
+    _loaded_at_utc
+FROM {{ source('raw', 'raw_agent_runs') }}
