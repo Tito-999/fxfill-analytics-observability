@@ -1,0 +1,113 @@
+{
+  "current_period_start": "2026-06-13 - 7d",
+  "current_period_end": "2026-06-13",
+  "previous_period_start": "2026-06-13 - 14d",
+  "previous_period_end": "2026-06-13 - 7d",
+  "current_task_count": 3308,
+  "previous_task_count": 2917,
+  "current_exported_tasks": 1956,
+  "previous_exported_tasks": 1758,
+  "current_export_rate": 0.591018,
+  "previous_export_rate": 0.603242,
+  "absolute_change_percentage_points": -0.012224,
+  "relative_change_percent": -2.03,
+  "top_negative_drivers": [
+    {
+      "dimension": "acquisition_channel",
+      "segment": "organic",
+      "current_volume": 1090,
+      "previous_volume": 1036,
+      "current_rate": 0.574312,
+      "previous_rate": 0.621622,
+      "rate_effect": -0.016157,
+      "mix_effect": -0.015948,
+      "total_contribution": -0.032105
+    },
+    {
+      "dimension": "device_type",
+      "segment": "desktop",
+      "current_volume": 1994,
+      "previous_volume": 1805,
+      "current_rate": 0.587763,
+      "previous_rate": 0.602216,
+      "rate_effect": -0.00882,
+      "mix_effect": -0.009639,
+      "total_contribution": -0.018459
+    },
+    {
+      "dimension": "acquisition_channel",
+      "segment": "campus",
+      "current_volume": 160,
+      "previous_volume": 133,
+      "current_rate": 0.5375,
+      "previous_rate": 0.56391,
+      "rate_effect": -0.001243,
+      "mix_effect": 0.001564,
+      "total_contribution": 0.000321
+    }
+  ],
+  "top_positive_drivers": [
+    {
+      "dimension": "acquisition_channel",
+      "segment": "social",
+      "current_volume": 684,
+      "previous_volume": 568,
+      "current_rate": 0.619883,
+      "previous_rate": 0.598592,
+      "rate_effect": 0.004282,
+      "mix_effect": 0.007214,
+      "total_contribution": 0.011496
+    },
+    {
+      "dimension": "acquisition_channel",
+      "segment": "paid_search",
+      "current_volume": 870,
+      "previous_volume": 758,
+      "current_rate": 0.618391,
+      "previous_rate": 0.604222,
+      "rate_effect": 0.003706,
+      "mix_effect": 0.001899,
+      "total_contribution": 0.005605
+    },
+    {
+      "dimension": "device_type",
+      "segment": "mobile",
+      "current_volume": 996,
+      "previous_volume": 828,
+      "current_rate": 0.585341,
+      "previous_rate": 0.60628,
+      "rate_effect": -0.006135,
+      "mix_effect": 0.010449,
+      "total_contribution": 0.004314
+    }
+  ],
+  "overall_export_rate_change": -0.012224,
+  "sum_of_reported_contributions": -0.023311,
+  "residual": 0.011087,
+  "tolerance": 0.01,
+  "reconciliation_passed": false,
+  "observed_facts": [
+    {
+      "statement": "Export rate changed from 0.6032 to 0.5910",
+      "value": -0.012224
+    },
+    {
+      "statement": "Task volume changed from 2917 to 3308",
+      "value": 391
+    }
+  ],
+  "analytical_inferences": [
+    {
+      "statement": "Top negative driver: acquisition_channel/organic contributed -0.0321"
+    }
+  ],
+  "hypotheses_requiring_validation": [
+    "Investigate whether top negative driver reflects a real behavioral change or random variation in synthetic data"
+  ],
+  "recommended_actions": [
+    "Review the top contributing segment for anomalies in event pipeline",
+    "Cross-reference with agent error rates for the same segment"
+  ],
+  "synthetic_data_notice": "All findings are derived from intentionally generated synthetic data and do not represent a real production incident.",
+  "method_note": "Rate-volume decomposition using one dimension at a time. Drivers from different dimensions may overlap. Primary reconciliation uses the first dimension listed."
+}

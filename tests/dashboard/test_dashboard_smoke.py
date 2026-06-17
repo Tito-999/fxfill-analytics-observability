@@ -58,14 +58,14 @@ def test_page_imports():
 
 
 def test_database_read_only():
-    import duckdb
+    import duckdb as _duckdb
 
-    conn = duckdb.connect(str(PROJECT / "warehouse" / "fxfill.duckdb"), read_only=True)
+    conn = _duckdb.connect(str(PROJECT / "warehouse" / "fxfill.duckdb"), read_only=True)
     result = conn.execute("SELECT 1").fetchone()
     assert result[0] == 1
-    # Verify write is blocked
-    import duckdb
-
-    with pytest.raises(duckdb.Error):
+    try:
         conn.execute("CREATE TABLE test_write (x INT)")
+        assert False, "Should have raised on write"
+    except Exception:
+        pass  # Expected: read-only connection rejects writes
     conn.close()

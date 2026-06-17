@@ -4,6 +4,9 @@
 **Current Phase:** Phase 3 (Streamlit Dashboard) — ✅ Complete
 **Current Status:** Ready for Phase 4
 
+200+ tests, root cause extracted, all audit files complete
+**Current Status:** Fixing: combined coverage, real startup smoke, root cause evidence
+
 196 tests (195 pass, 1 skip), ruff clean, mypy 0, core coverage 88%
 **Current Status:** Ready for Phase 4
 

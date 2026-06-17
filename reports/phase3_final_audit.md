@@ -2,7 +2,7 @@
 
 ## generated_at
 ```json
-"2026-06-17T05:06:05.432131+00:00"
+"2026-06-17T05:16:38.385258+00:00"
 ```
 
 ## pages
@@ -37,19 +37,19 @@
 ```json
 {
   "Home metadata/health": {
-    "cold_ms": 4.3,
-    "warm_median_ms": 3.0
+    "cold_ms": 4.1,
+    "warm_median_ms": 3.5
   },
   "Executive Overview": {
-    "cold_ms": 1.8,
-    "warm_median_ms": 0.8
+    "cold_ms": 1.2,
+    "warm_median_ms": 0.7
   },
   "Funnel": {
-    "cold_ms": 0.6,
+    "cold_ms": 0.4,
     "warm_median_ms": 0.3
   },
   "Retention": {
-    "cold_ms": 0.9,
+    "cold_ms": 0.8,
     "warm_median_ms": 0.7
   },
   "Feature Adoption": {
@@ -57,20 +57,20 @@
     "warm_median_ms": 0.4
   },
   "Agent Observability": {
-    "cold_ms": 1.2,
+    "cold_ms": 1.1,
     "warm_median_ms": 0.5
   },
   "A/B Test": {
-    "cold_ms": 0.5,
+    "cold_ms": 0.3,
     "warm_median_ms": 0.3
   },
   "Root Cause Analysis": {
-    "cold_ms": 0.6,
+    "cold_ms": 0.5,
     "warm_median_ms": 0.4
   },
   "Data Quality": {
-    "cold_ms": 0.3,
-    "warm_median_ms": 0.2
+    "cold_ms": 0.2,
+    "warm_median_ms": 0.3
   }
 }
 ```
