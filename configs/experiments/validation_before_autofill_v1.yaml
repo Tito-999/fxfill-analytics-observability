@@ -1,0 +1,29 @@
+experiment_id: validation_before_autofill_v1
+expected_allocation: {A: 0.5, B: 0.5}
+randomization_unit: user_id
+analysis_unit: user_id
+assignment_strategy: intention_to_treat
+alpha: 0.05
+srm_alpha: 0.001
+power: 0.80
+bootstrap_iterations: 5000
+bootstrap_seed: 20260616
+minimum_segment_users: 200
+primary_metric: form_export_rate
+secondary_metrics:
+  - task_success_rate
+  - field_accuracy
+  - manual_edit_rate
+guardrail_metrics:
+  - p95_latency_ms
+  - cost_per_successful_task_usd
+  - abandonment_rate
+  - agent_error_rate
+practical_significance:
+  form_export_rate_absolute_uplift: 0.015
+  field_accuracy_absolute_uplift: 0.010
+non_inferiority_margins:
+  p95_latency_ms: 500
+  cost_per_successful_task_usd: 0.005
+  abandonment_rate: 0.010
+  agent_error_rate: 0.005

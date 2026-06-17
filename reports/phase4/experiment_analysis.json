@@ -1,0 +1,370 @@
+{
+  "experiment_id": "validation_before_autofill_v1",
+  "experiment_name": "Validation Before Autofill v1",
+  "config": {
+    "significance_level": 0.05,
+    "bootstrap_iterations": 10000,
+    "bootstrap_seed": 20260616,
+    "srm_alpha": 0.05
+  },
+  "srm": {
+    "chi2_stat": 4.181333333333333,
+    "p_value": 0.04087153408900628,
+    "observed": {
+      "A": 6112,
+      "B": 5888
+    },
+    "expected": {
+      "A": 6000.0,
+      "B": 6000.0
+    },
+    "passed": false,
+    "n_total": 12000,
+    "srm_alpha": 0.05
+  },
+  "user_metrics": {
+    "groups": [
+      "A",
+      "B"
+    ],
+    "n_users": {
+      "A": 5912,
+      "B": 5728
+    },
+    "contaminated_excluded": 360,
+    "summary_stats": {
+      "A": {
+        "total_tasks": {
+          "mean": 2.5182679296346415,
+          "std": 1.5922555692902947,
+          "p25": 1.0,
+          "p50": 2.0,
+          "p75": 3.0,
+          "min": 0.0,
+          "max": 11.0,
+          "n": 5912
+        },
+        "successful_tasks": {
+          "mean": 1.3790595399188093,
+          "std": 1.1792148742626505,
+          "p25": 0.0,
+          "p50": 1.0,
+          "p75": 2.0,
+          "min": 0.0,
+          "max": 8.0,
+          "n": 5912
+        },
+        "task_success_rate": {
+          "mean": 0.504911690606041,
+          "std": 0.37058689962975633,
+          "p25": 0.0,
+          "p50": 0.5,
+          "p75": 0.8333333333333334,
+          "min": 0.0,
+          "max": 1.0,
+          "n": 5912
+        },
+        "avg_field_accuracy": {
+          "mean": 0.0,
+          "std": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 5912
+        },
+        "avg_agent_latency_ms": {
+          "mean": 0.0,
+          "std": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 5912
+        },
+        "total_cost_usd": {
+          "mean": 0.0,
+          "std": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 5912
+        },
+        "avg_field_edits": {
+          "mean": 0.8013330799782086,
+          "std": 0.9313787387918618,
+          "p25": 0.0,
+          "p50": 0.5,
+          "p75": 1.3333333333333333,
+          "min": 0.0,
+          "max": 9.0,
+          "n": 5912
+        },
+        "avg_task_duration_s": {
+          "mean": 19.87513606244154,
+          "std": 8.378075146015735,
+          "p25": 16.333333333333332,
+          "p50": 21.5,
+          "p75": 25.75,
+          "min": 0.0,
+          "max": 39.0,
+          "n": 5912
+        }
+      },
+      "B": {
+        "total_tasks": {
+          "mean": 2.5033170391061454,
+          "std": 1.558247851732017,
+          "p25": 1.0,
+          "p50": 2.0,
+          "p75": 3.0,
+          "min": 0.0,
+          "max": 10.0,
+          "n": 5728
+        },
+        "successful_tasks": {
+          "mean": 1.3943784916201116,
+          "std": 1.1643456910745018,
+          "p25": 1.0,
+          "p50": 1.0,
+          "p75": 2.0,
+          "min": 0.0,
+          "max": 7.0,
+          "n": 5728
+        },
+        "task_success_rate": {
+          "mean": 0.5126739575019952,
+          "std": 0.36944913971428583,
+          "p25": 0.2,
+          "p50": 0.5,
+          "p75": 1.0,
+          "min": 0.0,
+          "max": 1.0,
+          "n": 5728
+        },
+        "avg_field_accuracy": {
+          "mean": 0.0,
+          "std": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 5728
+        },
+        "avg_agent_latency_ms": {
+          "mean": 0.0,
+          "std": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 5728
+        },
+        "total_cost_usd": {
+          "mean": 0.0,
+          "std": 0.0,
+          "p25": 0.0,
+          "p50": 0.0,
+          "p75": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "n": 5728
+        },
+        "avg_field_edits": {
+          "mean": 0.8129313259288818,
+          "std": 0.9513975714039667,
+          "p25": 0.0,
+          "p50": 0.5,
+          "p75": 1.3333333333333333,
+          "min": 0.0,
+          "max": 7.0,
+          "n": 5728
+        },
+        "avg_task_duration_s": {
+          "mean": 19.937609459519376,
+          "std": 8.38633272313288,
+          "p25": 16.333333333333332,
+          "p50": 21.5,
+          "p75": 26.0,
+          "min": 0.0,
+          "max": 42.0,
+          "n": 5728
+        }
+      }
+    }
+  },
+  "primary_metric": {
+    "metric_name": "form_export_rate",
+    "direction": "higher_is_better",
+    "status": "ok",
+    "a_mean": 0.504911690606041,
+    "b_mean": 0.5126739575019952,
+    "mean_diff": 0.007762266895954162,
+    "p_value": 0.2578533433956314,
+    "ci_lower": -0.005684376972034265,
+    "ci_upper": 0.021208910763942587,
+    "cohens_d": 0.020978053255214027,
+    "is_significant": false,
+    "bootstrap": {
+      "estimate": 0.007650412205038794,
+      "std_err": 0.006885921197428099,
+      "ci_lower": -0.005431508003972496,
+      "ci_upper": 0.021439904431095138,
+      "observed_diff": 0.007762266895954162,
+      "bootstrap_mean": 0.00787412158686953,
+      "seed": 20260616,
+      "iterations": 10000
+    }
+  },
+  "secondary_metrics": [
+    {
+      "metric_name": "task_success_rate",
+      "direction": "higher_is_better",
+      "status": "ok",
+      "a_mean": 0.504911690606041,
+      "b_mean": 0.5126739575019952,
+      "mean_diff": 0.007762266895954162,
+      "p_value": 0.2578533433956314,
+      "ci_lower": -0.005684376972034265,
+      "ci_upper": 0.021208910763942587,
+      "cohens_d": 0.020978053255214027,
+      "is_significant": false,
+      "bootstrap": {
+        "estimate": 0.007650412205038794,
+        "std_err": 0.006885921197428099,
+        "ci_lower": -0.005431508003972496,
+        "ci_upper": 0.021439904431095138,
+        "observed_diff": 0.007762266895954162,
+        "bootstrap_mean": 0.00787412158686953,
+        "seed": 20260616,
+        "iterations": 10000
+      },
+      "adjusted_p": 0.7735600301868941,
+      "bh_rejected": false
+    },
+    {
+      "metric_name": "field_accuracy",
+      "direction": "higher_is_better",
+      "status": "constant_data",
+      "a_mean": 0.0,
+      "b_mean": 0.0,
+      "mean_diff": 0.0,
+      "p_value": NaN,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "cohens_d": 0.0,
+      "is_significant": false,
+      "bootstrap": {
+        "estimate": 0.0,
+        "std_err": 0.0,
+        "ci_lower": 0.0,
+        "ci_upper": 0.0,
+        "observed_diff": 0.0,
+        "bootstrap_mean": 0.0,
+        "seed": 20260616,
+        "iterations": 10000
+      },
+      "note": "Both groups have constant values \u2014 effect cannot be estimated.",
+      "adjusted_p": NaN,
+      "bh_rejected": false
+    },
+    {
+      "metric_name": "manual_edit_rate",
+      "direction": "lower_is_better",
+      "status": "ok",
+      "a_mean": 0.8013330799782086,
+      "b_mean": 0.8129313259288818,
+      "mean_diff": 0.01159824595067327,
+      "p_value": 0.5064586265939696,
+      "ci_lower": -0.022620761671240906,
+      "ci_upper": 0.045817253572587445,
+      "cohens_d": 0.012319668925394546,
+      "is_significant": false,
+      "bootstrap": {
+        "estimate": 0.011364622852285679,
+        "std_err": 0.017529299576386246,
+        "ci_lower": -0.022559334525377887,
+        "ci_upper": 0.045712715329544705,
+        "observed_diff": 0.01159824595067327,
+        "bootstrap_mean": 0.01183186904906086,
+        "seed": 20260616,
+        "iterations": 10000
+      },
+      "adjusted_p": 0.5064586265939696,
+      "bh_rejected": false
+    }
+  ],
+  "guardrails": [
+    {
+      "diff": 0.0,
+      "diff_pct": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "margin": 1.15,
+      "non_inferiority_passed": true,
+      "a_mean": 0.0,
+      "b_mean": 0.0,
+      "note": "Zero variance in both groups \u2014 guardrail passes by default.",
+      "metric_name": "p95_latency_ms",
+      "higher_is_better": false,
+      "status": "ok"
+    },
+    {
+      "diff": 0.0,
+      "diff_pct": 0.0,
+      "ci_lower": 0.0,
+      "ci_upper": 0.0,
+      "margin": 1.1,
+      "non_inferiority_passed": true,
+      "a_mean": 0.0,
+      "b_mean": 0.0,
+      "note": "Zero variance in both groups \u2014 guardrail passes by default.",
+      "metric_name": "cost_per_successful_task_usd",
+      "higher_is_better": false,
+      "status": "ok"
+    },
+    {
+      "diff": 0.015318951701302375,
+      "diff_pct": 1.110825983786332,
+      "ci_lower": -0.020414994605653346,
+      "ci_upper": 0.051052898008258095,
+      "margin": 1.05,
+      "non_inferiority_passed": true,
+      "a_mean": 1.3790595399188093,
+      "b_mean": 1.3943784916201116,
+      "metric_name": "abandonment_rate",
+      "higher_is_better": false,
+      "status": "ok"
+    },
+    {
+      "metric_name": "agent_error_rate",
+      "status": "no_data",
+      "note": "Metric column 'agent_error_rate' not available for both groups."
+    }
+  ],
+  "multiplicity_correction": {
+    "method": "Benjamini-Hochberg",
+    "alpha": 0.05,
+    "n_tests": 3
+  },
+  "decision": {
+    "decision": "INCONCLUSIVE",
+    "reason": "Sample Ratio Mismatch detected.  Results are unreliable.",
+    "details": {
+      "srm_passed": false,
+      "data_validation_passed": true,
+      "primary_significant": false,
+      "guardrail_failures": []
+    }
+  },
+  "performance": {
+    "total_duration_seconds": 2.4,
+    "peak_memory_mb": "see_diagnostic"
+  }
+}

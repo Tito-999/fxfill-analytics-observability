@@ -3,6 +3,7 @@
 experiments:
   validation_before_autofill_v1:
     name: "Validation Before Autofill v1"
+    experiment_id: "EXP001"
     description: >
       Test whether adding a field-confidence validation step before autofill
       improves export rate and field accuracy.
