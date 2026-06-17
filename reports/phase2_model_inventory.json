@@ -1,0 +1,361 @@
+{
+  "inventory": [
+    {
+      "model_name": "raw_users",
+      "layer": "raw",
+      "database_schema": "raw",
+      "row_count": 20000,
+      "column_count": 13,
+      "full_name": "raw.raw_users"
+    },
+    {
+      "model_name": "raw_documents",
+      "layer": "raw",
+      "database_schema": "raw",
+      "row_count": 80000,
+      "column_count": 13,
+      "full_name": "raw.raw_documents"
+    },
+    {
+      "model_name": "raw_sessions",
+      "layer": "raw",
+      "database_schema": "raw",
+      "row_count": 60000,
+      "column_count": 13,
+      "full_name": "raw.raw_sessions"
+    },
+    {
+      "model_name": "raw_product_events",
+      "layer": "raw",
+      "database_schema": "raw",
+      "row_count": 491122,
+      "column_count": 20,
+      "full_name": "raw.raw_product_events"
+    },
+    {
+      "model_name": "raw_agent_runs",
+      "layer": "raw",
+      "database_schema": "raw",
+      "row_count": 80000,
+      "column_count": 25,
+      "full_name": "raw.raw_agent_runs"
+    },
+    {
+      "model_name": "raw_agent_spans",
+      "layer": "raw",
+      "database_schema": "raw",
+      "row_count": 300000,
+      "column_count": 20,
+      "full_name": "raw.raw_agent_spans"
+    },
+    {
+      "model_name": "raw_experiment_assignments",
+      "layer": "raw",
+      "database_schema": "raw",
+      "row_count": 12360,
+      "column_count": 10,
+      "full_name": "raw.raw_experiment_assignments"
+    },
+    {
+      "model_name": "stg_users",
+      "layer": "staging",
+      "database_schema": "main_staging",
+      "row_count": 20000,
+      "column_count": 13,
+      "full_name": "main_staging.stg_users"
+    },
+    {
+      "model_name": "stg_documents",
+      "layer": "staging",
+      "database_schema": "main_staging",
+      "row_count": 80000,
+      "column_count": 14,
+      "full_name": "main_staging.stg_documents"
+    },
+    {
+      "model_name": "stg_sessions",
+      "layer": "staging",
+      "database_schema": "main_staging",
+      "row_count": 60000,
+      "column_count": 12,
+      "full_name": "main_staging.stg_sessions"
+    },
+    {
+      "model_name": "stg_product_events",
+      "layer": "staging",
+      "database_schema": "main_staging",
+      "row_count": 491122,
+      "column_count": 19,
+      "full_name": "main_staging.stg_product_events"
+    },
+    {
+      "model_name": "stg_agent_runs",
+      "layer": "staging",
+      "database_schema": "main_staging",
+      "row_count": 80000,
+      "column_count": 24,
+      "full_name": "main_staging.stg_agent_runs"
+    },
+    {
+      "model_name": "stg_agent_spans",
+      "layer": "staging",
+      "database_schema": "main_staging",
+      "row_count": 300000,
+      "column_count": 19,
+      "full_name": "main_staging.stg_agent_spans"
+    },
+    {
+      "model_name": "stg_experiment_assignments",
+      "layer": "staging",
+      "database_schema": "main_staging",
+      "row_count": 12360,
+      "column_count": 9,
+      "full_name": "main_staging.stg_experiment_assignments"
+    },
+    {
+      "model_name": "int_user_first_activity",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 18325,
+      "column_count": 5,
+      "full_name": "main_intermediate.int_user_first_activity"
+    },
+    {
+      "model_name": "int_user_daily_activity",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 49493,
+      "column_count": 5,
+      "full_name": "main_intermediate.int_user_daily_activity"
+    },
+    {
+      "model_name": "int_user_cohorts",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 20000,
+      "column_count": 11,
+      "full_name": "main_intermediate.int_user_cohorts"
+    },
+    {
+      "model_name": "int_task_event_sequence",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 50000,
+      "column_count": 23,
+      "full_name": "main_intermediate.int_task_event_sequence"
+    },
+    {
+      "model_name": "int_task_funnel_flags",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 50000,
+      "column_count": 16,
+      "full_name": "main_intermediate.int_task_funnel_flags"
+    },
+    {
+      "model_name": "int_task_outcomes",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 50000,
+      "column_count": 13,
+      "full_name": "main_intermediate.int_task_outcomes"
+    },
+    {
+      "model_name": "int_document_complexity_features",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 80000,
+      "column_count": 13,
+      "full_name": "main_intermediate.int_document_complexity_features"
+    },
+    {
+      "model_name": "int_agent_trace_rollup",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 80000,
+      "column_count": 21,
+      "full_name": "main_intermediate.int_agent_trace_rollup"
+    },
+    {
+      "model_name": "int_agent_error_classification",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 80000,
+      "column_count": 9,
+      "full_name": "main_intermediate.int_agent_error_classification"
+    },
+    {
+      "model_name": "int_experiment_clean_assignments",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 12000,
+      "column_count": 6,
+      "full_name": "main_intermediate.int_experiment_clean_assignments"
+    },
+    {
+      "model_name": "int_experiment_contaminated_users",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 720,
+      "column_count": 4,
+      "full_name": "main_intermediate.int_experiment_contaminated_users"
+    },
+    {
+      "model_name": "int_experiment_user_metrics",
+      "layer": "intermediate",
+      "database_schema": "main_intermediate",
+      "row_count": 11640,
+      "column_count": 11,
+      "full_name": "main_intermediate.int_experiment_user_metrics"
+    },
+    {
+      "model_name": "mart_daily_product_kpis",
+      "layer": "marts_product",
+      "database_schema": "main_marts",
+      "row_count": 120,
+      "column_count": 9,
+      "full_name": "main_marts.mart_daily_product_kpis"
+    },
+    {
+      "model_name": "mart_conversion_funnel",
+      "layer": "marts_product",
+      "database_schema": "main_marts",
+      "row_count": 7,
+      "column_count": 5,
+      "full_name": "main_marts.mart_conversion_funnel"
+    },
+    {
+      "model_name": "mart_retention_cohort",
+      "layer": "marts_product",
+      "database_schema": "main_marts",
+      "row_count": 605,
+      "column_count": 9,
+      "full_name": "main_marts.mart_retention_cohort"
+    },
+    {
+      "model_name": "mart_feature_adoption",
+      "layer": "marts_product",
+      "database_schema": "main_marts",
+      "row_count": 120,
+      "column_count": 6,
+      "full_name": "main_marts.mart_feature_adoption"
+    },
+    {
+      "model_name": "mart_user_segments",
+      "layer": "marts_product",
+      "database_schema": "main_marts",
+      "row_count": 60,
+      "column_count": 8,
+      "full_name": "main_marts.mart_user_segments"
+    },
+    {
+      "model_name": "mart_channel_performance",
+      "layer": "marts_product",
+      "database_schema": "main_marts",
+      "row_count": 5,
+      "column_count": 8,
+      "full_name": "main_marts.mart_channel_performance"
+    },
+    {
+      "model_name": "mart_agent_daily_kpis",
+      "layer": "marts_agent",
+      "database_schema": "main_marts",
+      "row_count": 121,
+      "column_count": 14,
+      "full_name": "main_marts.mart_agent_daily_kpis"
+    },
+    {
+      "model_name": "mart_agent_stage_performance",
+      "layer": "marts_agent",
+      "database_schema": "main_marts",
+      "row_count": 40,
+      "column_count": 10,
+      "full_name": "main_marts.mart_agent_stage_performance"
+    },
+    {
+      "model_name": "mart_model_version_comparison",
+      "layer": "marts_agent",
+      "database_schema": "main_marts",
+      "row_count": 9,
+      "column_count": 11,
+      "full_name": "main_marts.mart_model_version_comparison"
+    },
+    {
+      "model_name": "mart_error_root_cause",
+      "layer": "marts_agent",
+      "database_schema": "main_marts",
+      "row_count": 45,
+      "column_count": 7,
+      "full_name": "main_marts.mart_error_root_cause"
+    },
+    {
+      "model_name": "mart_cost_quality_tradeoff",
+      "layer": "marts_agent",
+      "database_schema": "main_marts",
+      "row_count": 9,
+      "column_count": 9,
+      "full_name": "main_marts.mart_cost_quality_tradeoff"
+    },
+    {
+      "model_name": "mart_ab_test_user_metrics",
+      "layer": "marts_experiment",
+      "database_schema": "main_marts",
+      "row_count": 11640,
+      "column_count": 11,
+      "full_name": "main_marts.mart_ab_test_user_metrics"
+    },
+    {
+      "model_name": "mart_ab_test_summary",
+      "layer": "marts_experiment",
+      "database_schema": "main_marts",
+      "row_count": 2,
+      "column_count": 8,
+      "full_name": "main_marts.mart_ab_test_summary"
+    },
+    {
+      "model_name": "mart_ab_test_segment_effects",
+      "layer": "marts_experiment",
+      "database_schema": "main_marts",
+      "row_count": 40,
+      "column_count": 8,
+      "full_name": "main_marts.mart_ab_test_segment_effects"
+    },
+    {
+      "model_name": "mart_experiment_guardrails",
+      "layer": "marts_experiment",
+      "database_schema": "main_marts",
+      "row_count": 2,
+      "column_count": 6,
+      "full_name": "main_marts.mart_experiment_guardrails"
+    },
+    {
+      "model_name": "mart_executive_daily_scorecard",
+      "layer": "marts_executive",
+      "database_schema": "main_marts",
+      "row_count": 600,
+      "column_count": 11,
+      "full_name": "main_marts.mart_executive_daily_scorecard"
+    },
+    {
+      "model_name": "mart_weekly_business_review",
+      "layer": "marts_executive",
+      "database_schema": "main_marts",
+      "row_count": 18,
+      "column_count": 7,
+      "full_name": "main_marts.mart_weekly_business_review"
+    },
+    {
+      "model_name": "mart_alerts",
+      "layer": "marts_executive",
+      "database_schema": "main_marts",
+      "row_count": 120,
+      "column_count": 7,
+      "full_name": "main_marts.mart_alerts"
+    }
+  ],
+  "raw_count": 7,
+  "staging_count": 7,
+  "intermediate_count": 12,
+  "mart_count": 18,
+  "total": 44
+}
