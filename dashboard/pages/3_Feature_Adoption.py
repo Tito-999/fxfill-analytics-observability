@@ -1,5 +1,4 @@
 """Feature Adoption — Adoption rates, time-to-first-use, and segment analysis."""
-
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -10,7 +9,6 @@ from dashboard.components.kpi_cards import kpi_row
 from dashboard.services.database import get_connection
 
 st.set_page_config(page_title="Feature Adoption", layout="wide")
-
 st.title("Feature Adoption Analysis")
 st.markdown("Adoption rates for key product features by user segment")
 
@@ -27,191 +25,117 @@ def q(query_str: str) -> pd.DataFrame:
     return conn.execute(query_str).fetchdf()
 
 
-device_clause = "" if device == "All" else f"AND device_type = '{device}'"
-complexity_clause = "" if complexity == "All" else f"AND complexity = '{complexity}'"
+device_filter = "" if device == "All" else f"AND device_type = '{device}'"
+comp_filter = "" if complexity == "All" else f"AND complexity = '{complexity}'"
 
-# ── Feature Adoption Rates ───────────────────────────────────────────────
+# ── Feature Adoption Rates (segmented mart) ──
 adoption = q(
     f"""
     SELECT
         feature_name,
-        total_users,
-        adopted_users,
-        adoption_rate,
-        user_segment
-    FROM main_marts.mart_feature_adoption
-    WHERE date BETWEEN '{ds}' AND '{de}'
-      {device_clause}
-      {complexity_clause}
+        user_segment,
+        device_type,
+        complexity,
+        SUM(total_users) AS total_users,
+        SUM(adopted_users) AS adopted_users,
+        SUM(adopted_users) * 1.0 / NULLIF(SUM(total_users), 0) AS adoption_rate
+    FROM main_marts.mart_feature_adoption_segmented
+    WHERE event_date BETWEEN '{ds}' AND '{de}'
+      {device_filter}
+      {comp_filter}
+    GROUP BY feature_name, user_segment, device_type, complexity
     ORDER BY feature_name, user_segment
 """
 )
 
-# ── Time-to-first-use ────────────────────────────────────────────────────
+# ── Time-to-first-use ──
 ttfu = q(
     f"""
     SELECT
         feature_name,
         days_to_first_use,
-        user_count
-    FROM main_marts.mart_feature_adoption
-    WHERE date BETWEEN '{ds}' AND '{de}'
-      AND days_to_first_use IS NOT NULL
-      {device_clause}
-      {complexity_clause}
+        SUM(user_count) AS user_count
+    FROM main_marts.mart_feature_time_to_first_use
+    WHERE first_use_date BETWEEN '{ds}' AND '{de}'
+      {device_filter}
+      {comp_filter}
+    GROUP BY feature_name, days_to_first_use
     ORDER BY feature_name, days_to_first_use
 """
 )
 
-# ── Summary KPIs ─────────────────────────────────────────────────────────
+# KPI cards
 if not adoption.empty:
     overall = (
         adoption.groupby("feature_name")
-        .agg(
-            total_users=("total_users", "sum"),
-            adopted_users=("adopted_users", "sum"),
-        )
+        .agg(total_users=("total_users", "sum"), adopted_users=("adopted_users", "sum"))
         .reset_index()
     )
-    overall["adoption_rate"] = overall["adopted_users"] / overall["total_users"]
-
-    features = ["OCR", "Anonymization", "Risk Detection", "Autofill"]
-
-    cards = []
-    for feat in features:
-        row = overall[overall["feature_name"].str.lower().str.contains(feat.lower(), na=False)]
-        if not row.empty:
-            r = row.iloc[0]
-            cards.append(
-                {
-                    "label": f"{feat} Adoption",
-                    "value": r["adoption_rate"] if r["total_users"] > 0 else 0,
-                    "help": f"Fraction of users who have used {feat} at least once.",
-                }
-            )
-        else:
-            cards.append(
-                {
-                    "label": f"{feat} Adoption",
-                    "value": 0,
-                    "help": f"Fraction of users who have used {feat} at least once.",
-                }
-            )
-
-    if cards:
-        kpi_row(cards, cols=4)
-    else:
-        st.info("No adoption data available.")
-else:
-    st.info("No feature adoption data available for the selected filters.")
-    st.stop()
-
-# ── Adoption Rate Chart ──────────────────────────────────────────────────
-st.subheader("Adoption Rate by Feature")
-
-fig = go.Figure()
-overall_sorted = overall.sort_values("adoption_rate", ascending=True)
-fig.add_trace(
-    go.Bar(
-        x=overall_sorted["adoption_rate"],
-        y=overall_sorted["feature_name"],
-        orientation="h",
-        text=overall_sorted["adoption_rate"].apply(lambda v: f"{v:.1%}"),
-        textposition="outside",
-        marker_color="#636EFA",
-    )
-)
-fig.update_layout(
-    title="Overall Feature Adoption Rates",
-    xaxis_title="Adoption Rate",
-    xaxis_tickformat=".0%",
-    height=400,
-)
-st.plotly_chart(fig, use_container_width=True)
-
-# ── Adoption by User Segment ─────────────────────────────────────────────
-st.subheader("Adoption by User Segment")
-
-if not adoption.empty:
-    segments = adoption["user_segment"].dropna().unique()
-    features_list = adoption["feature_name"].unique()
-
-    fig = go.Figure()
-    for _i, feat in enumerate(features_list):
-        subset = adoption[adoption["feature_name"] == feat]
-        fig.add_trace(
-            go.Bar(
-                name=feat,
-                x=subset["user_segment"],
-                y=subset["adoption_rate"],
-                text=subset["adoption_rate"].apply(lambda v: f"{v:.1%}"),
-            )
+    overall["adoption_rate"] = overall["adopted_users"] / overall["total_users"].replace(0, 1)
+    kpi_data = []
+    for _, row in overall.iterrows():
+        kpi_data.append(
+            {
+                "label": row["feature_name"],
+                "value": row["adoption_rate"],
+                "help": f"{int(row['adopted_users'])} / {int(row['total_users'])} users adopted {row['feature_name']}",
+            }
         )
+    if kpi_data:
+        kpi_row(kpi_data, cols=min(len(kpi_data), 4))
 
-    fig.update_layout(
-        title="Adoption Rate by Feature and User Segment",
-        xaxis_title="User Segment",
-        yaxis_title="Adoption Rate",
-        yaxis_tickformat=".0%",
+# ── Adoption by segment ──
+st.subheader("Feature Adoption by User Segment")
+if not adoption.empty:
+    seg_data = adoption.groupby(["feature_name", "user_segment"], as_index=False).agg(
+        {"total_users": "sum", "adopted_users": "sum"}
+    )
+    seg_data["adoption_rate"] = seg_data["adopted_users"] / seg_data["total_users"].replace(0, 1)
+    fig = px.bar(
+        seg_data,
+        x="feature_name",
+        y="adoption_rate",
+        color="user_segment",
         barmode="group",
-        height=450,
+        title="Adoption Rate by Feature and Segment",
     )
+    fig.update_yaxes(tickformat=".0%")
     st.plotly_chart(fig, use_container_width=True)
-
-    # Tabular detail
-    detail = adoption.copy()
-    detail["adoption_rate"] = detail["adoption_rate"].apply(lambda v: f"{v:.1%}")
-    detail["total_users"] = detail["total_users"].apply(lambda v: f"{v:,}")
-    detail["adopted_users"] = detail["adopted_users"].apply(lambda v: f"{v:,}")
-    st.dataframe(
-        detail[["feature_name", "user_segment", "total_users", "adopted_users", "adoption_rate"]],
-        use_container_width=True,
-        hide_index=True,
-        column_config={
-            "feature_name": "Feature",
-            "user_segment": "Segment",
-            "total_users": "Total Users",
-            "adopted_users": "Adopted Users",
-            "adoption_rate": "Adoption Rate",
-        },
-    )
 else:
-    st.info("No segment-level adoption data.")
+    st.info("No adoption data for the selected filters.")
 
-# ── Time-to-First-Use Distribution ───────────────────────────────────────
-st.subheader("Time-to-First-Use Distribution")
-
+# ── Time-to-first-use distribution ──
+st.subheader("Time to First Use (Days)")
 if not ttfu.empty:
-    ttfu_grouped = (
-        ttfu.groupby(["feature_name", "days_to_first_use"])["user_count"].sum().reset_index()
-    )
-
-    fig = px.histogram(
-        ttfu_grouped,
+    fig2 = px.histogram(
+        ttfu,
         x="days_to_first_use",
         y="user_count",
         color="feature_name",
+        barmode="overlay",
         nbins=30,
-        title="Days to First Use by Feature",
-        labels={"days_to_first_use": "Days since signup", "user_count": "Users"},
+        title="Days from Signup to First Feature Use",
     )
-    fig.update_layout(barmode="overlay", height=400)
-    st.plotly_chart(fig, use_container_width=True)
-
-    # Summary stats
-    ttfu_stats = ttfu_grouped.groupby("feature_name")["days_to_first_use"].describe()
-    st.dataframe(ttfu_stats, use_container_width=True)
+    st.plotly_chart(fig2, use_container_width=True)
 else:
-    st.info("No time-to-first-use data available.")
+    st.info("No time-to-first-use data for the selected filters.")
 
-# ── Causal Note ──────────────────────────────────────────────────────────
-st.info(
-    "Observational association, not causal. "
-    "Adoption patterns reflect correlational trends and may be influenced "
-    "by user selection effects, product exposure differences, or other "
-    "confounding factors. Controlled experiments are needed for causal claims."
+# ── Overall adoption trend (original wide mart) ──
+st.subheader("Daily Feature Adoption Trend")
+trend = q(
+    f"""
+    SELECT event_date, ocr_adoption, anonymization_adoption,
+           risk_detection_adoption, autofill_adoption
+    FROM main_marts.mart_feature_adoption
+    WHERE event_date BETWEEN '{ds}' AND '{de}'
+    ORDER BY event_date
+"""
 )
+if not trend.empty:
+    trend_long = trend.melt(id_vars="event_date", var_name="feature", value_name="rate")
+    fig3 = px.line(trend_long, x="event_date", y="rate", color="feature", title="Daily Feature Adoption Trend")
+    fig3.update_yaxes(tickformat=".0%")
+    st.plotly_chart(fig3, use_container_width=True)
 
-# ── Footer ───────────────────────────────────────────────────────────────
-st.markdown("---")
-st.caption("⚠️ **ALL DATA IS SYNTHETIC.** No real user, financial, or business data is displayed.")
+st.caption("Feature adoption and retention are observational associations, not causal effects.")
+st.caption("ALL DATA IS SYNTHETIC")
