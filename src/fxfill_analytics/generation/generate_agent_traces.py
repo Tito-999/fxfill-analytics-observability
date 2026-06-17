@@ -167,7 +167,7 @@ def generate_agent_runs(
                 latest = min(earliest + timedelta(hours=24), max_end.to_pydatetime())
                 offset = float(rng.uniform(0, max(1, (latest - earliest).total_seconds())))
                 run_starts.append(earliest + timedelta(seconds=offset))
-        started_ats_arr = sorted(run_starts)
+        started_ats_arr = run_starts  # preserve task-context alignment; do NOT sort
 
         # Inherit experiment_group from task context (no independent reassignment)
         exp_groups = ctx_rows["experiment_group"].tolist()

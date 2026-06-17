@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0.0",
+  "provenance": {
+    "run_id": "run_small_20260617_5c2bf2c8f4e0",
+    "size_profile": "small",
+    "seed": 20260617,
+    "config_hash": "5c2bf2c8f4e0",
+    "git_commit": "f74c3e8373eed8144a2b0f1bfe763d5564e64fa3",
+    "database_path_relative": "warehouse/fxfill.duckdb",
+    "database_fingerprint": "a4bf9808323ca113",
+    "generated_at_utc": "2026-06-17T14:33:25.996342+00:00",
+    "source_run_ids_in_warehouse": [
+      "run_small_20260617_5c2bf2c8f4e0"
+    ]
+  },
+  "dbt": {
+    "model_count": 41,
+    "model_success_count": 41,
+    "generic_test_count": 0,
+    "singular_test_count": 44,
+    "test_pass": 44,
+    "test_fail": 0,
+    "test_error": 0,
+    "test_skip": 0,
+    "stale": false
+  },
+  "pytest": {
+    "collected": 283,
+    "passed": 283,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "stale": false
+  },
+  "raw_staging_reconciliation": {
+    "users": {
+      "raw_rows": 2000,
+      "staging_rows": 2000,
+      "delta": 0
+    },
+    "documents": {
+      "raw_rows": 8000,
+      "staging_rows": 8000,
+      "delta": 0
+    },
+    "sessions": {
+      "raw_rows": 6000,
+      "staging_rows": 6000,
+      "delta": 0
+    },
+    "product_events": {
+      "raw_rows": 48729,
+      "staging_rows": 48729,
+      "delta": 0
+    },
+    "agent_runs": {
+      "raw_rows": 8000,
+      "staging_rows": 8000,
+      "delta": 0
+    },
+    "agent_spans": {
+      "raw_rows": 30000,
+      "staging_rows": 30000,
+      "delta": 0
+    },
+    "experiment_assignments": {
+      "raw_rows": 1236,
+      "staging_rows": 1236,
+      "delta": 0
+    }
+  },
+  "mart_row_counts": {
+    "mart_daily_product_kpis": 121,
+    "mart_retention_cohort": 531,
+    "mart_conversion_funnel": 7,
+    "mart_agent_daily_kpis": 121,
+    "mart_ab_test_summary": 2,
+    "mart_executive_daily_scorecard": 121
+  }
+}

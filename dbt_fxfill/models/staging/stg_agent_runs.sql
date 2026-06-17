@@ -20,6 +20,7 @@ SELECT
     CAST(field_accuracy AS DOUBLE) AS field_accuracy,
     CAST(manual_edit_count AS INTEGER) AS manual_edit_count,
     error_type,
+    CAST(started_at AS DATE) AS run_date,
     experiment_group,
     _source_run_id,
     _source_config_hash,

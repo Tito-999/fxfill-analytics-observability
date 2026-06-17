@@ -1,16 +1,16 @@
 {
   "input_run_id": "run_small_20260616_b0f5f391e3b8",
   "input_config_hash": "b0f5f391e3b8",
-  "database_path": "C:\\Users\\PCR\\AppData\\Local\\Temp\\fxfill_core_rk0iwd64\\warehouse\\fxfill.duckdb",
-  "build_started_at": "2026-06-17T14:05:28.019759+00:00",
-  "build_finished_at": "2026-06-17T14:05:28.214685+00:00",
-  "build_duration_seconds": 0.194926,
+  "database_path": "C:\\Users\\PCR\\AppData\\Local\\Temp\\fxfill_core_93y__gzw\\warehouse\\fxfill.duckdb",
+  "build_started_at": "2026-06-17T14:42:03.272358+00:00",
+  "build_finished_at": "2026-06-17T14:42:03.419510+00:00",
+  "build_duration_seconds": 0.147152,
   "raw_layer": {
     "tables": {
       "users.parquet": 2000,
       "documents.parquet": 8000,
       "sessions.parquet": 6000,
-      "product_events.parquet": 48827,
+      "product_events.parquet": 48721,
       "agent_runs.parquet": 8000,
       "agent_spans.parquet": 30000,
       "experiment_assignments.parquet": 1236
@@ -39,8 +39,8 @@
           "pk_ok": true
         },
         "raw_product_events": {
-          "raw_rows": 48827,
-          "manifest_rows": 48827,
+          "raw_rows": 48721,
+          "manifest_rows": 48721,
           "row_count_ok": true,
           "pk_null_count": 0,
           "pk_ok": true
@@ -71,5 +71,5 @@
     }
   },
   "dbt_status": "skipped",
-  "git_commit": "7912f3fb460e96d99270478c9386b47a394fe9f2"
+  "git_commit": "f74c3e8373eed8144a2b0f1bfe763d5564e64fa3"
 }

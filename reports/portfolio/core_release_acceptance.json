@@ -5,7 +5,7 @@
   "environment": {
     "python_version": "3.11",
     "temporary_environment_used": true,
-    "clean_build_duration_seconds": 50.2
+    "clean_build_duration_seconds": 72.4
   },
   "clean_build": {
     "synthetic_data_generated": true,
@@ -14,7 +14,7 @@
     "dbt_run_passed": true,
     "dbt_test_passed": true,
     "experiment_analysis_passed": true,
-    "duration_seconds": 50.2
+    "duration_seconds": 72.4
   },
   "dashboard": {
     "health_http_status": 200,
@@ -29,8 +29,8 @@
     "bootstrap_iterations": 5000
   },
   "engineering": {
-    "collected": 283,
-    "passed": 283,
+    "collected": 311,
+    "passed": 311,
     "failed": 0,
     "errors": 0,
     "skipped": 0,
@@ -46,6 +46,6 @@
     "tracked_secret_files": 0
   },
   "git": {
-    "commit": "7912f3fb460e"
+    "commit": "f74c3e8373ee"
   }
 }

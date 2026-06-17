@@ -117,7 +117,7 @@ with col1:
             scorecard_df,
             x="event_date",
             y="north_star_metric",
-            title="North Star: Total Exported Tasks",
+            title="Daily Exported Tasks",
             markers=True,
         )
         fig.update_layout(yaxis_title="Tasks")

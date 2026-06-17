@@ -182,23 +182,32 @@ def _generate_task_events(
         )
 
     # Add field_edited events (0-3) between review_started and export
-    # Find the position after form_review_started
+    # Find form_review_started (last one added) and form_exported positions
     review_idx = None
+    export_idx = None
     for i, e in enumerate(events):
         if e["event_name"] == "form_review_started":
             review_idx = i
-            break
+        if e["event_name"] == "form_exported":
+            export_idx = i
 
-    if review_idx is not None and not abandon and fail_at_stage is None:
+    if review_idx is not None and export_idx is not None and not abandon and fail_at_stage is None:
         n_edits = rng.poisson(1)
         if n_edits > 0:
-            # Insert field_edited events after review
-            insert_pos = review_idx + 1
+            review_time = events[review_idx]["event_time"]
+            export_time = events[export_idx]["event_time"]
+            # Generate field_edited timestamps strictly between review and export
+            edit_times = []
             for _ in range(n_edits):
-                current_time += timedelta(milliseconds=float(rng.uniform(2000, 15000)))
+                offset_s = rng.uniform(0, max(0.001, (export_time - review_time).total_seconds()))
+                edit_times.append(review_time + timedelta(seconds=float(offset_s)))
+            edit_times.sort()
+            # Insert field_edited events in order before form_exported
+            insert_pos = export_idx
+            for et in edit_times:
                 edit_event = {
                     "event_name": "field_edited",
-                    "event_time": current_time,
+                    "event_time": et,
                     "event_status": "success",
                     "error_type": None,
                     "latency_ms": max(int(rng.normal(300, 100)), 0),

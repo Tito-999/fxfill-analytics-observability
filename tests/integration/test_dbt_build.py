@@ -9,6 +9,14 @@ PROJECT = Path(__file__).resolve().parent.parent.parent
 
 @pytest.fixture
 def db_path():
+    import os
+
+    env_path = os.environ.get("FXFILL_DUCKDB_PATH", "")
+    if env_path:
+        p = Path(env_path)
+        if not p.is_absolute():
+            p = PROJECT / p
+        return p
     return PROJECT / "warehouse" / "fxfill.duckdb"
 
 

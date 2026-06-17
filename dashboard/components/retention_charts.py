@@ -1,4 +1,11 @@
-"""Retention chart helpers — weekly weighted cohorts, horizon tabs, sample controls."""
+"""Retention chart helpers — weekly weighted cohorts, horizon tabs, sample controls.
+
+Contract: retention_df MUST contain horizon-specific columns:
+    d1_matured, d1_eligible_users, d1_retained_users, d1_retention_rate,
+    d7_matured, d7_eligible_users, d7_retained_users, d7_retention_rate,
+    d30_matured, d30_eligible_users, d30_retained_users, d30_retention_rate,
+    observation_end_date
+"""
 
 import pandas as pd
 import plotly.express as px
@@ -6,125 +13,145 @@ import plotly.graph_objects as go
 
 MIN_COHORT_SAMPLE = 20
 
+_REQUIRED_COLS = [
+    "cohort_date",
+    "acquisition_channel",
+    "d1_matured",
+    "d1_eligible_users",
+    "d1_retained_users",
+    "d1_retention_rate",
+    "d7_matured",
+    "d7_eligible_users",
+    "d7_retained_users",
+    "d7_retention_rate",
+    "d30_matured",
+    "d30_eligible_users",
+    "d30_retained_users",
+    "d30_retention_rate",
+]
+
+
+def _validate_retention_contract(df: pd.DataFrame):
+    """Raise ValueError if the retention DataFrame is missing required columns."""
+    missing = [c for c in _REQUIRED_COLS if c not in df.columns]
+    if missing:
+        raise ValueError(
+            "Retention input contract is incomplete. "
+            f"Missing columns: {missing}. "
+            "Ensure the retention mart includes all horizon-specific maturity "
+            "and eligible-user columns per the dbt model schema."
+        )
+
 
 def prepare_weekly_retention(
     retention_df: pd.DataFrame,
     date_col: str = "cohort_date",
 ) -> pd.DataFrame:
-    """Aggregate daily retention data into weekly cohorts with weighted rates.
+    """Aggregate daily retention into weekly cohorts with weighted mature-only rates.
 
-    Each row in *retention_df* is a daily cohort × channel observation.
-    Returns a DataFrame with columns:
-        cohort_week, acquisition_channel,
-        d1_eligible_users, d7_eligible_users, d30_eligible_users,
-        d1_retained_users, d7_retained_users, d30_retained_users,
-        d1_weighted_rate, d7_weighted_rate, d30_weighted_rate,
-        d1_matured, d7_matured, d30_matured,
-        d1_sample_status, d7_sample_status, d30_sample_status,
-        total_users (sum of eligible_users across all weeks for the channel)
+    Only daily cohorts with matured=true are included in the aggregation
+    for each horizon. Returns a DataFrame suitable for charting.
     """
     if retention_df.empty:
         return pd.DataFrame()
 
+    _validate_retention_contract(retention_df)
+
     df = retention_df.copy()
     df[date_col] = pd.to_datetime(df[date_col])
+    df["cohort_week"] = (
+        df[date_col] - pd.to_timedelta(df[date_col].dt.dayofweek, unit="D")
+    ).dt.date
 
-    # Create cohort_week (Monday of each week)
-    df["cohort_week"] = df[date_col] - pd.to_timedelta(df[date_col].dt.dayofweek, unit="D")
-    df["cohort_week"] = df["cohort_week"].dt.date
-
-    # Check which maturity columns exist
-    has_maturity = "d1_matured" in df.columns
-
-    # Build aggregation keys
     group_keys = ["cohort_week", "acquisition_channel"]
 
-    # Sum retained and eligible users per weekly cohort × channel
-    agg_dict = {
-        "d1_retained_users": "sum",
-        "d7_retained_users": "sum",
-        "d30_retained_users": "sum",
-    }
-    if has_maturity:
-        for col in ["d1_eligible_users", "d7_eligible_users", "d30_eligible_users"]:
-            if col in df.columns:
-                agg_dict[col] = "sum"
-        for col in ["d1_matured", "d7_matured", "d30_matured"]:
-            if col in df.columns:
-                agg_dict[col] = "max"  # TRUE if any daily cohort is matured
+    weekly_rows = []
+    for (cw, ch), grp in df.groupby(group_keys):
+        row = {"cohort_week": cw, "acquisition_channel": ch}
+        for horizon in ["d1", "d7", "d30"]:
+            matured_col = f"{horizon}_matured"
+            eligible_col = f"{horizon}_eligible_users"
+            retained_col = f"{horizon}_retained_users"
+            rate_col = f"{horizon}_weighted_rate"
+            maturity_col = f"{horizon}_maturity_status"
+            sample_col = f"{horizon}_sample_status"
 
-    # Legacy: if no eligible_users columns, derive from "eligible_users"
-    if "eligible_users" in df.columns:
-        agg_dict["eligible_users"] = "sum"
+            # Only aggregate matured daily cohorts
+            matured = grp[grp[matured_col]]
+            eligible = int(matured[eligible_col].sum()) if not matured.empty else 0
+            retained = int(matured[retained_col].sum()) if not matured.empty else 0
+            rate = (retained / eligible) if eligible > 0 else None
 
-    weekly = df.groupby(group_keys, as_index=False).agg(agg_dict)
+            row[eligible_col] = eligible
+            row[retained_col] = retained
+            row[rate_col] = rate
 
-    # Derive eligible users if not present
-    if "d1_eligible_users" not in weekly.columns:
-        if "eligible_users" in weekly.columns:
-            weekly["d1_eligible_users"] = weekly["eligible_users"]
-            weekly["d7_eligible_users"] = weekly["eligible_users"]
-            weekly["d30_eligible_users"] = weekly["eligible_users"]
-        else:
-            # Fallback: use retained + assumed non-retained
-            weekly["d1_eligible_users"] = weekly["d1_retained_users"] * 2
-            weekly["d7_eligible_users"] = weekly["d7_retained_users"] * 2
-            weekly["d30_eligible_users"] = weekly["d30_retained_users"] * 2
+            if eligible == 0:
+                row[maturity_col] = "unmatured"
+            elif eligible < MIN_COHORT_SAMPLE:
+                row[maturity_col] = "insufficient"
+            else:
+                row[maturity_col] = "ok"
 
-    # Weighted retention rates by eligible users
-    for horizon in ["d1", "d7", "d30"]:
-        retained_col = f"{horizon}_retained_users"
-        eligible_col = f"{horizon}_eligible_users"
-        rate_col = f"{horizon}_weighted_rate"
-        sample_col = f"{horizon}_sample_status"
+            row[sample_col] = row[maturity_col]
 
-        weekly[rate_col] = weekly[retained_col] / weekly[eligible_col].replace(0, float("nan"))
-        weekly[sample_col] = weekly[eligible_col].apply(
-            lambda v: "ok" if v >= MIN_COHORT_SAMPLE else "insufficient"
-        )
+        weekly_rows.append(row)
 
-    # Total per channel (across all weeks)
-    chan_totals = weekly.groupby("acquisition_channel")["d1_eligible_users"].transform("sum")
-    weekly["total_users"] = chan_totals
-
+    weekly = pd.DataFrame(weekly_rows)
     return weekly
+
+
+def has_eligible_retention_points(weekly: pd.DataFrame, horizon: str) -> bool:
+    """Return True if at least one channel-week has valid retention data for *horizon*."""
+    eligible_col = f"{horizon}_eligible_users"
+    sample_col = f"{horizon}_sample_status"
+    if weekly.empty:
+        return False
+    if eligible_col not in weekly.columns:
+        return False
+    if sample_col in weekly.columns:
+        mask = weekly[sample_col] == "ok"
+        return (weekly.loc[mask, eligible_col] > 0).any() if not mask.empty else False
+    return (weekly[eligible_col] > 0).any()
 
 
 def build_retention_figure(
     weekly: pd.DataFrame,
     horizon: str,
     palette: list[str] | None = None,
-) -> go.Figure:
-    """Build a single-horizon retention chart with one trace per channel.
+) -> tuple[go.Figure | None, int]:
+    """Build a single-horizon retention chart. Returns (figure, eligible_point_count).
 
-    Args:
-        weekly: Output from ``prepare_weekly_retention``.
-        horizon: One of ``"d1"``, ``"d7"``, ``"d30"``.
-        palette: Colour palette for channels.
-
-    Returns:
-        A Plotly Figure with properly configured axes and legend.
+    Only traces with at least one valid point are added.
+    If no channel has any valid point, attempts an overall "All Channels Combined" fallback.
+    Returns (None, 0) if nothing can be plotted.
     """
     if palette is None:
         palette = px.colors.qualitative.Plotly
-
-    fig = go.Figure()
 
     eligible_col = f"{horizon}_eligible_users"
     rate_col = f"{horizon}_weighted_rate"
     sample_col = f"{horizon}_sample_status"
 
+    if weekly.empty:
+        return None, 0
+
+    fig = go.Figure()
+    total_points = 0
     available_channels = sorted(weekly["acquisition_channel"].dropna().unique())
+
     for i, ch in enumerate(available_channels):
         subset = weekly[weekly["acquisition_channel"] == ch].sort_values("cohort_week")
-        # Mask points with insufficient sample
         mask = subset[sample_col] == "ok"
+        if not mask.any():
+            continue
         color = palette[i % len(palette)]
-
+        pts = subset.loc[mask]
+        total_points += len(pts)
         fig.add_trace(
             go.Scatter(
-                x=subset.loc[mask, "cohort_week"],
-                y=subset.loc[mask, rate_col],
+                x=pts["cohort_week"],
+                y=pts[rate_col],
                 mode="lines+markers",
                 name=ch,
                 line={"color": color},
@@ -136,9 +163,55 @@ def build_retention_figure(
                     f"Eligible: %{{customdata:,}}"
                     "<extra></extra>"
                 ),
-                customdata=subset.loc[mask, eligible_col],
+                customdata=pts[eligible_col],
             )
         )
+
+    # Overall fallback when no per-channel data exists
+    if total_points == 0:
+        overall = (
+            weekly.groupby("cohort_week")
+            .agg(
+                {
+                    eligible_col: "sum",
+                    f"{horizon}_retained_users": "sum",
+                }
+            )
+            .reset_index()
+        )
+        overall[rate_col] = overall[f"{horizon}_retained_users"] / overall[eligible_col].replace(
+            0, float("nan")
+        )
+        overall[sample_col] = overall[eligible_col].apply(
+            lambda v: "ok" if v >= MIN_COHORT_SAMPLE else "insufficient"
+        )
+        mask = overall[sample_col] == "ok"
+        if mask.any():
+            pts = overall.loc[mask]
+            total_points = len(pts)
+            fig.add_trace(
+                go.Scatter(
+                    x=pts["cohort_week"],
+                    y=pts[rate_col],
+                    mode="lines+markers",
+                    name="All Channels Combined",
+                    line={"color": "#636EFA"},
+                    connectgaps=False,
+                    hovertemplate=(
+                        f"All Channels<br>"
+                        "Week: %{x}<br>"
+                        f"{horizon.upper()} Rate: %{{y:.1%}}<br>"
+                        f"Eligible: %{{customdata:,}}"
+                        "<extra></extra>"
+                    ),
+                    customdata=pts[eligible_col],
+                )
+            )
+        else:
+            return None, 0
+
+    if total_points == 0:
+        return None, 0
 
     fig.update_layout(
         title=f"{horizon.upper()} Retention by Channel",
@@ -157,11 +230,11 @@ def build_retention_figure(
         },
     )
 
-    return fig
+    return fig, total_points
 
 
 def build_sample_summary_table(weekly: pd.DataFrame) -> pd.DataFrame:
-    """Build a sample-size summary table across all horizons."""
+    """Build a sample-size summary table across all horizons with maturity status."""
     if weekly.empty:
         return pd.DataFrame()
 
@@ -173,16 +246,17 @@ def build_sample_summary_table(weekly: pd.DataFrame) -> pd.DataFrame:
             eligible = row.get(f"{horizon}_eligible_users", 0)
             retained = row.get(f"{horizon}_retained_users", 0)
             rate = row.get(f"{horizon}_weighted_rate", None)
-            sample = row.get(f"{horizon}_sample_status", "unknown")
+            maturity = row.get(f"{horizon}_maturity_status", "unknown")
             rows.append(
                 {
                     "cohort_week": cw,
                     "channel": ch,
                     "horizon": horizon.upper(),
+                    "maturity_status": maturity,
                     "eligible_users": int(eligible) if pd.notna(eligible) else 0,
                     "retained_users": int(retained) if pd.notna(retained) else 0,
                     "retention_rate": rate,
-                    "sample_status": sample,
+                    "sample_status": maturity,
                 }
             )
     return pd.DataFrame(rows)

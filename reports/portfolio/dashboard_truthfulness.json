@@ -1,0 +1,30 @@
+{
+  "cross_page": {
+    "executive_exported_tasks": 2372,
+    "funnel_exported_tasks": 2372,
+    "delta": 0
+  },
+  "retention": {
+    "maturity_contract_present": true,
+    "unmatured_points_plotted": 0,
+    "empty_traces_rendered": 0
+  },
+  "feature_adoption": {
+    "kpi_percent_formatting": true
+  },
+  "agent": {
+    "all_sections_date_filtered": true,
+    "visible_nan_count": 0,
+    "visible_none_count": 0,
+    "explicit_kpi_formats": true
+  },
+  "data_quality": {
+    "provenance_matches": true,
+    "raw_staging_mismatch_count": 0,
+    "incomplete_reconciliation_rows": 0,
+    "hardcoded_pass_count": 0,
+    "stale_artifact_count": 0
+  },
+  "accepted": true,
+  "failures": []
+}

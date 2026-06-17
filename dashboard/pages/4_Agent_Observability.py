@@ -1,4 +1,7 @@
-"""Agent Observability — Agent performance, latency, cost, errors, and quality trade-offs."""
+"""Agent Observability — Agent performance, latency, cost, errors, and quality trade-offs.
+
+All sections (KPIs, charts, tables) obey the page-level date range filter.
+"""
 
 import pandas as pd
 import plotly.express as px
@@ -6,7 +9,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from dashboard.components.filters import render_filters
-from dashboard.components.kpi_cards import kpi_row
+from dashboard.components.kpi_cards import format_kpi_value, kpi_row
 from dashboard.services.query import query_df
 
 st.set_page_config(page_title="Agent Observability", layout="wide")
@@ -17,6 +20,12 @@ st.markdown("Agent run performance, latency, cost, error analysis, and quality o
 filters = render_filters(page_name="agent")
 ds = filters["date_start"]
 de = filters["date_end"]
+
+
+def _fmt(val, fmt_type):
+    """Shorthand for safe formatting."""
+    return format_kpi_value(val, fmt_type)
+
 
 # ── Daily KPIs (date-filtered) ──────────────────────────────────────────────
 daily_kpis = query_df(
@@ -32,29 +41,33 @@ daily_kpis = query_df(
     [ds, de],
 )
 
-# ── Stage Performance (no date filter — overall summary) ────────────────────
+# ── Stage Performance (date-filtered via agent_runs.run_date) ───────────────
 stage_perf = query_df(
     """
-    SELECT stage, span_type, span_count, avg_latency_ms, p50_latency_ms,
+    SELECT run_date, stage, span_type, span_count, avg_latency_ms, p50_latency_ms,
            p95_latency_ms, error_rate, avg_input_tokens, avg_output_tokens,
            avg_cost_usd
     FROM main_marts.mart_agent_stage_performance
-    ORDER BY stage
-    """
+    WHERE run_date BETWEEN ? AND ?
+    ORDER BY run_date, stage
+    """,
+    [ds, de],
 )
 
-# ── Model Version Comparison (no date filter — overall summary) ─────────────
+# ── Model Version Comparison (date-filtered) ────────────────────────────────
 model_comp = query_df(
     """
-    SELECT model_name, prompt_version, run_count, avg_cost_usd, avg_latency_ms,
-           avg_field_accuracy, avg_quality_score, total_input_tokens,
-           total_output_tokens, avg_retry_count, success_rate
+    SELECT run_date, model_name, prompt_version, run_count, avg_cost_usd,
+           avg_latency_ms, avg_field_accuracy, avg_quality_score,
+           total_input_tokens, total_output_tokens, avg_retry_count, success_rate
     FROM main_marts.mart_model_version_comparison
-    ORDER BY model_name
-    """
+    WHERE run_date BETWEEN ? AND ?
+    ORDER BY run_date, model_name
+    """,
+    [ds, de],
 )
 
-# ── Error Root Cause (Pareto) ───────────────────────────────────────────────
+# ── Error Root Cause (date-filtered) ────────────────────────────────────────
 errors = query_df(
     """
     WITH grouped AS (
@@ -66,6 +79,7 @@ errors = query_df(
             SUM(affected_tasks) AS affected_tasks,
             AVG(avg_failed_latency_ms) AS avg_failed_latency_ms
         FROM main_marts.mart_error_root_cause
+        WHERE run_date BETWEEN ? AND ?
         GROUP BY error_category
     ),
     ranked AS (
@@ -90,9 +104,9 @@ errors = query_df(
         avg_failed_latency_ms
     FROM ranked
     ORDER BY error_count DESC, error_category
-    """
+    """,
+    [ds, de],
 )
-# Validate error query contract
 _required_error_cols = {"error_category", "error_count", "pct_of_total", "cumulative_pct"}
 _missing = _required_error_cols - set(errors.columns)
 if _missing:
@@ -116,7 +130,7 @@ overall = query_df(
     [ds, de],
 )
 
-# ── KPIs ─────────────────────────────────────────────────────────────────────
+# ── KPIs with explicit format types ─────────────────────────────────────────
 st.subheader("Key Metrics")
 
 if not overall.empty and overall.iloc[0]["avg_success_rate"] is not None:
@@ -126,21 +140,25 @@ if not overall.empty and overall.iloc[0]["avg_success_rate"] is not None:
             {
                 "label": "Agent Success Rate",
                 "value": r["avg_success_rate"],
+                "format_type": "percent",
                 "help": "Fraction of agent runs completed without error.",
             },
             {
                 "label": "P50 Latency",
                 "value": r["avg_p50"],
+                "format_type": "latency_ms",
                 "help": "Median end-to-end agent latency in milliseconds.",
             },
             {
                 "label": "P95 Latency",
                 "value": r["avg_p95"],
+                "format_type": "latency_ms",
                 "help": "95th percentile agent latency in milliseconds.",
             },
             {
                 "label": "P99 Latency",
                 "value": r["avg_p99"],
+                "format_type": "latency_ms",
                 "help": "99th percentile agent latency in milliseconds.",
             },
         ]
@@ -150,21 +168,25 @@ if not overall.empty and overall.iloc[0]["avg_success_rate"] is not None:
             {
                 "label": "Avg Cost / Run",
                 "value": r["avg_cost_per_run"],
+                "format_type": "currency",
                 "help": "Average estimated cost per agent run (USD).",
             },
             {
                 "label": "Cost / Successful Task",
                 "value": r["avg_cost_per_success"],
+                "format_type": "currency",
                 "help": "Average cost per successfully completed agent task (USD).",
             },
             {
                 "label": "Avg Field Accuracy",
-                "value": r["avg_field_accuracy"] if pd.notna(r["avg_field_accuracy"]) else 0,
+                "value": r["avg_field_accuracy"],
+                "format_type": "percent",
                 "help": "Average field-level accuracy score across all model runs.",
             },
             {
                 "label": "Total Runs",
                 "value": int(r["total_runs"]) if pd.notna(r["total_runs"]) else 0,
+                "format_type": "integer",
                 "help": "Total number of agent runs in the selected period.",
             },
         ],
@@ -191,9 +213,7 @@ with col1:
             )
         )
         fig.update_layout(
-            title="Agent Success Rate Trend",
-            yaxis_title="Success Rate",
-            yaxis_tickformat=".0%",
+            title="Agent Success Rate Trend", yaxis_title="Success Rate", yaxis_tickformat=".0%"
         )
         st.plotly_chart(fig, use_container_width=True)
     else:
@@ -264,8 +284,11 @@ with col3:
 
 with col4:
     if not model_comp.empty:
+        agg_mc = model_comp.groupby("model_name", as_index=False).agg(
+            {"avg_field_accuracy": "mean", "run_count": "sum"}
+        )
         fig = px.bar(
-            model_comp,
+            agg_mc,
             x="model_name",
             y="avg_field_accuracy",
             title="Field Accuracy by Model",
@@ -281,11 +304,22 @@ with col4:
 st.subheader("Stage Performance")
 
 if not stage_perf.empty:
+    stage_agg = stage_perf.groupby(["stage", "span_type"], as_index=False).agg(
+        {
+            "avg_latency_ms": "mean",
+            "avg_cost_usd": "mean",
+            "avg_input_tokens": "mean",
+            "avg_output_tokens": "mean",
+            "error_rate": "mean",
+            "span_count": "sum",
+        }
+    )
+
     col_s1, col_s2 = st.columns(2)
 
     with col_s1:
         fig = px.bar(
-            stage_perf,
+            stage_agg,
             x="stage",
             y="avg_latency_ms",
             title="Average Latency by Stage (ms)",
@@ -296,21 +330,46 @@ if not stage_perf.empty:
         st.plotly_chart(fig, use_container_width=True)
 
     with col_s2:
-        fig = px.bar(
-            stage_perf,
-            x="stage",
-            y="avg_cost_usd",
-            title="Average Cost by Stage (USD)",
-            color="stage",
-            text_auto=".5f",
-        )
-        fig.update_layout(showlegend=False, height=400)
-        st.plotly_chart(fig, use_container_width=True)
+        llm_stages = stage_agg[stage_agg["span_type"] == "llm"]
+        if not llm_stages.empty:
+            fig = px.bar(
+                llm_stages,
+                x="stage",
+                y="avg_cost_usd",
+                title="Average LLM Cost by Stage (USD)",
+                color="stage",
+                text_auto=".5f",
+            )
+            fig.update_layout(showlegend=False, height=400)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No LLM cost data available for the selected period.")
 
-    detail = stage_perf.copy()
-    detail["avg_latency_ms"] = detail["avg_latency_ms"].apply(lambda v: f"{v:,.1f}")
-    detail["avg_cost_usd"] = detail["avg_cost_usd"].apply(lambda v: f"${v:.5f}")
-    detail["error_rate"] = detail["error_rate"].apply(lambda v: f"{v:.2%}")
+    # Table with safe formatting
+    detail = stage_agg[
+        [
+            "stage",
+            "span_type",
+            "span_count",
+            "avg_latency_ms",
+            "avg_cost_usd",
+            "avg_input_tokens",
+            "avg_output_tokens",
+            "error_rate",
+        ]
+    ].copy()
+    detail["avg_latency_ms"] = detail["avg_latency_ms"].apply(lambda v: _fmt(v, "latency_ms"))
+    detail["avg_cost_usd"] = detail["avg_cost_usd"].apply(lambda v: _fmt(v, "currency"))
+    detail["error_rate"] = detail["error_rate"].apply(lambda v: _fmt(v, "percent"))
+    detail["avg_input_tokens"] = detail.apply(
+        lambda r: _fmt(r["avg_input_tokens"], "integer") if r["span_type"] == "llm" else "N/A",
+        axis=1,
+    )
+    detail["avg_output_tokens"] = detail.apply(
+        lambda r: _fmt(r["avg_output_tokens"], "integer") if r["span_type"] == "llm" else "N/A",
+        axis=1,
+    )
+    detail["span_count"] = detail["span_count"].apply(lambda v: _fmt(v, "integer"))
     st.dataframe(detail, use_container_width=True, hide_index=True)
 else:
     st.info("No stage performance data available.")
@@ -357,8 +416,12 @@ if not errors.empty:
     st.plotly_chart(fig, use_container_width=True)
 
     errors_display = errors.copy()
-    errors_display["pct_of_total"] = errors_display["pct_of_total"].apply(lambda v: f"{v:.1%}")
-    errors_display["cumulative_pct"] = errors_display["cumulative_pct"].apply(lambda v: f"{v:.1%}")
+    errors_display["pct_of_total"] = errors_display["pct_of_total"].apply(
+        lambda v: _fmt(v, "percent")
+    )
+    errors_display["cumulative_pct"] = errors_display["cumulative_pct"].apply(
+        lambda v: _fmt(v, "percent")
+    )
     st.dataframe(errors_display, use_container_width=True, hide_index=True)
 else:
     st.info("No error root cause data available.")
@@ -367,23 +430,34 @@ else:
 st.subheader("Model Version Comparison")
 
 if not model_comp.empty:
+    agg_mc2 = model_comp.groupby(["model_name", "prompt_version"], as_index=False).agg(
+        {
+            "avg_cost_usd": "mean",
+            "avg_field_accuracy": "mean",
+            "avg_latency_ms": "mean",
+            "success_rate": "mean",
+            "avg_retry_count": "mean",
+            "run_count": "sum",
+            "total_input_tokens": "sum",
+            "total_output_tokens": "sum",
+            "avg_quality_score": "mean",
+        }
+    )
+
     fig = px.scatter(
-        model_comp,
+        agg_mc2,
         x="avg_cost_usd",
         y="avg_field_accuracy",
         size="run_count",
         color="model_name",
         hover_data=["prompt_version", "avg_latency_ms", "success_rate"],
         title="Cost vs Field Accuracy by Model (bubble size = run count)",
-        labels={
-            "avg_cost_usd": "Avg Cost / Run (USD)",
-            "avg_field_accuracy": "Field Accuracy",
-        },
+        labels={"avg_cost_usd": "Avg Cost / Run (USD)", "avg_field_accuracy": "Field Accuracy"},
     )
     fig.update_layout(height=500)
     st.plotly_chart(fig, use_container_width=True)
 
-    detail_comp = model_comp[
+    detail_comp = agg_mc2[
         [
             "model_name",
             "prompt_version",
@@ -396,9 +470,12 @@ if not model_comp.empty:
             "avg_retry_count",
         ]
     ].copy()
-    detail_comp["avg_cost_usd"] = detail_comp["avg_cost_usd"].apply(lambda v: f"${v:.5f}")
-    detail_comp["avg_latency_ms"] = detail_comp["avg_latency_ms"].apply(lambda v: f"{v:,.1f}")
-    detail_comp["success_rate"] = detail_comp["success_rate"].apply(lambda v: f"{v:.2%}")
+    detail_comp["avg_cost_usd"] = detail_comp["avg_cost_usd"].apply(lambda v: _fmt(v, "currency"))
+    detail_comp["avg_latency_ms"] = detail_comp["avg_latency_ms"].apply(
+        lambda v: _fmt(v, "latency_ms")
+    )
+    detail_comp["success_rate"] = detail_comp["success_rate"].apply(lambda v: _fmt(v, "percent"))
+    detail_comp["run_count"] = detail_comp["run_count"].apply(lambda v: _fmt(v, "integer"))
     st.dataframe(detail_comp, use_container_width=True, hide_index=True)
 else:
     st.info("No model comparison data available.")

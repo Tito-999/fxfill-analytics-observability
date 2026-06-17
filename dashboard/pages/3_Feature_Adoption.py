@@ -79,6 +79,7 @@ if not adoption.empty:
             {
                 "label": row["feature_name"],
                 "value": row["adoption_rate"],
+                "format_type": "percent",
                 "help": f"{int(row['adopted_users'])} / {int(row['total_users'])} users adopted {row['feature_name']}",
             }
         )
@@ -125,6 +126,10 @@ else:
 
 # ── Overall adoption trend (wide mart, no device/complexity filters) ────────
 st.subheader("Daily Feature Adoption Trend")
+st.caption(
+    "Overall trend — device and complexity filters do not apply. "
+    "Use the Segmented Adoption charts above for filtered analysis."
+)
 trend = query_df(
     """
     SELECT event_date, total_tasks, ocr_adoption, anonymization_adoption,

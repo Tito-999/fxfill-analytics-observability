@@ -104,8 +104,10 @@ retention_where_sql = " AND ".join(retention_where)
 retention = query_df(
     f"""
     SELECT cohort_date, acquisition_channel, eligible_users,
-           d1_retained_users, d7_retained_users, d30_retained_users,
-           d1_retention_rate, d7_retention_rate, d30_retention_rate
+           d1_matured, d1_eligible_users, d1_retained_users, d1_retention_rate,
+           d7_matured, d7_eligible_users, d7_retained_users, d7_retention_rate,
+           d30_matured, d30_eligible_users, d30_retained_users, d30_retention_rate,
+           observation_end_date
     FROM main_marts.mart_retention_cohort
     WHERE {retention_where_sql}
     ORDER BY cohort_date
@@ -201,37 +203,47 @@ else:
 st.subheader("Retention Cohorts")
 
 if not retention.empty:
-    weekly = prepare_weekly_retention(retention)
+    try:
+        weekly = prepare_weekly_retention(retention)
+    except ValueError as e:
+        st.error(f"Retention data contract error: {e}")
+        weekly = pd.DataFrame()
 
-    tab_d1, tab_d7, tab_d30 = st.tabs(["D1 Retention", "D7 Retention", "D30 Retention"])
+    if not weekly.empty:
+        tab_d1, tab_d7, tab_d30 = st.tabs(["D1 Retention", "D7 Retention", "D30 Retention"])
 
-    with tab_d1:
-        fig_d1 = build_retention_figure(weekly, "d1")
-        st.plotly_chart(fig_d1, use_container_width=True)
+        for tab, horizon, label in [
+            (tab_d1, "d1", "D1"),
+            (tab_d7, "d7", "D7"),
+            (tab_d30, "d30", "D30"),
+        ]:
+            with tab:
+                fig, point_count = build_retention_figure(weekly, horizon)
+                if fig is not None and point_count > 0:
+                    st.plotly_chart(fig, use_container_width=True)
+                else:
+                    st.info(
+                        f"No {label} weekly channel cohorts meet the minimum "
+                        f"sample size of {20}. "
+                        "See Sample Size Summary for details."
+                    )
 
-    with tab_d7:
-        fig_d7 = build_retention_figure(weekly, "d7")
-        st.plotly_chart(fig_d7, use_container_width=True)
-
-    with tab_d30:
-        fig_d30 = build_retention_figure(weekly, "d30")
-        st.plotly_chart(fig_d30, use_container_width=True)
-
-    # Sample summary table
-    st.subheader("Sample Size Summary")
-    with st.expander("View cohort sample details", expanded=False):
-        summary = build_sample_summary_table(weekly)
-        if not summary.empty:
-            # Format rates
-            summary["retention_rate"] = summary["retention_rate"].apply(
-                lambda v: f"{v:.1%}" if pd.notna(v) else "N/A"
-            )
-            st.dataframe(summary, use_container_width=True, hide_index=True)
-            st.caption(
-                "Cohort-weeks with fewer than 20 eligible users are marked "
-                '"insufficient" and are excluded from the chart. '
-                "Rates are weighted by eligible users within each weekly cohort."
-            )
+        st.subheader("Sample Size Summary")
+        with st.expander("View cohort sample details", expanded=False):
+            summary = build_sample_summary_table(weekly)
+            if not summary.empty:
+                summary["retention_rate"] = summary["retention_rate"].apply(
+                    lambda v: f"{v:.1%}" if pd.notna(v) else "N/A"
+                )
+                st.dataframe(summary, use_container_width=True, hide_index=True)
+                st.caption(
+                    "Cohort-weeks with fewer than 20 eligible users are marked "
+                    '"insufficient" and are excluded from the chart. '
+                    "Unmatured cohorts display N/A. "
+                    "Rates are weighted by eligible users within each weekly cohort."
+                )
+    else:
+        st.info("No retention data to display after weekly aggregation.")
 else:
     st.info("No retention data available for the selected filters.")
 
