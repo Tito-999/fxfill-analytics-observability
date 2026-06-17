@@ -1,0 +1,1 @@
+Laptop-runnable product analytics & AI Agent observability platform. 37 dbt models, 8 Streamlit pages, 20 SQL queries, full A/B test pipeline with 5000 bootstrap iterations. Synthetic data, deterministic seed, machine-verified acceptance. Built with Python, DuckDB, dbt, Streamlit, and statsmodels.

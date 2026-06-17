@@ -1,0 +1,38 @@
+1
+00:00:00,000 --> 00:00:08,000
+FxFill Analytics & AI Agent Observability Platform
+All data is intentionally generated synthetic data.
+
+2
+00:00:08,000 --> 00:00:18,000
+Architecture: Synthetic Data -> DuckDB -> dbt -> Streamlit Dashboard
+
+3
+00:00:18,000 --> 00:00:30,000
+Executive Overview with north-star metrics and trend analysis
+
+4
+00:00:30,000 --> 00:00:42,000
+7-step task conversion funnel with cohort retention
+
+5
+00:00:42,000 --> 00:00:54,000
+AI agent latency, cost, and error observability
+
+6
+00:00:54,000 --> 00:00:66,000
+Root cause decomposition with Kitagawa rate/mix effects
+
+7
+00:00:66,000 --> 00:00:82,000
+A/B experiment with bootstrap, guardrails, and decision intelligence
+
+8
+00:00:82,000 --> 00:00:95,000
+Machine-verifiable acceptance: 226 tests, all phases complete
+
+9
+00:00:95,000 --> 00:01:50,000
+FxFill Analytics. Portfolio-ready. github.com
+
+* ALL DATA IS SYNTHETIC *

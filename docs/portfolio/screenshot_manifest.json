@@ -1,0 +1,82 @@
+[
+  {
+    "filename": "home.png",
+    "page_name": "Home",
+    "width": 1400,
+    "height": 900,
+    "file_size_bytes": 15065,
+    "sha256": "0885396de6bcad38",
+    "valid_png": true,
+    "contains_sensitive_content_reviewed": false
+  },
+  {
+    "filename": "executive_overview.png",
+    "page_name": "Executive Overview",
+    "width": 1400,
+    "height": 900,
+    "file_size_bytes": 15560,
+    "sha256": "30ebc2817988f38b",
+    "valid_png": true,
+    "contains_sensitive_content_reviewed": false
+  },
+  {
+    "filename": "funnel_retention.png",
+    "page_name": "Funnel Retention",
+    "width": 1400,
+    "height": 900,
+    "file_size_bytes": 14306,
+    "sha256": "7941659219b719b1",
+    "valid_png": true,
+    "contains_sensitive_content_reviewed": false
+  },
+  {
+    "filename": "feature_adoption.png",
+    "page_name": "Feature Adoption",
+    "width": 1400,
+    "height": 900,
+    "file_size_bytes": 13660,
+    "sha256": "36376e56f389bbeb",
+    "valid_png": true,
+    "contains_sensitive_content_reviewed": false
+  },
+  {
+    "filename": "agent_observability.png",
+    "page_name": "Agent Observability",
+    "width": 1400,
+    "height": 900,
+    "file_size_bytes": 14968,
+    "sha256": "1c297e7945b6e9c1",
+    "valid_png": true,
+    "contains_sensitive_content_reviewed": false
+  },
+  {
+    "filename": "ab_test.png",
+    "page_name": "Ab Test",
+    "width": 1400,
+    "height": 900,
+    "file_size_bytes": 16497,
+    "sha256": "979fdef595803a14",
+    "valid_png": true,
+    "contains_sensitive_content_reviewed": false
+  },
+  {
+    "filename": "root_cause.png",
+    "page_name": "Root Cause",
+    "width": 1400,
+    "height": 900,
+    "file_size_bytes": 15272,
+    "sha256": "c4bc56fedb104d24",
+    "valid_png": true,
+    "contains_sensitive_content_reviewed": false
+  },
+  {
+    "filename": "data_quality.png",
+    "page_name": "Data Quality",
+    "width": 1400,
+    "height": 900,
+    "file_size_bytes": 14915,
+    "sha256": "d0ff5d56740bb111",
+    "valid_png": true,
+    "contains_sensitive_content_reviewed": false
+  }
+]

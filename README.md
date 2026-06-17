@@ -183,3 +183,12 @@ This project builds on: DuckDB, dbt, Streamlit, FastAPI, Pandas, Plotly, SciPy, 
 ## Author
 
 Data Analyst Portfolio Project — .
+
+## Limitations
+
+- **Synthetic data only**: All behavioral and operational data is algorithmically generated
+- **Not a real banking production system**: This is a portfolio project demonstrating analytics engineering capabilities
+- **No real customer PII**: All user identities are synthetic
+- **No online streaming ingestion**: Data is batch-generated, not real-time
+- **No cloud deployment**: Runs locally on DuckDB
+- **Business-impact values are scenario assumptions**: Financial figures are illustrative, not real
