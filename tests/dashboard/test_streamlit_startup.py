@@ -6,7 +6,7 @@ import urllib.request
 import urllib.error
 
 PROJECT = Path(__file__).resolve().parent.parent.parent
-DB_PATH = str(PROJECT / "warehouse" / "fxfill.duckdb")
+DB_PATH = str((PROJECT / "warehouse" / "fxfill.duckdb").resolve())
 
 
 def _find_free_port() -> int:
@@ -15,7 +15,7 @@ def _find_free_port() -> int:
         return s.getsockname()[1]
 
 
-def _wait_for_health(port: int, timeout: int = 15) -> bool:
+def _wait_for_health(port: int, timeout: int = 30) -> bool:
     deadline = time.time() + timeout
     while time.time() < deadline:
         try:

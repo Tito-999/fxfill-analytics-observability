@@ -1,192 +1,185 @@
 {
-  "current_period_start": "2026-06-13 - 7d",
   "current_period_end": "2026-06-13",
-  "previous_period_start": "2026-06-13 - 14d",
+  "current_period_start": "2026-06-13 - 7d",
   "previous_period_end": "2026-06-13 - 7d",
+  "previous_period_start": "2026-06-13 - 14d",
   "current_task_count": 3308,
   "previous_task_count": 2917,
-  "current_exported_tasks": 1956,
-  "previous_exported_tasks": 1758,
-  "current_export_rate": 0.591018,
-  "previous_export_rate": 0.603242,
-  "overall_change": -0.01222406,
-  "sum_rate_effect": -0.011851,
-  "sum_mix_effect": 0.000471,
-  "sum_total_contribution": -0.011381,
-  "residual": -0.0008430604,
-  "tolerance": 0.001,
+  "current_export_rate": 0.591294,
+  "previous_export_rate": 0.602674,
+  "overall_change": -0.011380146984756423,
+  "sum_rate_effect": -0.011175728300893382,
+  "sum_mix_effect": -0.00020441868386303005,
+  "sum_total_contribution": -0.011380146984756413,
+  "residual": -1.0408340855860843e-17,
+  "tolerance": 1e-10,
   "reconciliation_passed": true,
+  "decomposition_method": "Symmetric Kitagawa: re=0.5*(cs+ps)*(cr-pr), me=0.5*(cr+pr)*(cs-ps)",
   "top_negative_drivers": [
     {
-      "rank": 1,
-      "dimension": "acquisition_channel",
       "segment": "organic",
       "current_volume": 1090,
       "previous_volume": 1036,
-      "current_share": 0.329504,
-      "previous_share": 0.355159,
-      "current_rate": 0.574312,
-      "previous_rate": 0.621622,
-      "rate_effect": -0.016802,
-      "mix_effect": -0.014734,
-      "total_contribution": -0.031537,
-      "contribution_share": -0.610083
+      "current_share": 0.3295042322,
+      "previous_share": 0.3551594104,
+      "current_exported": 626,
+      "previous_exported": 644,
+      "current_rate": 0.5743119266,
+      "previous_rate": 0.6216216216,
+      "rate_effect": -0.016195614058064592,
+      "mix_effect": -0.015340944140777302,
+      "total_contribution": -0.031536558198841894,
+      "contribution_share": -0.6100744174111079
     }
   ],
   "top_positive_drivers": [
     {
-      "rank": 5,
-      "dimension": "acquisition_channel",
       "segment": "social",
       "current_volume": 684,
       "previous_volume": 568,
-      "current_share": 0.206771,
-      "previous_share": 0.194721,
-      "current_rate": 0.619883,
-      "previous_rate": 0.598592,
-      "rate_effect": 0.004146,
-      "mix_effect": 0.00747,
-      "total_contribution": 0.011616,
-      "contribution_share": 0.224711
+      "current_share": 0.2067714631,
+      "previous_share": 0.1947206034,
+      "current_exported": 424,
+      "previous_exported": 340,
+      "current_rate": 0.6198830409,
+      "previous_rate": 0.5985915493,
+      "rate_effect": 0.004274182488464939,
+      "mix_effect": 0.0073418332040584245,
+      "total_contribution": 0.011616015692523364,
+      "contribution_share": 0.22471171272313156
     },
     {
-      "rank": 4,
-      "dimension": "acquisition_channel",
       "segment": "paid_search",
       "current_volume": 870,
       "previous_volume": 758,
-      "current_share": 0.262999,
-      "previous_share": 0.259856,
-      "current_rate": 0.618391,
-      "previous_rate": 0.604222,
-      "rate_effect": 0.003682,
-      "mix_effect": 0.001943,
-      "total_contribution": 0.005625,
-      "contribution_share": 0.108816
+      "current_share": 0.2629987908,
+      "previous_share": 0.2598560165,
+      "current_exported": 538,
+      "previous_exported": 458,
+      "current_rate": 0.6183908046,
+      "previous_rate": 0.6042216359,
+      "rate_effect": 0.0037042089884815467,
+      "mix_effect": 0.0019211975119605672,
+      "total_contribution": 0.005625406500442114,
+      "contribution_share": 0.10882343506920522
     },
     {
-      "rank": 3,
-      "dimension": "acquisition_channel",
       "segment": "referral",
       "current_volume": 504,
       "previous_volume": 422,
-      "current_share": 0.152358,
-      "previous_share": 0.144669,
-      "current_rate": 0.559524,
-      "previous_rate": 0.57109,
-      "rate_effect": -0.001673,
-      "mix_effect": 0.004302,
-      "total_contribution": 0.002629,
-      "contribution_share": 0.050858
+      "current_share": 0.1523579202,
+      "previous_share": 0.1446691807,
+      "current_exported": 282,
+      "previous_exported": 241,
+      "current_rate": 0.5595238095,
+      "previous_rate": 0.5710900474,
+      "rate_effect": -0.0017177430511171252,
+      "mix_effect": 0.004346497726519933,
+      "total_contribution": 0.002628754675402808,
+      "contribution_share": 0.050853234110118835
     }
   ],
+  "negative_driver_count": 1,
+  "positive_driver_count": 3,
   "all_drivers": [
     {
-      "rank": 1,
-      "dimension": "acquisition_channel",
       "segment": "organic",
       "current_volume": 1090,
       "previous_volume": 1036,
-      "current_share": 0.329504,
-      "previous_share": 0.355159,
-      "current_rate": 0.574312,
-      "previous_rate": 0.621622,
-      "rate_effect": -0.016802,
-      "mix_effect": -0.014734,
-      "total_contribution": -0.031537,
-      "contribution_share": -0.610083
+      "current_share": 0.3295042322,
+      "previous_share": 0.3551594104,
+      "current_exported": 626,
+      "previous_exported": 644,
+      "current_rate": 0.5743119266,
+      "previous_rate": 0.6216216216,
+      "rate_effect": -0.016195614058064592,
+      "mix_effect": -0.015340944140777302,
+      "total_contribution": -0.031536558198841894,
+      "contribution_share": -0.6100744174111079
     },
     {
-      "rank": 2,
-      "dimension": "acquisition_channel",
       "segment": "campus",
       "current_volume": 160,
       "previous_volume": 133,
-      "current_share": 0.048368,
-      "previous_share": 0.045595,
+      "current_share": 0.0483675937,
+      "previous_share": 0.0455947892,
+      "current_exported": 86,
+      "previous_exported": 75,
       "current_rate": 0.5375,
-      "previous_rate": 0.56391,
-      "rate_effect": -0.001204,
-      "mix_effect": 0.00149,
-      "total_contribution": 0.000286,
-      "contribution_share": 0.005533
+      "previous_rate": 0.5639097744,
+      "rate_effect": -0.0012407626686581513,
+      "mix_effect": 0.0015269970143753475,
+      "total_contribution": 0.0002862343457171962,
+      "contribution_share": 0.005537200686436379
     },
     {
-      "rank": 3,
-      "dimension": "acquisition_channel",
       "segment": "referral",
       "current_volume": 504,
       "previous_volume": 422,
-      "current_share": 0.152358,
-      "previous_share": 0.144669,
-      "current_rate": 0.559524,
-      "previous_rate": 0.57109,
-      "rate_effect": -0.001673,
-      "mix_effect": 0.004302,
-      "total_contribution": 0.002629,
-      "contribution_share": 0.050858
+      "current_share": 0.1523579202,
+      "previous_share": 0.1446691807,
+      "current_exported": 282,
+      "previous_exported": 241,
+      "current_rate": 0.5595238095,
+      "previous_rate": 0.5710900474,
+      "rate_effect": -0.0017177430511171252,
+      "mix_effect": 0.004346497726519933,
+      "total_contribution": 0.002628754675402808,
+      "contribution_share": 0.050853234110118835
     },
     {
-      "rank": 4,
-      "dimension": "acquisition_channel",
       "segment": "paid_search",
       "current_volume": 870,
       "previous_volume": 758,
-      "current_share": 0.262999,
-      "previous_share": 0.259856,
-      "current_rate": 0.618391,
-      "previous_rate": 0.604222,
-      "rate_effect": 0.003682,
-      "mix_effect": 0.001943,
-      "total_contribution": 0.005625,
-      "contribution_share": 0.108816
+      "current_share": 0.2629987908,
+      "previous_share": 0.2598560165,
+      "current_exported": 538,
+      "previous_exported": 458,
+      "current_rate": 0.6183908046,
+      "previous_rate": 0.6042216359,
+      "rate_effect": 0.0037042089884815467,
+      "mix_effect": 0.0019211975119605672,
+      "total_contribution": 0.005625406500442114,
+      "contribution_share": 0.10882343506920522
     },
     {
-      "rank": 5,
-      "dimension": "acquisition_channel",
       "segment": "social",
       "current_volume": 684,
       "previous_volume": 568,
-      "current_share": 0.206771,
-      "previous_share": 0.194721,
-      "current_rate": 0.619883,
-      "previous_rate": 0.598592,
-      "rate_effect": 0.004146,
-      "mix_effect": 0.00747,
-      "total_contribution": 0.011616,
-      "contribution_share": 0.224711
+      "current_share": 0.2067714631,
+      "previous_share": 0.1947206034,
+      "current_exported": 424,
+      "previous_exported": 340,
+      "current_rate": 0.6198830409,
+      "previous_rate": 0.5985915493,
+      "rate_effect": 0.004274182488464939,
+      "mix_effect": 0.0073418332040584245,
+      "total_contribution": 0.011616015692523364,
+      "contribution_share": 0.22471171272313156
     }
   ],
-  "method": "Single-dimension rate-volume decomposition on acquisition_channel (mutually exclusive segments). rate_effect = prev_share * (curr_rate - prev_rate), mix_effect = (curr_share - prev_share) * curr_rate.",
-  "observed_facts": [
-    {
-      "statement": "Export rate changed from 0.6032 to 0.5910 (absolute: -0.0122)",
-      "value": -0.012224
-    },
-    {
-      "statement": "Task volume changed from 2917 to 3308",
-      "value": 391
-    }
-  ],
-  "analytical_inferences": [
-    {
-      "statement": "Top negative contributor: organic (-0.0315)"
-    }
-  ],
-  "hypotheses_requiring_validation": [
-    "Is the observed export rate decline within normal synthetic data variance?",
-    "Are the top contributing segments showing systematic behavioral changes or random fluctuations?"
-  ],
-  "recommended_actions": [
-    "Cross-reference top contributing segments with agent error rates",
-    "Verify if the rate decline persists over longer time windows"
-  ],
-  "synthetic_data_notice": "All findings are derived from intentionally generated synthetic data and do not represent a real production incident.",
   "diagnostic_dimensions": [
     "device_type",
     "app_version",
     "document_complexity",
     "user_segment",
     "agent_error_type"
-  ]
+  ],
+  "observed_facts": [
+    {
+      "statement": "Overall export rate: 0.6027 -> 0.5913 (change: -0.011380)"
+    }
+  ],
+  "analytical_inferences": [
+    {
+      "statement": "Top negative: organic contributed -0.031537"
+    }
+  ],
+  "hypotheses_requiring_validation": [
+    "Verify whether observed decomposition reflects synthetic data patterns"
+  ],
+  "recommended_actions": [
+    "Cross-reference with Agent error rates"
+  ],
+  "synthetic_data_notice": "All findings are from intentionally generated synthetic data."
 }
