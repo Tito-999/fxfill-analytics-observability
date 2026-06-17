@@ -1,0 +1,75 @@
+{
+  "home_page_count": 1,
+  "business_page_count": 7,
+  "total_streamlit_page_files": 8,
+  "page_names": [
+    "Executive Overview",
+    "Funnel and Retention",
+    "Feature Adoption",
+    "Agent Observability",
+    "A/B Test",
+    "Root Cause Analysis",
+    "Data Quality"
+  ],
+  "chart_count_by_page": {
+    "Executive Overview": 4,
+    "Funnel and Retention": 2,
+    "Feature Adoption": 3,
+    "Agent Observability": 7,
+    "A/B Test": 4,
+    "Root Cause Analysis": 6,
+    "Data Quality": 4
+  },
+  "table_count_by_page": {
+    "Executive Overview": 2,
+    "Funnel and Retention": 1,
+    "Feature Adoption": 1,
+    "Agent Observability": 2,
+    "A/B Test": 1,
+    "Root Cause Analysis": 1,
+    "Data Quality": 2
+  },
+  "filter_count_by_page": {
+    "Executive Overview": 4,
+    "Funnel and Retention": 4,
+    "Feature Adoption": 3,
+    "Agent Observability": 2,
+    "A/B Test": 2,
+    "Root Cause Analysis": 2,
+    "Data Quality": 1
+  },
+  "export_count_by_page": {
+    "Executive Overview": 1,
+    "Funnel and Retention": 1,
+    "Feature Adoption": 1,
+    "Agent Observability": 1,
+    "A/B Test": 1,
+    "Root Cause Analysis": 1,
+    "Data Quality": 1
+  },
+  "total_chart_count": 30,
+  "total_table_count": 10,
+  "total_filter_count": 18,
+  "total_export_count": 7,
+  "database_read_only": true,
+  "raw_scan_violation_count": 0,
+  "screenshot_count": 8,
+  "screenshot_capture_method": "manual",
+  "export_type_count": 7,
+  "validated_export_type_count": 7,
+  "metric_definition_count": 8,
+  "key_metric_count": 6,
+  "metric_definition_coverage": "8 of 8 core KPIs defined",
+  "source_marts_by_page": {
+    "Executive Overview": "mart_executive_daily_scorecard",
+    "Funnel": "mart_conversion_funnel",
+    "Retention": "mart_retention_cohort",
+    "Feature": "mart_feature_adoption",
+    "Agent": "mart_agent_daily_kpis",
+    "AB Test": "mart_ab_test_summary",
+    "Root Cause": "mart_daily_product_kpis",
+    "Data Quality": "phase1/2 audit JSON"
+  },
+  "git_commit": "064292e",
+  "generated_at": "2026-06-17T05:06:05.417194+00:00"
+}
