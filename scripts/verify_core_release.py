@@ -163,6 +163,35 @@ def _warehouse_check(run_dir: Path, db_path: Path):
         fail(f"dbt run failed: {r.stderr[:200]}")
         return False
 
+    # ── Save model run_results BEFORE dbt test overwrites them ──
+    model_rr_src = PROJECT / "dbt_fxfill" / "target" / "run_results.json"
+    manifest_src = PROJECT / "dbt_fxfill" / "target" / "manifest.json"
+    import tempfile as _tempfile
+
+    _artifact_dir = Path(_tempfile.mkdtemp(prefix="dbt_artifacts_"))
+    model_rr_dst = _artifact_dir / "dbt_model_run_results.json"
+    manifest_dst = _artifact_dir / "dbt_manifest.json"
+    if model_rr_src.exists():
+        shutil.copy(str(model_rr_src), str(model_rr_dst))
+    if manifest_src.exists():
+        shutil.copy(str(manifest_src), str(manifest_dst))
+
+    # Verify model results contain model.* entries
+    if model_rr_dst.exists():
+        with open(model_rr_dst, encoding="utf-8") as f:
+            _model_data = json.load(f)
+        _model_entries = [
+            r for r in _model_data.get("results", []) if r["unique_id"].startswith("model.")
+        ]
+        if not _model_entries:
+            fail("dbt model run_results has no model.* execution entries")
+            _artifact_dir_name = str(_artifact_dir)
+            return False
+    else:
+        fail("dbt model run_results artifact missing after dbt run")
+        _artifact_dir_name = str(_artifact_dir)
+        return False
+
     r = subprocess.run(
         [
             dbt_exe,
@@ -193,12 +222,19 @@ def _warehouse_check(run_dir: Path, db_path: Path):
             dbt_test_ok = dbt_test_pass == dbt_test_count and dbt_test_count > 0
     if not dbt_test_ok and "PASS=" in r.stdout:
         dbt_test_ok = True
+
+    # ── Save test run_results ──
+    test_rr_dst = _artifact_dir / "dbt_test_run_results.json"
+    if model_rr_src.exists():
+        shutil.copy(str(model_rr_src), str(test_rr_dst))
+
     if dbt_test_ok:
         pass_gate(f"dbt test: {dbt_test_pass}/{dbt_test_count}")
     else:
         fail("dbt test failed")
         return False
-    return True, dbt_model_count, dbt_model_pass, dbt_test_count, dbt_test_pass
+
+    return True, str(_artifact_dir)
 
 
 def _experiment_check(db_path: Path):
@@ -420,33 +456,32 @@ def main():
     ).stdout.strip()
 
     run_dir = None
+    artifact_dir = None
     try:
         run_dir = _data_check(gen_dir)
         if run_dir:
-            wh_ok = _warehouse_check(run_dir, db_path)
-            if wh_ok:
-                # Unpack tuple: (ok, model_count, model_pass, test_count, test_pass)
-                if isinstance(wh_ok, tuple):
-                    wh_ok = wh_ok[0]
-                # Save model run_results
-                model_results_path = tmp / "dbt_model_run_results.json"
-                shutil.copy(
-                    str(Path("dbt_fxfill/target/run_results.json")), str(model_results_path)
-                )
+            wh_result = _warehouse_check(run_dir, db_path)
+            if wh_result:
+                # Unpack: (True, artifact_dir_str) from _warehouse_check
+                wh_ok = True
+                if isinstance(wh_result, tuple):
+                    wh_ok = wh_result[0]
+                    artifact_dir = Path(wh_result[1]) if wh_result[1] else None
+                # Use artifact_dir for separated model/test results
+                if artifact_dir and artifact_dir.exists():
+                    model_results_path = artifact_dir / "dbt_model_run_results.json"
+                    test_results_path = artifact_dir / "dbt_test_run_results.json"
+                    manifest_path = artifact_dir / "dbt_manifest.json"
+                else:
+                    model_results_path = tmp / "dbt_model_run_results.json"
+                    test_results_path = tmp / "dbt_test_run_results.json"
+                    manifest_path = tmp / "dbt_manifest.json"
 
                 exp_ok = _experiment_check(db_path)
 
                 # Pytest with DB alive
                 eng = _pytest(db_path)
                 junit_path = R / "core_release_pytest.xml"
-
-                # Save test run_results after dbt test
-                test_results_path = tmp / "dbt_test_run_results.json"
-                test_rr = PROJECT / "dbt_fxfill" / "target" / "run_results.json"
-                if test_rr.exists():
-                    shutil.copy(str(test_rr), str(test_results_path))
-
-                manifest_path = PROJECT / "dbt_fxfill" / "target" / "manifest.json"
 
                 # Business metric integrity
                 bi_out = str(tmp / "business_integrity.json")

@@ -99,6 +99,6 @@ def test_no_empty_traces_rendered():
         }
     )
     weekly = prepare_weekly_retention(df)
-    fig, count = build_retention_figure(weekly, "d1")
+    fig, audit = build_retention_figure(weekly, "d1")
     assert fig is None, "Should return None when no data to plot"
-    assert count == 0
+    assert audit.plotted_point_count == 0

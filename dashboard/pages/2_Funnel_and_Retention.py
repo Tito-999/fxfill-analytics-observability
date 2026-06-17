@@ -218,8 +218,8 @@ if not retention.empty:
             (tab_d30, "d30", "D30"),
         ]:
             with tab:
-                fig, point_count = build_retention_figure(weekly, horizon)
-                if fig is not None and point_count > 0:
+                fig, audit = build_retention_figure(weekly, horizon)
+                if fig is not None and audit.plotted_point_count > 0:
                     st.plotly_chart(fig, use_container_width=True)
                 else:
                     st.info(

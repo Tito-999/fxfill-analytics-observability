@@ -109,17 +109,17 @@ def _check_retention(conn) -> dict:
 
     empty_traces_total = 0
     unmatured_plotted = 0
+    insufficient_plotted = 0
     for horizon in ["d1", "d7", "d30"]:
-        fig, pt_count = build_retention_figure(weekly, horizon)
+        fig, audit = build_retention_figure(weekly, horizon)
         if fig is not None:
-            for trace in fig.data:
-                x_vals = list(trace.x) if trace.x is not None else []
-                y_vals = list(trace.y) if trace.y is not None else []
-                if len(x_vals) == 0 or len(y_vals) == 0:
-                    empty_traces_total += 1
+            empty_traces_total += audit.empty_trace_count
+        unmatured_plotted += audit.unmatured_points_plotted
+        insufficient_plotted += audit.insufficient_points_plotted
 
     result["empty_traces_rendered"] = empty_traces_total
     result["unmatured_points_plotted"] = unmatured_plotted
+    result["insufficient_points_plotted"] = insufficient_plotted
     if empty_traces_total > 0:
         failures.append(f"empty_traces_rendered={empty_traces_total}")
     if unmatured_plotted > 0:

@@ -264,7 +264,7 @@
         "estimate": 0.008680282593645948,
         "std_err": 0.014440379186846822,
         "ci_lower": -0.0190070005655464,
-        "ci_upper": 0.037470642777717014,
+        "ci_upper": 0.03747064277771691,
         "observed_diff": 0.008932122654924268,
         "bootstrap_mean": 0.009183962716202589,
         "seed": 20260616,
@@ -388,7 +388,7 @@
     }
   },
   "performance": {
-    "total_duration_seconds": 1.2,
+    "total_duration_seconds": 1.4,
     "peak_memory_mb": "see_diagnostic"
   }
 }

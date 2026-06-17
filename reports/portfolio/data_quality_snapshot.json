@@ -1,27 +1,27 @@
 {
   "schema_version": "1.0.0",
   "git": {
-    "verified_code_commit": "2be32a5",
-    "report_generation_commit": "2be32a53f8cfc3de3346e9f24b8fb11f8e48a4ef"
+    "verified_code_commit": "7b664e7",
+    "report_generation_commit": "7b664e75e07ea8cdbadc68c8765303baa431a789"
   },
   "provenance": {
-    "manifest_run_id": "run_small_20260617_5c2bf2c8f4e0",
-    "manifest_config_hash": "5c2bf2c8f4e0",
-    "warehouse_source_run_id": "run_small_20260617_5c2bf2c8f4e0",
-    "warehouse_source_config_hash": "5c2bf2c8f4e0",
+    "manifest_run_id": "run_small_20260616_b0f5f391e3b8",
+    "manifest_config_hash": "b0f5f391e3b8",
+    "warehouse_source_run_id": "run_small_20260616_b0f5f391e3b8",
+    "warehouse_source_config_hash": "b0f5f391e3b8",
     "warehouse_run_ids_found": [
-      "run_small_20260617_5c2bf2c8f4e0"
+      "run_small_20260616_b0f5f391e3b8"
     ],
     "warehouse_config_hashes_found": [
-      "5c2bf2c8f4e0"
+      "b0f5f391e3b8"
     ],
     "warehouse_source_consistent": true,
     "provenance_matches": true,
     "size_profile": "small",
-    "seed": 20260617,
+    "seed": 20260616,
     "database_path_relative": "warehouse/fxfill.duckdb",
-    "database_fingerprint": "a4bf9808323ca113",
-    "generated_at_utc": "2026-06-17T14:33:25.996342+00:00"
+    "database_fingerprint": "f190dc4067c05bd3",
+    "generated_at_utc": "2026-06-17T15:00:53.171840+00:00"
   },
   "dbt": {
     "model_count": 41,
@@ -37,9 +37,9 @@
     "test_fail": 0,
     "test_error": 0,
     "test_skip": 0,
-    "manifest_hash": "cdb1a0ad5ea3f5e5",
-    "model_results_hash": "c5d9f8947fec5e68",
-    "test_results_hash": "c5d9f8947fec5e68",
+    "manifest_hash": "b47f55a84c21746e",
+    "model_results_hash": "80b05c29d5cb6258",
+    "test_results_hash": "80b05c29d5cb6258",
     "stale": false,
     "accepted": true
   },
@@ -68,8 +68,8 @@
       "delta": 0
     },
     "product_events": {
-      "raw_rows": 48729,
-      "staging_rows": 48729,
+      "raw_rows": 48721,
+      "staging_rows": 48721,
       "delta": 0
     },
     "agent_runs": {

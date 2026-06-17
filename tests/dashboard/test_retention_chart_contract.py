@@ -51,7 +51,7 @@ def sample_retention_df() -> pd.DataFrame:
 def test_each_figure_contains_single_horizon(sample_retention_df):
     """Each build_retention_figure call must produce a single-horizon chart."""
     weekly = prepare_weekly_retention(sample_retention_df)
-    fig, _ = build_retention_figure(weekly, "d1")
+    fig, _audit = build_retention_figure(weekly, "d1")
     # All traces belong to channels (not D7 or D30)
     channel_names = sorted(sample_retention_df["acquisition_channel"].unique())
     trace_names = [t.name for t in fig.data]
@@ -68,7 +68,7 @@ def test_trace_count_does_not_exceed_channel_count(sample_retention_df):
     weekly = prepare_weekly_retention(sample_retention_df)
     n_channels = len(sample_retention_df["acquisition_channel"].unique())
     for horizon in ["d1", "d7", "d30"]:
-        fig, _ = build_retention_figure(weekly, horizon)
+        fig, _audit = build_retention_figure(weekly, horizon)
         assert (
             len(fig.data) <= n_channels
         ), f"{horizon}: {len(fig.data)} traces > {n_channels} channels"
@@ -124,7 +124,7 @@ def test_weighted_rate_calculation(sample_retention_df):
 def test_unmatured_cohorts_not_in_horizon_figure(sample_retention_df):
     """All plotted y-values should be valid (non-NaN) when sample is adequate."""
     weekly = prepare_weekly_retention(sample_retention_df)
-    fig, _ = build_retention_figure(weekly, "d30")
+    fig, _audit = build_retention_figure(weekly, "d30")
     # Points with insufficient sample are excluded via connectgaps=False
     for trace in fig.data:
         y_vals = list(trace.y) if hasattr(trace, "y") and trace.y is not None else []

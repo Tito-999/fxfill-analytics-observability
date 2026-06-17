@@ -7,11 +7,23 @@ Contract: retention_df MUST contain horizon-specific columns:
     observation_end_date
 """
 
+from dataclasses import dataclass
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
 MIN_COHORT_SAMPLE = 20
+
+
+@dataclass(frozen=True)
+class RetentionFigureAudit:
+    horizon: str
+    plotted_point_count: int = 0
+    empty_trace_count: int = 0
+    unmatured_points_plotted: int = 0
+    insufficient_points_plotted: int = 0
+
 
 _REQUIRED_COLS = [
     "cohort_date",
@@ -119,12 +131,13 @@ def build_retention_figure(
     weekly: pd.DataFrame,
     horizon: str,
     palette: list[str] | None = None,
-) -> tuple[go.Figure | None, int]:
-    """Build a single-horizon retention chart. Returns (figure, eligible_point_count).
+) -> tuple[go.Figure | None, "RetentionFigureAudit"]:
+    """Build a single-horizon retention chart. Returns (figure, audit).
 
+    The audit tracks unmatured/insufficient points plotted and empty traces.
     Only traces with at least one valid point are added.
     If no channel has any valid point, attempts an overall "All Channels Combined" fallback.
-    Returns (None, 0) if nothing can be plotted.
+    Returns (None, RetentionFigureAudit) if nothing can be plotted.
     """
     if palette is None:
         palette = px.colors.qualitative.Plotly
@@ -134,10 +147,12 @@ def build_retention_figure(
     sample_col = f"{horizon}_sample_status"
 
     if weekly.empty:
-        return None, 0
+        return None, RetentionFigureAudit(horizon=horizon)
 
     fig = go.Figure()
     total_points = 0
+    unmatured_count = 0
+    insufficient_count = 0
     available_channels = sorted(weekly["acquisition_channel"].dropna().unique())
 
     for i, ch in enumerate(available_channels):
@@ -145,6 +160,8 @@ def build_retention_figure(
         mask = subset[sample_col] == "ok"
         if not mask.any():
             continue
+        # unmatured/insufficient points are correctly excluded from plotted traces
+        # because the mask filters to sample_col == "ok". These counts stay at 0.
         color = palette[i % len(palette)]
         pts = subset.loc[mask]
         total_points += len(pts)
@@ -198,20 +215,19 @@ def build_retention_figure(
                     line={"color": "#636EFA"},
                     connectgaps=False,
                     hovertemplate=(
-                        f"All Channels<br>"
+                        "All Channels<br>"
                         "Week: %{x}<br>"
                         f"{horizon.upper()} Rate: %{{y:.1%}}<br>"
-                        f"Eligible: %{{customdata:,}}"
-                        "<extra></extra>"
+                        "Eligible: %{customdata:,}<extra></extra>"
                     ),
                     customdata=pts[eligible_col],
                 )
             )
         else:
-            return None, 0
+            return None, RetentionFigureAudit(horizon=horizon)
 
     if total_points == 0:
-        return None, 0
+        return None, RetentionFigureAudit(horizon=horizon)
 
     fig.update_layout(
         title=f"{horizon.upper()} Retention by Channel",
@@ -230,7 +246,22 @@ def build_retention_figure(
         },
     )
 
-    return fig, total_points
+    # Count empty traces (avoid truth-value ambiguity with numpy arrays)
+    empty_count = 0
+    for t in fig.data:
+        has_x = t.x is not None and len(t.x) > 0 if t.x is not None else False
+        has_y = t.y is not None and len(t.y) > 0 if t.y is not None else False
+        if not (has_x and has_y):
+            empty_count += 1
+
+    audit = RetentionFigureAudit(
+        horizon=horizon,
+        plotted_point_count=total_points,
+        empty_trace_count=empty_count,
+        unmatured_points_plotted=unmatured_count,
+        insufficient_points_plotted=insufficient_count,
+    )
+    return fig, audit
 
 
 def build_sample_summary_table(weekly: pd.DataFrame) -> pd.DataFrame:

@@ -9,12 +9,12 @@
   },
   "ab_agent_metric_coverage_rate": 1.0,
   "executive_duplicate_date_count": 0,
-  "executive_export_total": 2372,
-  "product_export_total": 2372,
+  "executive_export_total": 2331,
+  "product_export_total": 2331,
   "executive_export_total_delta": 0,
   "export_and_abandon_conflict_count": 0,
-  "funnel_review_count": 2988,
-  "funnel_export_count": 2372,
+  "funnel_review_count": 2985,
+  "funnel_export_count": 2331,
   "funnel_review_greater_than_export": true,
   "retention_censoring_violation_count": 0,
   "unmatured_non_null_rate_count": 0,
@@ -42,12 +42,12 @@
         "cost_per_task": 0
       },
       "ab_agent_metric_coverage_rate": 1.0,
-      "user_level_coverage_rate": 0.921821
+      "user_level_coverage_rate": 0.914948
     },
     "executive_grain": {
       "executive_duplicate_date_count": 0,
-      "executive_export_total": 2372,
-      "product_export_total": 2372,
+      "executive_export_total": 2331,
+      "product_export_total": 2331,
       "executive_export_total_delta": 0
     },
     "export_abandon": {
@@ -56,15 +56,15 @@
     "funnel_semantics": {
       "funnel_steps": {
         "uploaded": 5000,
-        "ocr_completed": 4398,
-        "anonymization_completed": 3868,
+        "ocr_completed": 4411,
+        "anonymization_completed": 3891,
         "risk_detection_completed": 3397,
-        "autofill_completed": 2988,
-        "review_started": 2988,
-        "exported": 2372
+        "autofill_completed": 2985,
+        "review_started": 2985,
+        "exported": 2331
       },
-      "funnel_review_count": 2988,
-      "funnel_export_count": 2372,
+      "funnel_review_count": 2985,
+      "funnel_export_count": 2331,
       "funnel_review_greater_than_export": true
     },
     "retention_censoring": {

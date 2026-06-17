@@ -35,7 +35,7 @@ def test_snapshot_has_provenance():
         snap = json.load(f)
     assert "provenance" in snap, "Snapshot missing provenance"
     prov = snap["provenance"]
-    assert prov.get("run_id"), "Provenance missing run_id"
+    assert prov.get("warehouse_source_run_id") or prov.get("run_id"), "Provenance missing run_id"
     assert prov.get("database_fingerprint"), "Provenance missing database fingerprint"
 
 
