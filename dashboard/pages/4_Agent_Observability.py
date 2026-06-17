@@ -57,11 +57,46 @@ model_comp = query_df(
 # ── Error Root Cause (Pareto) ───────────────────────────────────────────────
 errors = query_df(
     """
-    SELECT error_category, error_count, pct_of_total, cumulative_pct
-    FROM main_marts.mart_error_root_cause
-    ORDER BY error_count DESC
+    WITH grouped AS (
+        SELECT
+            error_category,
+            SUM(error_count) AS error_count,
+            SUM(error_count * error_share)
+                / NULLIF(SUM(error_count), 0) AS weighted_error_share,
+            SUM(affected_tasks) AS affected_tasks,
+            AVG(avg_failed_latency_ms) AS avg_failed_latency_ms
+        FROM main_marts.mart_error_root_cause
+        GROUP BY error_category
+    ),
+    ranked AS (
+        SELECT
+            error_category,
+            error_count,
+            error_count * 1.0
+                / NULLIF(SUM(error_count) OVER (), 0) AS pct_of_total,
+            affected_tasks,
+            avg_failed_latency_ms
+        FROM grouped
+    )
+    SELECT
+        error_category,
+        error_count,
+        pct_of_total,
+        SUM(pct_of_total) OVER (
+            ORDER BY error_count DESC, error_category
+            ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+        ) AS cumulative_pct,
+        affected_tasks,
+        avg_failed_latency_ms
+    FROM ranked
+    ORDER BY error_count DESC, error_category
     """
 )
+# Validate error query contract
+_required_error_cols = {"error_category", "error_count", "pct_of_total", "cumulative_pct"}
+_missing = _required_error_cols - set(errors.columns)
+if _missing:
+    raise RuntimeError("Agent error query contract failed: " + ", ".join(sorted(_missing)))
 
 # ── Overall Averages from daily KPIs ────────────────────────────────────────
 overall = query_df(

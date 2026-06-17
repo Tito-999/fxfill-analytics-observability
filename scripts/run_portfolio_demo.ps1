@@ -47,3 +47,4 @@ Write-Host "URL: http://127.0.0.1:$Port" -ForegroundColor Green
 Write-Host "DB:  $env:FXFILL_DUCKDB_PATH"
 Write-Host "ALL DATA IS SYNTHETIC. Press Ctrl+C to stop." -ForegroundColor Gray
 python -m streamlit run dashboard/Home.py --server.address 127.0.0.1 --server.port $Port --server.headless true --browser.gatherUsageStats false
+python -m streamlit run dashboard/Home.py --server.address 127.0.0.1 --server.port $Port --server.headless true --browser.gatherUsageStats false

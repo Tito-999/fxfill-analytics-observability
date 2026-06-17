@@ -17,58 +17,38 @@ st.markdown("Group-level metric comparison, contamination status, and guardrail 
 filters = render_filters(page_name="ab_test")
 exp_group = filters.get("experiment_group", "All")
 
-# ── Experiment Summary (all-time, no date filter) ───────────────────────────
-summary = query_df(
-    """
-    SELECT experiment_group, user_count, total_tasks, avg_export_rate,
-           avg_field_accuracy, avg_latency_ms, cost_per_task
-    FROM main_marts.mart_ab_test_summary
-    ORDER BY experiment_group
-    """
-)
+# ── Experiment Summary (all-time, no date filter, parameterized group) ──────
+_summary_sql = """SELECT experiment_group, user_count, total_tasks, avg_export_rate, avg_field_accuracy, avg_latency_ms, cost_per_task FROM main_marts.mart_ab_test_summary"""
+_summary_params: list = []
+if exp_group != "All":
+    _summary_sql += " WHERE experiment_group = ?"
+    _summary_params.append(exp_group)
+_summary_sql += " ORDER BY experiment_group"
+summary = query_df(_summary_sql, _summary_params)
 
-# ── User-Level Metrics (all-time, no date filter) ───────────────────────────
-user_metrics = query_df(
-    """
-    SELECT user_id, experiment_group, total_tasks, exported_tasks,
-           export_rate, avg_field_accuracy, avg_latency_ms, total_cost_usd
-    FROM main_marts.mart_ab_test_user_metrics
-    ORDER BY experiment_group
-    """
-)
+# ── User-Level Metrics (all-time, no date filter, parameterized group) ──────
+# Notes: mart uses successful_tasks/task_success_rate/avg_agent_latency_ms;
+# aliased to exported_tasks/export_rate/avg_latency_ms for display consistency.
+_um_sql = """SELECT user_id, experiment_group, total_tasks, successful_tasks AS exported_tasks, task_success_rate AS export_rate, avg_field_accuracy, avg_agent_latency_ms AS avg_latency_ms, total_cost_usd FROM main_marts.mart_ab_test_user_metrics"""
+_um_params: list = []
+if exp_group != "All":
+    _um_sql += " WHERE experiment_group = ?"
+    _um_params.append(exp_group)
+_um_sql += " ORDER BY experiment_group, user_id"
+user_metrics = query_df(_um_sql, _um_params)
+# Validate contract
+_req = {"user_id","experiment_group","total_tasks","exported_tasks","export_rate","avg_field_accuracy","avg_latency_ms","total_cost_usd"}
+_miss = _req - set(user_metrics.columns)
+if _miss: raise RuntimeError("A/B user metrics contract failed: " + ", ".join(sorted(_miss)))
 
-# ── Clean Assignments (experiment period from assignments table) ─────────────
-clean = query_df(
-    """
-    SELECT user_id, experiment_group, assigned_at
-    FROM main_intermediate.int_experiment_clean_assignments
-    ORDER BY user_id
-    """
-)
+# ── Clean Assignments ───────────────────────────────────────────────────────
+clean = query_df("""SELECT user_id, experiment_group, assigned_at FROM main_intermediate.int_experiment_clean_assignments ORDER BY user_id""")
 
-# ── Contaminated Users (all-time) ───────────────────────────────────────────
-contaminated = query_df(
-    """
-    SELECT user_id, group_count, assigned_groups, is_intentional_contamination
-    FROM main_intermediate.int_experiment_contaminated_users
-    ORDER BY user_id
-    """
-)
+# ── Contaminated Users ──────────────────────────────────────────────────────
+contaminated = query_df("""SELECT user_id, group_count, assigned_groups, is_intentional_contamination FROM main_intermediate.int_experiment_contaminated_users ORDER BY user_id""")
 
 # ── Experiment Period ────────────────────────────────────────────────────────
-exp_period = query_df(
-    """
-    SELECT MIN(assigned_at) AS experiment_start,
-           MAX(assigned_at) AS experiment_end
-    FROM main_intermediate.int_experiment_clean_assignments
-    """
-)
-
-# ── Apply experiment_group filter in Python ─────────────────────────────────
-if exp_group != "All":
-    summary = summary[summary["experiment_group"] == exp_group].copy()
-    user_metrics = user_metrics[user_metrics["experiment_group"] == exp_group].copy()
-    clean = clean[clean["experiment_group"] == exp_group].copy()
+exp_period = query_df("""SELECT MIN(assigned_at) AS experiment_start, MAX(assigned_at) AS experiment_end FROM main_intermediate.int_experiment_clean_assignments""")
 
 # ── Summary Info ─────────────────────────────────────────────────────────────
 st.subheader("Experiment Overview")
