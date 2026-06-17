@@ -8,7 +8,7 @@ Usage:
 
 import argparse
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
 
@@ -108,15 +108,13 @@ Examples:
     # ── Date range ──
     if args.start_date:
         try:
-            end_date = datetime.strptime(args.start_date, "%Y-%m-%d").replace(
-                tzinfo=timezone.utc
-            )
+            end_date = datetime.strptime(args.start_date, "%Y-%m-%d").replace(tzinfo=UTC)
         except ValueError:
             print(f"ERROR: Invalid --start-date format: {args.start_date}", file=sys.stderr)
             print("       Expected YYYY-MM-DD", file=sys.stderr)
             sys.exit(1)
     else:
-        end_date = datetime(2026, 6, 14, tzinfo=timezone.utc)
+        end_date = datetime(2026, 6, 14, tzinfo=UTC)
 
     if args.days <= 0:
         print(f"ERROR: --days must be positive, got {args.days}", file=sys.stderr)
@@ -128,7 +126,7 @@ Examples:
     from fxfill_analytics.generation.pipeline import run_pipeline
 
     if args.dry_run:
-        print(f"Configuration (dry-run):")
+        print("Configuration (dry-run):")
         print(f"  size:       {args.size}")
         print(f"  seed:       {args.seed}")
         print(f"  output_dir: {output_dir}")
@@ -139,7 +137,7 @@ Examples:
         print(f"  log_level:  {args.log_level}")
         sys.exit(0)
 
-    print(f"[generate_data] Starting Phase 1 generation")
+    print("[generate_data] Starting Phase 1 generation")
     print(f"  size={args.size}, seed={args.seed}, days={args.days}")
     print(f"  date range: {start_date.date()} → {end_date.date()}")
     print(f"  output: {output_dir}")
@@ -163,14 +161,16 @@ Examples:
         sys.exit(1)
 
     # ── Print summary ──
-    print(f"\n[generate_data] Generation complete!")
+    print("\n[generate_data] Generation complete!")
     print(f"  Run ID:    {manifest['run_id']}")
     print(f"  Duration:  {manifest['duration_seconds']}s")
     print(f"  Memory:    {manifest['peak_memory_mb']} MB")
     print(f"  Output:    {manifest['output_size_mb']} MB")
-    print(f"  Tables:")
+    print("  Tables:")
     for t in manifest["tables"]:
-        print(f"    {t['name']:30s} → {t['actual_rows']:>10,} rows  (target: {t['configured_target']:>10,})")
+        print(
+            f"    {t['name']:30s} → {t['actual_rows']:>10,} rows  (target: {t['configured_target']:>10,})"
+        )
     print(f"  Quality:   {manifest['quality_status']}")
     print(f"\n  Output directory: {output_dir / manifest['run_id']}")
 

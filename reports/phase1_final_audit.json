@@ -1,0 +1,350 @@
+{
+  "generated_at": "2026-06-17T02:52:19.400146+00:00",
+  "schema_version": "1.0.0",
+  "phenomena": [
+    {
+      "phenomenon_id": "P01",
+      "metric_name": "p95_ocr_latency_ms",
+      "metric_definition": "95th percentile of OCR event latency for app v2.3.0 vs other versions",
+      "baseline_group": "other_versions",
+      "baseline_n": 75118,
+      "baseline_value": 830.0,
+      "affected_group": "v2.3.0",
+      "affected_n": 18919,
+      "affected_value": 999.0,
+      "absolute_effect": 169.0,
+      "relative_effect": 0.203614,
+      "enabled_effect": 169.0,
+      "disabled_effect": 6.0,
+      "configured_threshold": "affected > baseline",
+      "observed_threshold": "True",
+      "passed": true,
+      "test_name": "test_p01_ocr_latency_direction",
+      "source_tables": [
+        "product_events"
+      ]
+    },
+    {
+      "phenomenon_id": "P02",
+      "metric_name": "avg_edits_per_document",
+      "metric_definition": "Average field_edited events per document, by complexity level",
+      "baseline_group": "simple",
+      "baseline_n": 6369,
+      "baseline_value": 1.590203,
+      "affected_group": "complex",
+      "affected_n": 7442,
+      "affected_value": 3.336603,
+      "absolute_effect": 1.746401,
+      "relative_effect": 1.098225,
+      "enabled_effect": 1.098225,
+      "disabled_effect": -0.003923,
+      "configured_threshold": "relative uplift >= 0.10",
+      "observed_threshold": "1.098225",
+      "passed": true,
+      "test_name": "test_p02_enabled_vs_disabled",
+      "source_tables": [
+        "product_events",
+        "documents"
+      ]
+    },
+    {
+      "phenomenon_id": "P03",
+      "metric_name": "review_to_export_rate",
+      "metric_definition": "Tasks reaching form_exported / tasks reaching form_review_started, by device_type",
+      "baseline_group": "desktop",
+      "baseline_n": 17999,
+      "baseline_value": 1.0,
+      "affected_group": "mobile",
+      "affected_n": 8762,
+      "affected_value": 0.750057,
+      "absolute_effect": -0.249943,
+      "relative_effect": -0.249943,
+      "enabled_effect": -0.249943,
+      "disabled_effect": 0.0,
+      "configured_threshold": "affected < baseline",
+      "observed_threshold": "True",
+      "passed": true,
+      "desktop_reviewed_tasks": 17999,
+      "desktop_exported_tasks": 17999,
+      "mobile_reviewed_tasks": 8762,
+      "mobile_exported_tasks": 6572,
+      "test_name": "test_p03_medium_direction",
+      "source_tables": [
+        "product_events",
+        "users"
+      ]
+    },
+    {
+      "phenomenon_id": "P04",
+      "metric_name": "d7_retention_rate",
+      "metric_definition": "Fraction of users active on their signup_date + 7 days. Users with <7 days observation excluded.",
+      "baseline_group": "organic",
+      "baseline_n": 6601,
+      "baseline_value": 0.019542,
+      "affected_group": "paid_search",
+      "affected_n": 4672,
+      "affected_value": 0.019264,
+      "absolute_effect": -0.000424,
+      "relative_effect": -0.019845,
+      "enabled_effect": -0.000424,
+      "disabled_effect": -0.000424,
+      "configured_threshold": "affected < baseline",
+      "observed_threshold": "True",
+      "passed": true,
+      "organic_eligible": 6601,
+      "organic_retained": 129,
+      "paid_search_eligible": 4672,
+      "paid_search_retained": 90,
+      "test_name": "test_p04_true_d7_retention",
+      "source_tables": [
+        "product_events",
+        "users"
+      ]
+    },
+    {
+      "phenomenon_id": "P05",
+      "metric_name": "avg_cost_per_run_usd",
+      "metric_definition": "Average estimated cost per agent run, v2.0.0-beta vs other prompt versions",
+      "baseline_group": "v1.x",
+      "baseline_n": 67824,
+      "baseline_value": 0.029482,
+      "affected_group": "v2.0.0-beta",
+      "affected_n": 12176,
+      "affected_value": 0.039608,
+      "absolute_effect": 0.010126,
+      "relative_effect": 0.343456,
+      "enabled_effect": 0.010126,
+      "disabled_effect": 5.8e-05,
+      "configured_threshold": "affected > baseline (1.35x cost multiplier)",
+      "observed_threshold": "True",
+      "passed": true,
+      "test_name": "test_p05_prompt_cost_quality_direction",
+      "source_tables": [
+        "agent_runs"
+      ]
+    },
+    {
+      "phenomenon_id": "P06",
+      "metric_name": "field_accuracy_and_latency",
+      "metric_definition": "Experiment B group vs A group: field accuracy uplift (+0.04) and latency increase (+450ms)",
+      "baseline_group": "A",
+      "baseline_n": 3963,
+      "baseline_value": 0.8754,
+      "affected_group": "B",
+      "affected_n": 3954,
+      "affected_value": 0.911631,
+      "absolute_effect": 0.036231,
+      "relative_effect": 0.041388,
+      "enabled_effect": 0.036231,
+      "disabled_effect": -0.000617,
+      "enabled_A_accuracy": 0.8754,
+      "enabled_B_accuracy": 0.911631,
+      "enabled_accuracy_effect": 0.036231,
+      "disabled_A_accuracy": 0.8754,
+      "disabled_B_accuracy": 0.874782,
+      "disabled_accuracy_effect": -0.000617,
+      "enabled_A_latency": 5587.986879,
+      "enabled_B_latency": 6053.365959,
+      "enabled_latency_effect": 465.37908,
+      "disabled_A_latency": 5587.986879,
+      "disabled_B_latency": 5603.365959,
+      "disabled_latency_effect": 15.37908,
+      "configured_threshold": "accuracy uplift >=0.02, latency increase >250ms",
+      "observed_threshold": "accuracy=0.036231, latency=465.37908",
+      "passed": true,
+      "test_name": "test_p06_treatment_isolation",
+      "source_tables": [
+        "agent_runs"
+      ]
+    },
+    {
+      "phenomenon_id": "P07",
+      "metric_name": "duplicate_upload_rate",
+      "metric_definition": "Fraction of document_uploaded events that are duplicates, on the most affected day",
+      "baseline_group": "overall",
+      "baseline_n": 50033,
+      "baseline_value": 0.00066,
+      "affected_group": "day_2026-04-30",
+      "affected_n": 452,
+      "affected_value": 0.073009,
+      "absolute_effect": 0.072349,
+      "relative_effect": 109.619697,
+      "enabled_effect": 0.07300884955752213,
+      "disabled_effect": 0.0,
+      "configured_threshold": "affected-day rate ≈ 0.08 (8%)",
+      "observed_threshold": "0.073",
+      "passed": true,
+      "affected_date": "2026-04-30",
+      "unique_uploads_on_affected_date": 419,
+      "duplicate_rows_on_affected_date": 33,
+      "total_rows_on_affected_date": 452,
+      "overall_duplicate_rate": 0.00066,
+      "test_name": "test_p07_affected_day_duplicate_rate",
+      "source_tables": [
+        "product_events"
+      ]
+    },
+    {
+      "phenomenon_id": "P08",
+      "metric_name": "users_in_multiple_groups",
+      "metric_definition": "Count of users appearing in both A and B experiment groups",
+      "baseline_group": "clean_users",
+      "baseline_n": 11640,
+      "baseline_value": 11640.0,
+      "affected_group": "contaminated_users",
+      "affected_n": 360,
+      "affected_value": 360.0,
+      "absolute_effect": -11280.0,
+      "relative_effect": -0.969072,
+      "enabled_effect": 360.0,
+      "disabled_effect": 0.0,
+      "configured_threshold": "contaminated > 0",
+      "observed_threshold": "True",
+      "passed": true,
+      "test_name": "test_p08_cross_group_contamination_detected",
+      "source_tables": [
+        "experiment_assignments"
+      ]
+    },
+    {
+      "phenomenon_id": "P09",
+      "metric_name": "avg_retry_count",
+      "metric_definition": "Average agent retry_count for high-risk vs low-risk documents",
+      "baseline_group": "low_risk",
+      "baseline_n": 60108,
+      "baseline_value": 1.998486,
+      "affected_group": "high_risk",
+      "affected_n": 19892,
+      "affected_value": 4.812236,
+      "absolute_effect": 2.81375,
+      "relative_effect": 1.407941,
+      "enabled_effect": 2.81375,
+      "disabled_effect": 0.006843,
+      "configured_threshold": "affected > baseline (2.5x multiplier)",
+      "observed_threshold": "True",
+      "passed": true,
+      "test_name": "test_p09_high_risk_retry_direction",
+      "source_tables": [
+        "agent_runs",
+        "documents"
+      ]
+    },
+    {
+      "phenomenon_id": "P10",
+      "metric_name": "overall_export_impact",
+      "metric_definition": "OCR-attributable share of non-exported tasks and impact on overall export rate",
+      "baseline_group": "enabled",
+      "baseline_n": 50000,
+      "baseline_value": 0.55212,
+      "affected_group": "disabled",
+      "affected_n": 50000,
+      "affected_value": 0.59592,
+      "absolute_effect": -0.0438,
+      "relative_effect": 0,
+      "enabled_effect": 0.55212,
+      "disabled_effect": 0.59592,
+      "configured_threshold": "attributable_share >= 0.20",
+      "observed_threshold": "0.902206",
+      "passed": true,
+      "enabled_ocr_failure_count": 20204,
+      "enabled_ocr_failure_rate": 0.40408,
+      "disabled_ocr_failure_count": 20204,
+      "disabled_ocr_failure_rate": 0.40408,
+      "enabled_successful_exports": 27606,
+      "enabled_overall_export_rate": 0.55212,
+      "disabled_successful_exports": 29796,
+      "disabled_overall_export_rate": 0.59592,
+      "export_rate_impact": -0.0438,
+      "ocr_attributable_lost_tasks": 20204,
+      "all_unsuccessful_tasks": 22394,
+      "actual_attributable_share": 0.902206,
+      "test_name": "test_p10_overall_export_impact",
+      "source_tables": [
+        "product_events"
+      ]
+    }
+  ],
+  "canonical_hashes": {
+    "users": {
+      "run1": "cd0474c294ffafd538dd395a722977d91727f7aaadc03bfcd482502a226d1db0",
+      "run2": "cd0474c294ffafd538dd395a722977d91727f7aaadc03bfcd482502a226d1db0",
+      "match": true
+    },
+    "documents": {
+      "run1": "2aec2866b349901a4d1c5b3438b8bb68ecae08340c5667dfb81ad92024455e3c",
+      "run2": "2aec2866b349901a4d1c5b3438b8bb68ecae08340c5667dfb81ad92024455e3c",
+      "match": true
+    },
+    "sessions": {
+      "run1": "46b70b4c0be4efcaeab65099cc73a93bd9cb7895da4845725aa6e8f0cb34c233",
+      "run2": "46b70b4c0be4efcaeab65099cc73a93bd9cb7895da4845725aa6e8f0cb34c233",
+      "match": true
+    },
+    "product_events": {
+      "run1": "f729de50eceb9cc8ae75e8307b26689ec9958849d45e8c4bf4343e1d8c5233fd",
+      "run2": "f729de50eceb9cc8ae75e8307b26689ec9958849d45e8c4bf4343e1d8c5233fd",
+      "match": true
+    },
+    "agent_runs": {
+      "run1": "d8a838aa1814e76ff044d0420cf34672ae08fbff8c14e9981939dabf8e9b19d5",
+      "run2": "d8a838aa1814e76ff044d0420cf34672ae08fbff8c14e9981939dabf8e9b19d5",
+      "match": true
+    },
+    "agent_spans": {
+      "run1": "0e760bb646dc86d0d795d086f5ae39a92b01d280f33db70caae628980131ebd0",
+      "run2": "0e760bb646dc86d0d795d086f5ae39a92b01d280f33db70caae628980131ebd0",
+      "match": true
+    },
+    "experiment_assignments": {
+      "run1": "867f9eb2d0b40136134f41e8bacb722880f73f48a449d9c423e8ebdc56433ae8",
+      "run2": "867f9eb2d0b40136134f41e8bacb722880f73f48a449d9c423e8ebdc56433ae8",
+      "match": true
+    }
+  },
+  "performance": {
+    "medium_run1_duration_s": 28.87,
+    "medium_run2_duration_s": 28.65,
+    "peak_rss_run1_mb": 894.56,
+    "peak_rss_run2_mb": 886.62,
+    "output_size_mb": 29.36,
+    "table_row_counts": {
+      "users": 20000,
+      "documents": 80000,
+      "sessions": 60000,
+      "product_events": 491122,
+      "agent_runs": 80000,
+      "agent_spans": 300000,
+      "experiment_assignments": 12360
+    },
+    "slowest_stage": [
+      "agent_spans",
+      4.53
+    ],
+    "previous_duration_s": 643,
+    "optimized_duration_s": 28.87,
+    "speedup_ratio": 22.3
+  },
+  "engineering_gates": {
+    "pytest_passed": 159,
+    "pytest_failed": 0,
+    "pytest_skipped": 0,
+    "pytest_xfailed": 0,
+    "coverage_percent": 93.04,
+    "ruff_status": "passed",
+    "black_status": "passed",
+    "mypy_status": "passed",
+    "pip_check_status": "passed",
+    "git_commit": "23abc6591149fe92b5b52bcdd28e066dd8d14b47",
+    "git_tag": "phase-1-complete",
+    "working_tree_clean": true
+  },
+  "determinism_root_cause": {
+    "agent_runs_mismatch_root_cause": "Python built-in hash() is randomized between interpreter processes (PYTHONHASHSEED)",
+    "product_events_mismatch_root_cause": "set() iteration order changed P03 task selection",
+    "cross_module_rng_coupling": "All generators shared one RNG stream",
+    "fix_hash": "Replaced with hashlib.md5 for deterministic non-security bucketing",
+    "fix_set_ordering": "Added sorted() before slicing collections",
+    "fix_rng_isolation": "SeedSequence.spawn(9) independent RNG streams per module",
+    "md5_note": "MD5 used only for deterministic non-security bucketing. Not for authentication, integrity, or cryptographic security."
+  }
+}
