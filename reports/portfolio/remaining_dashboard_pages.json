@@ -1,0 +1,33 @@
+{
+  "database_exists": true,
+  "database_contract_passed": true,
+  "sql_contracts": {
+    "feature_adoption": {
+      "passed": true,
+      "row_count": 144,
+      "failures": []
+    },
+    "feature_ttfu": {
+      "passed": true,
+      "row_count": 407,
+      "failures": []
+    },
+    "agent_observability": {
+      "passed": true,
+      "row_count": 5,
+      "failures": []
+    },
+    "ab_test": {
+      "passed": true,
+      "row_count": 1164,
+      "failures": []
+    }
+  },
+  "pages_checked": 3,
+  "pages_passed": 3,
+  "page_failures": [],
+  "catalog_exception_count": 0,
+  "binder_exception_count": 0,
+  "streamlit_exception_count": 0,
+  "accepted": true
+}
