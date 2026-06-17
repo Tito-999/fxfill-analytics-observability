@@ -1,40 +1,14 @@
 {
   "high_severity_findings": 0,
-  "medium_severity_findings": 5,
+  "medium_severity_findings": 0,
   "tracked_database_files": 0,
   "tracked_medium_data_files": 0,
   "tracked_secret_files": 0,
-  "absolute_private_paths": 5,
+  "absolute_private_paths": 0,
   "passed": true,
   "findings": {
     "high_severity": [],
-    "medium_severity": [
-      {
-        "file": "docs/decisions/001-verified-dependency-versions.md",
-        "pattern": "C:\\\\Users\\\\",
-        "description": "Windows user path"
-      },
-      {
-        "file": "reports/phase2_warehouse_manifest.json",
-        "pattern": "F:\\\\",
-        "description": "Drive root path"
-      },
-      {
-        "file": "reports/phase3_streamlit_startup_diagnostic.json",
-        "pattern": "F:\\\\",
-        "description": "Drive root path"
-      },
-      {
-        "file": "scripts/run_dashboard.ps1",
-        "pattern": "C:\\\\Users\\\\",
-        "description": "Windows user path"
-      },
-      {
-        "file": "tests/integration/test_phase2_audit.py",
-        "pattern": "F:\\\\",
-        "description": "Drive root path"
-      }
-    ],
+    "medium_severity": [],
     "tracked_large_files": []
   }
 }

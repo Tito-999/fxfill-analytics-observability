@@ -17,9 +17,6 @@
     "file:docs/portfolio/recruiter_quickstart.md",
     "file:docs/portfolio/technical_deep_dive.md",
     "file:docs/portfolio/resume_bullets.md",
-    "file:docs/demo/demo_script.md",
-    "file:docs/demo/demo_storyboard.md",
-    "file:docs/demo/demo_captions.srt",
     "file:scripts/setup_portfolio.ps1",
     "file:scripts/setup_portfolio.sh",
     "file:scripts/run_portfolio_demo.ps1",
@@ -43,7 +40,6 @@
     "readme:Limitations"
   ],
   "warnings": [
-    "Optional file missing: docs/demo/fxfill_portfolio_demo.mp4",
     "Working tree has uncommitted changes"
   ],
   "project_metrics": {

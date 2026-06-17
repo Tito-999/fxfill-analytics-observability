@@ -1,67 +1,67 @@
 {
-  "input_run_id": "run_medium_20260616_2b56dbc931f8",
-  "input_config_hash": "2b56dbc931f8",
-  "database_path": "F:\\RAG\\fxfill-analytics-observability\\warehouse\\fxfill.duckdb",
-  "build_started_at": "2026-06-17T07:05:12.153706+00:00",
-  "build_finished_at": "2026-06-17T07:05:12.495104+00:00",
-  "build_duration_seconds": 0.341398,
+  "input_run_id": "run_small_20260616_b0f5f391e3b8",
+  "input_config_hash": "b0f5f391e3b8",
+  "database_path": "C:\\Users\\PCR\\AppData\\Local\\Temp\\fxfill_core_agkx8cjz\\warehouse\\fxfill.duckdb",
+  "build_started_at": "2026-06-17T07:37:20.088772+00:00",
+  "build_finished_at": "2026-06-17T07:37:20.635150+00:00",
+  "build_duration_seconds": 0.546378,
   "raw_layer": {
     "tables": {
-      "users.parquet": 20000,
-      "documents.parquet": 80000,
-      "sessions.parquet": 60000,
-      "product_events.parquet": 491122,
-      "agent_runs.parquet": 80000,
-      "agent_spans.parquet": 300000,
-      "experiment_assignments.parquet": 12360
+      "users.parquet": 2000,
+      "documents.parquet": 8000,
+      "sessions.parquet": 6000,
+      "product_events.parquet": 49761,
+      "agent_runs.parquet": 8000,
+      "agent_spans.parquet": 30000,
+      "experiment_assignments.parquet": 1236
     },
     "verification": {
       "tables": {
         "raw_users": {
-          "raw_rows": 20000,
-          "manifest_rows": 20000,
+          "raw_rows": 2000,
+          "manifest_rows": 2000,
           "row_count_ok": true,
           "pk_null_count": 0,
           "pk_ok": true
         },
         "raw_documents": {
-          "raw_rows": 80000,
-          "manifest_rows": 80000,
+          "raw_rows": 8000,
+          "manifest_rows": 8000,
           "row_count_ok": true,
           "pk_null_count": 0,
           "pk_ok": true
         },
         "raw_sessions": {
-          "raw_rows": 60000,
-          "manifest_rows": 60000,
+          "raw_rows": 6000,
+          "manifest_rows": 6000,
           "row_count_ok": true,
           "pk_null_count": 0,
           "pk_ok": true
         },
         "raw_product_events": {
-          "raw_rows": 491122,
-          "manifest_rows": 491122,
+          "raw_rows": 49761,
+          "manifest_rows": 49761,
           "row_count_ok": true,
           "pk_null_count": 0,
           "pk_ok": true
         },
         "raw_agent_runs": {
-          "raw_rows": 80000,
-          "manifest_rows": 80000,
+          "raw_rows": 8000,
+          "manifest_rows": 8000,
           "row_count_ok": true,
           "pk_null_count": 0,
           "pk_ok": true
         },
         "raw_agent_spans": {
-          "raw_rows": 300000,
-          "manifest_rows": 300000,
+          "raw_rows": 30000,
+          "manifest_rows": 30000,
           "row_count_ok": true,
           "pk_null_count": 0,
           "pk_ok": true
         },
         "raw_experiment_assignments": {
-          "raw_rows": 12360,
-          "manifest_rows": 12360,
+          "raw_rows": 1236,
+          "manifest_rows": 1236,
           "row_count_ok": true,
           "pk_null_count": 0,
           "pk_ok": true
@@ -71,5 +71,5 @@
     }
   },
   "dbt_status": "skipped",
-  "git_commit": "fea91c57d96ca0bf6dd9a86825644f4bb11bd9ea"
+  "git_commit": "6c1e0c000421fff6da05c3371eaa5f2997008624"
 }

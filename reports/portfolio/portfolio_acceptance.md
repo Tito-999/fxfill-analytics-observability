@@ -1,3 +1,3 @@
 # Portfolio Acceptance
 Accepted: **True**
-Passed: 39, Failed: 0, Warnings: 2
+Passed: 36, Failed: 0

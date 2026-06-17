@@ -1,0 +1,58 @@
+{
+  "accepted": false,
+  "failed_gates": [
+    "dbt run failed: C:\\Users\\PCR\\.conda\\envs\\fxfill_analytics\\python.exe: No module named dbt.__main__; 'dbt' is a package and cannot be directly executed\n",
+    "dbt test failed",
+    "Experiment analysis failed: Traceback (most recent call last):\n  File \"F:\\RAG\\fxfill-analytics-observability\\scripts\\run_experiment_analysis.py\", line 71, in <module>\n    main()\n  File \"F:\\RAG\\fxfill-analytics-observability\\scri",
+    "Public audit failed",
+    "pytest: 10 failed, 214 passed"
+  ],
+  "warnings": [
+    "pytest: 2 skipped"
+  ],
+  "environment": {
+    "python_version": "3.11",
+    "temporary_environment_used": true,
+    "clean_build_duration_seconds": 13.9
+  },
+  "clean_build": {
+    "synthetic_data_generated": true,
+    "data_quality_passed": true,
+    "duckdb_built": true,
+    "dbt_run_passed": true,
+    "dbt_test_passed": true,
+    "experiment_analysis_passed": false,
+    "duration_seconds": 13.9
+  },
+  "dashboard": {
+    "health_http_status": 200,
+    "home_http_status": 200,
+    "fatal_log_error_count": 0,
+    "process_terminated_cleanly": true,
+    "port_released": true,
+    "startup_passed": true
+  },
+  "analytics": {
+    "phase4_acceptance": false,
+    "bootstrap_iterations": 5000
+  },
+  "engineering": {
+    "collected": 0,
+    "passed": 214,
+    "failed": 10,
+    "skipped": 2,
+    "deselected": 0
+  },
+  "portfolio": {
+    "broken_link_count": 0,
+    "missing_asset_count": 0
+  },
+  "public_release": {
+    "high_severity_findings": 0,
+    "tracked_database_files": 0,
+    "tracked_secret_files": 0
+  },
+  "git": {
+    "commit": "6c1e0c000421"
+  }
+}
