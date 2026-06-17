@@ -81,6 +81,7 @@ def generate_agent_runs(
     start_date: datetime,
     end_date: datetime,
     *,
+    task_context: pd.DataFrame | None = None,
     models: list[str] | None = None,
     model_weights: list[float] | None = None,
     prompt_versions: list[str] | None = None,
@@ -98,10 +99,14 @@ def generate_agent_runs(
     Args:
         rng: Seeded NumPy random generator.
         count: Number of agent runs to generate.
-        user_ids: Pool of user IDs.
-        doc_ids: Pool of document IDs.
+        user_ids: Pool of user IDs (used only if task_context is None).
+        doc_ids: Pool of document IDs (used only if task_context is None).
         start_date: Earliest run start (inclusive).
         end_date: Latest run start (exclusive).
+        task_context: DataFrame with columns [task_id, user_id, document_id,
+            task_started_at, experiment_id, experiment_group]. When provided,
+            agent runs derive their task/user/doc/experiment from this context
+            instead of generating independent IDs.
         models: Model name options.
         model_weights: Probability weights for models.
         prompt_versions: Prompt version options.
@@ -116,10 +121,6 @@ def generate_agent_runs(
     """
     if count <= 0:
         raise ValueError(f"count must be positive, got {count}")
-    if not user_ids:
-        raise ValueError("user_ids must not be empty")
-    if not doc_ids:
-        raise ValueError("doc_ids must not be empty")
 
     models = models or MODEL_NAMES
     model_weights = model_weights or MODEL_WEIGHTS
@@ -129,28 +130,76 @@ def generate_agent_runs(
     n = count
     run_ids = [f"AGN{i:07d}" for i in range(1, n + 1)]
     trace_ids = [f"TRC{i:07d}" for i in range(1, n + 1)]
-    task_ids = [f"TSK{i:06d}" for i in range(1, n + 1)]
 
-    started_ats = generate_timestamps(rng, start_date, end_date, n)
+    # ── Derive task / user / document / experiment from task_context ──
+    if task_context is not None and len(task_context) > 0:
+        ctx = task_context.copy()
+        n_ctx = len(ctx)
+
+        if n >= n_ctx:
+            # Assign at least one agent run per task
+            indices = list(range(n_ctx)) + list(rng.choice(n_ctx, size=n - n_ctx))
+        else:
+            indices = list(rng.choice(n_ctx, size=n, replace=False))
+
+        # Shuffle so that runs are not grouped by task
+        rng.shuffle(indices)
+
+        ctx_rows = ctx.iloc[indices].reset_index(drop=True)
+        task_ids = ctx_rows["task_id"].tolist()
+        assigned_user_ids = ctx_rows["user_id"].tolist()
+        assigned_doc_ids = ctx_rows["document_id"].tolist()
+
+        # Agent run start times must be after task_started_at
+        task_starts = pd.to_datetime(ctx_rows["task_started_at"])
+        max_end = pd.Timestamp(end_date)
+        run_starts = []
+        for ts in task_starts:
+            if pd.isna(ts):
+                run_starts.append(
+                    start_date
+                    + timedelta(
+                        seconds=float(rng.uniform(0, (end_date - start_date).total_seconds()))
+                    )
+                )
+            else:
+                earliest = ts.to_pydatetime()
+                latest = min(earliest + timedelta(hours=24), max_end.to_pydatetime())
+                offset = float(rng.uniform(0, max(1, (latest - earliest).total_seconds())))
+                run_starts.append(earliest + timedelta(seconds=offset))
+        started_ats_arr = sorted(run_starts)
+
+        # Inherit experiment_group from task context (no independent reassignment)
+        exp_groups = ctx_rows["experiment_group"].tolist()
+    else:
+        # Fallback: legacy behaviour when no task_context is provided
+        if not user_ids:
+            raise ValueError("user_ids must not be empty")
+        if not doc_ids:
+            raise ValueError("doc_ids must not be empty")
+
+        task_ids = [f"TSK_{i:06d}" for i in range(1, n + 1)]
+        assigned_user_ids = list(rng.choice(user_ids, size=n))
+        assigned_doc_ids = list(rng.choice(doc_ids, size=n))
+
+        started_ats_arr = generate_timestamps(rng, start_date, end_date, n)
+
+        exp_groups = [
+            (
+                ("A" if int(hashlib.md5(uid.encode()).hexdigest(), 16) % 2 == 0 else "B")
+                if rng.random() < experiment_fraction
+                else None
+            )
+            for uid in assigned_user_ids
+        ]
+
     latencies = np.maximum(rng.lognormal(lognormal_mu, lognormal_sigma, size=n).astype(int), 100)
-    ended_ats = [started_ats[i] + timedelta(milliseconds=float(latencies[i])) for i in range(n)]
+    ended_ats = [started_ats_arr[i] + timedelta(milliseconds=float(latencies[i])) for i in range(n)]
 
     model_names = weighted_choice(rng, models, model_weights, n)
     input_tokens = rng.integers(5000, 30001, size=n)
     output_tokens = rng.integers(500, 5001, size=n)
     costs = _estimate_cost(model_names, input_tokens, output_tokens)
-
-    # Deterministic experiment group assignment (avoids spurious correlation)
-    # Uses MD5 instead of Python hash() which is non-deterministic across processes
-    assigned_user_ids = list(rng.choice(user_ids, size=n))
-    exp_groups = [
-        (
-            ("A" if int(hashlib.md5(uid.encode()).hexdigest(), 16) % 2 == 0 else "B")
-            if rng.random() < experiment_fraction
-            else None
-        )
-        for uid in assigned_user_ids
-    ]
 
     return pd.DataFrame(
         {
@@ -158,8 +207,8 @@ def generate_agent_runs(
             "trace_id": trace_ids,
             "task_id": task_ids,
             "user_id": assigned_user_ids,
-            "document_id": list(rng.choice(doc_ids, size=n)),
-            "started_at": started_ats,
+            "document_id": assigned_doc_ids,
+            "started_at": started_ats_arr,
             "ended_at": ended_ats,
             "total_latency_ms": list(latencies),
             "total_input_tokens": list(input_tokens),

@@ -1,18 +1,22 @@
 """Funnel & Retention — 7-step task funnel and cohort retention curves."""
 
 import pandas as pd
-import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
 from dashboard.components.filters import render_filters
 from dashboard.components.kpi_cards import kpi_row
+from dashboard.components.retention_charts import (
+    build_retention_figure,
+    build_sample_summary_table,
+    prepare_weekly_retention,
+)
 from dashboard.services.query import query_df
 
 st.set_page_config(page_title="Funnel & Retention", layout="wide")
 
 st.title("Funnel & Retention")
-st.markdown("Task conversion funnel and user retention cohorts")
+st.markdown("Task conversion funnel and cohort retention analysis")
 
 filters = render_filters(page_name="funnel")
 ds = filters["date_start"]
@@ -37,7 +41,7 @@ if complexity != "All":
 
 funnel_where_sql = " AND ".join(funnel_where)
 
-# ── Funnel: compute 7-step counts via conditional aggregation ───────────────
+# ── Funnel: compute 7-step counts via conditional aggregation (task-level) ─────
 funnel_base = query_df(
     f"""
     SELECT
@@ -78,7 +82,7 @@ for i, (name, col) in enumerate(zip(step_names, step_cols, strict=False)):
         {
             "step_order": i + 1,
             "step_name": name,
-            "user_count": val,
+            "task_count": val,
             "pct_of_step1": pct_of_step1,
             "pct_of_prior_step": pct_of_prior,
         }
@@ -87,7 +91,7 @@ for i, (name, col) in enumerate(zip(step_names, step_cols, strict=False)):
 
 funnel = pd.DataFrame(funnel_rows)
 
-# ── Retention: query mart_retention_cohort (date + channel only) ────────────
+# ── Retention: query mart_retention_cohort (date + channel only) ────────────────
 retention_where = ["cohort_date BETWEEN ? AND ?"]
 retention_params = [ds, de]
 
@@ -109,32 +113,36 @@ retention = query_df(
     retention_params,
 )
 
-# ── Summary KPIs ─────────────────────────────────────────────────────────────
+# ── Summary KPIs (task-level) ───────────────────────────────────────────────────
 if not funnel.empty:
-    total_start = int(funnel.iloc[0]["user_count"]) if len(funnel) > 0 else 0
-    total_exported = int(funnel.iloc[-1]["user_count"]) if len(funnel) > 0 else 0
+    total_start = int(funnel.iloc[0]["task_count"]) if len(funnel) > 0 else 0
+    total_exported = int(funnel.iloc[-1]["task_count"]) if len(funnel) > 0 else 0
     overall_conversion = total_exported / total_start if total_start > 0 else 0
 
     kpi_row(
         [
             {
-                "label": "Users Entered Funnel",
+                "label": "Tasks Entered Funnel",
                 "value": total_start,
-                "help": "Number of unique users who performed the first funnel step.",
+                "format_type": "integer",
+                "help": "Number of unique tasks that entered the first funnel step.",
             },
             {
-                "label": "Users Exported",
+                "label": "Tasks Exported",
                 "value": total_exported,
-                "help": "Number of unique users who reached export (final step).",
+                "format_type": "integer",
+                "help": "Number of unique tasks that reached export (final step).",
             },
             {
                 "label": "Overall Conversion Rate",
                 "value": overall_conversion,
-                "help": "Fraction of users who completed all 7 funnel steps.",
+                "format_type": "percent",
+                "help": "Fraction of tasks that completed all 7 funnel steps.",
             },
             {
                 "label": "Funnel Steps",
                 "value": len(funnel),
+                "format_type": "integer",
                 "help": "Number of discrete steps in the task funnel.",
             },
         ]
@@ -142,27 +150,27 @@ if not funnel.empty:
 else:
     st.info("No funnel data available for the selected filters.")
 
-# ── Funnel Chart ─────────────────────────────────────────────────────────────
-st.subheader("Conversion Funnel")
+# ── Funnel Chart ─────────────────────────────────────────────────────────────────
+st.subheader("7-Step Task Funnel (Tasks)")
 
 if not funnel.empty:
     fig = go.Figure()
     fig.add_trace(
         go.Bar(
-            x=funnel["user_count"],
+            x=funnel["task_count"],
             y=funnel["step_name"],
             orientation="h",
             marker={
                 "color": funnel["pct_of_prior_step"],
                 "colorscale": "Blues",
                 "reversescale": True,
-                "colorbar": {"title": "Step-to-Prior %"},
+                "colorbar": {"title": "Step-to-Prior Rate", "tickformat": ".0%"},
             },
-            text=funnel["user_count"].apply(lambda v: f"{v:,}"),
+            text=funnel["task_count"].apply(lambda v: f"{v:,}"),
             textposition="inside",
             hovertemplate=(
                 "<b>%{y}</b><br>"
-                "Users: %{x:,}<br>"
+                "Tasks: %{x:,}<br>"
                 "Step-to-start: %{customdata[0]:.1%}<br>"
                 "Step-to-prior: %{customdata[1]:.1%}"
                 "<extra></extra>"
@@ -171,8 +179,8 @@ if not funnel.empty:
         )
     )
     fig.update_layout(
-        title="7-Step Task Funnel (Users)",
-        xaxis_title="Users",
+        title="7-Step Task Funnel (Tasks)",
+        xaxis_title="Tasks",
         yaxis={"autorange": "reversed"},
         height=450,
     )
@@ -180,81 +188,56 @@ if not funnel.empty:
 
     # Step-to-step conversion table
     st.subheader("Step-to-Step Conversion")
-    display = funnel[["step_name", "user_count", "pct_of_step1", "pct_of_prior_step"]].copy()
-    display["user_count"] = display["user_count"].apply(lambda v: f"{v:,}")
+    display = funnel[["step_name", "task_count", "pct_of_step1", "pct_of_prior_step"]].copy()
+    display["task_count"] = display["task_count"].apply(lambda v: f"{v:,}")
     display["pct_of_step1"] = display["pct_of_step1"].apply(lambda v: f"{v:.1%}")
     display["pct_of_prior_step"] = display["pct_of_prior_step"].apply(lambda v: f"{v:.1%}")
-    display.columns = ["Step", "Users", "vs Step 1", "vs Prior Step"]
+    display.columns = ["Step", "Tasks", "vs Step 1", "vs Prior Step"]
     st.dataframe(display, use_container_width=True, hide_index=True)
 else:
     st.info("No funnel data to display.")
 
-# ── Retention Chart ──────────────────────────────────────────────────────────
+# ── Retention Charts (tab-separated D1/D7/D30) ──────────────────────────────────
 st.subheader("Retention Cohorts")
 
 if not retention.empty:
-    available_channels = retention["acquisition_channel"].dropna().unique()
-    palette = px.colors.qualitative.Plotly
+    weekly = prepare_weekly_retention(retention)
 
-    fig = go.Figure()
-    for i, ch in enumerate(available_channels):
-        subset = retention[retention["acquisition_channel"] == ch].sort_values("cohort_date")
-        fig.add_trace(
-            go.Scatter(
-                x=subset["cohort_date"],
-                y=subset["d1_retention_rate"],
-                mode="lines+markers",
-                name=f"D1 — {ch}",
-                line={"color": palette[i % len(palette)], "dash": "dot"},
-            )
-        )
-        fig.add_trace(
-            go.Scatter(
-                x=subset["cohort_date"],
-                y=subset["d7_retention_rate"],
-                mode="lines+markers",
-                name=f"D7 — {ch}",
-                line={"color": palette[i % len(palette)], "dash": "dash"},
-            )
-        )
-        fig.add_trace(
-            go.Scatter(
-                x=subset["cohort_date"],
-                y=subset["d30_retention_rate"],
-                mode="lines+markers",
-                name=f"D30 — {ch}",
-                line={"color": palette[i % len(palette)], "dash": "solid"},
-            )
-        )
+    tab_d1, tab_d7, tab_d30 = st.tabs(["D1 Retention", "D7 Retention", "D30 Retention"])
 
-    fig.update_layout(
-        title="D1 / D7 / D30 Retention by Channel",
-        xaxis_title="Cohort Date",
-        yaxis_title="Retention Rate",
-        yaxis_tickformat=".0%",
-        height=450,
-        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1},
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    with tab_d1:
+        fig_d1 = build_retention_figure(weekly, "d1")
+        st.plotly_chart(fig_d1, use_container_width=True)
 
-    # Average retention summary
-    avg_ret = (
-        retention.groupby("acquisition_channel")[
-            ["d1_retention_rate", "d7_retention_rate", "d30_retention_rate"]
-        ]
-        .mean()
-        .reset_index()
-    )
-    for col in ["d1_retention_rate", "d7_retention_rate", "d30_retention_rate"]:
-        avg_ret[col] = avg_ret[col].apply(lambda v: f"{v:.1%}")
-    avg_ret.columns = ["Channel", "Avg D1", "Avg D7", "Avg D30"]
-    st.dataframe(avg_ret, use_container_width=True, hide_index=True)
+    with tab_d7:
+        fig_d7 = build_retention_figure(weekly, "d7")
+        st.plotly_chart(fig_d7, use_container_width=True)
+
+    with tab_d30:
+        fig_d30 = build_retention_figure(weekly, "d30")
+        st.plotly_chart(fig_d30, use_container_width=True)
+
+    # Sample summary table
+    st.subheader("Sample Size Summary")
+    with st.expander("View cohort sample details", expanded=False):
+        summary = build_sample_summary_table(weekly)
+        if not summary.empty:
+            # Format rates
+            summary["retention_rate"] = summary["retention_rate"].apply(
+                lambda v: f"{v:.1%}" if pd.notna(v) else "N/A"
+            )
+            st.dataframe(summary, use_container_width=True, hide_index=True)
+            st.caption(
+                "Cohort-weeks with fewer than 20 eligible users are marked "
+                '"insufficient" and are excluded from the chart. '
+                "Rates are weighted by eligible users within each weekly cohort."
+            )
 else:
     st.info("No retention data available for the selected filters.")
 
-# ── Filter Applicability Note ────────────────────────────────────────────────
-st.info("Device and complexity filters apply to the task funnel. " "Retention is cohort-level.")
+# ── Filter Applicability Note ────────────────────────────────────────────────────
+st.info("Device and complexity filters apply to the task funnel. Retention is cohort-level.")
 
-# ── Footer ───────────────────────────────────────────────────────────────────
+# ── Footer ───────────────────────────────────────────────────────────────────────
 st.markdown("---")
 st.caption("ALL DATA IS SYNTHETIC")

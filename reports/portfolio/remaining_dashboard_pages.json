@@ -9,7 +9,7 @@
     },
     "feature_ttfu": {
       "passed": true,
-      "row_count": 407,
+      "row_count": 395,
       "failures": []
     },
     "agent_observability": {

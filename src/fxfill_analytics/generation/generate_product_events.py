@@ -164,6 +164,10 @@ def _generate_task_events(
             }
         )
 
+        # If abandoned at review, stop pipeline (do not generate form_exported)
+        if abandon:
+            break
+
     # If the task wasn't exported (abandoned at review)
     if abandon and fail_at_stage is None:
         current_time += timedelta(milliseconds=float(rng.uniform(1000, 10000)))

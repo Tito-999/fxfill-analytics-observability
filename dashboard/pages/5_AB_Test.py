@@ -1,11 +1,12 @@
 """A/B Test Dashboard — Experiment group comparison, contamination, and guardrails."""
 
+import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
 from dashboard.components.filters import render_filters
-from dashboard.components.kpi_cards import kpi_row
+from dashboard.components.kpi_cards import format_kpi_value, kpi_row
 from dashboard.services.query import query_df
 
 st.set_page_config(page_title="A/B Test Dashboard", layout="wide")
@@ -16,7 +17,21 @@ st.markdown("Group-level metric comparison, contamination status, and guardrail 
 filters = render_filters(page_name="ab_test")
 exp_group = filters.get("experiment_group", "All")
 
-# ── Experiment Summary (all-time, no date filter, parameterized group) ──────
+
+def _safe_float(val, default=None):
+    """Return *val* as float, or *default* if NaN/None/Inf."""
+    if val is None:
+        return default
+    try:
+        f = float(val)
+        if pd.isna(f) or f == float("inf") or f == float("-inf"):
+            return default
+        return f
+    except (ValueError, TypeError):
+        return default
+
+
+# ── Experiment Summary ─────────────────────────────────────────────────────
 _summary_sql = """SELECT experiment_group, user_count, total_tasks, avg_export_rate, avg_field_accuracy, avg_latency_ms, cost_per_task FROM main_marts.mart_ab_test_summary"""
 _summary_params: list = []
 if exp_group != "All":
@@ -25,9 +40,7 @@ if exp_group != "All":
 _summary_sql += " ORDER BY experiment_group"
 summary = query_df(_summary_sql, _summary_params)
 
-# ── User-Level Metrics (all-time, no date filter, parameterized group) ──────
-# Notes: mart uses successful_tasks/task_success_rate/avg_agent_latency_ms;
-# aliased to exported_tasks/export_rate/avg_latency_ms for display consistency.
+# ── User-Level Metrics ─────────────────────────────────────────────────────
 _um_sql = """SELECT user_id, experiment_group, total_tasks, successful_tasks AS exported_tasks, task_success_rate AS export_rate, avg_field_accuracy, avg_agent_latency_ms AS avg_latency_ms, total_cost_usd FROM main_marts.mart_ab_test_user_metrics"""
 _um_params: list = []
 if exp_group != "All":
@@ -35,7 +48,6 @@ if exp_group != "All":
     _um_params.append(exp_group)
 _um_sql += " ORDER BY experiment_group, user_id"
 user_metrics = query_df(_um_sql, _um_params)
-# Validate contract
 _req = {
     "user_id",
     "experiment_group",
@@ -50,22 +62,35 @@ _miss = _req - set(user_metrics.columns)
 if _miss:
     raise RuntimeError("A/B user metrics contract failed: " + ", ".join(sorted(_miss)))
 
-# ── Clean Assignments ───────────────────────────────────────────────────────
+# ── Clean Assignments ──────────────────────────────────────────────────────
 clean = query_df(
     """SELECT user_id, experiment_group, assigned_at FROM main_intermediate.int_experiment_clean_assignments ORDER BY user_id"""
 )
 
-# ── Contaminated Users ──────────────────────────────────────────────────────
+# ── Contaminated Users ─────────────────────────────────────────────────────
 contaminated = query_df(
     """SELECT user_id, group_count, assigned_groups, is_intentional_contamination FROM main_intermediate.int_experiment_contaminated_users ORDER BY user_id"""
 )
 
-# ── Experiment Period ────────────────────────────────────────────────────────
+# ── Experiment Period ──────────────────────────────────────────────────────
 exp_period = query_df(
     """SELECT MIN(assigned_at) AS experiment_start, MAX(assigned_at) AS experiment_end FROM main_intermediate.int_experiment_clean_assignments"""
 )
 
-# ── Summary Info ─────────────────────────────────────────────────────────────
+# ── Agent metric coverage ──────────────────────────────────────────────────
+coverage_sql = """
+    SELECT
+        pe.experiment_group,
+        COUNT(DISTINCT pe.task_id) AS total_tasks,
+        COUNT(DISTINCT ar.agent_run_id) AS tasks_with_agent
+    FROM main_staging.stg_product_events pe
+    LEFT JOIN main_staging.stg_agent_runs ar ON pe.task_id = ar.task_id
+    WHERE pe.experiment_group IN ('A', 'B')
+    GROUP BY pe.experiment_group
+"""
+coverage = query_df(coverage_sql)
+
+# ── Summary Info ───────────────────────────────────────────────────────────
 st.subheader("Experiment Overview")
 
 if not exp_period.empty and exp_period.iloc[0]["experiment_start"] is not None:
@@ -83,16 +108,19 @@ kpi_row(
         {
             "label": "Group A (Clean)",
             "value": n_clean_a,
+            "format_type": "integer",
             "help": "Number of users cleanly assigned to experiment group A.",
         },
         {
             "label": "Group B (Clean)",
             "value": n_clean_b,
+            "format_type": "integer",
             "help": "Number of users cleanly assigned to experiment group B.",
         },
         {
-            "label": "Contaminated Users (Excluded)",
+            "label": "Contaminated (Excluded)",
             "value": n_contaminated,
+            "format_type": "integer",
             "help": "Users found in multiple experiment groups, excluded from analysis.",
         },
     ],
@@ -105,148 +133,202 @@ if n_contaminated > 0:
         "Contamination occurs when a user appears in multiple experiment groups."
     )
 
-# ── AB Test Summary ─────────────────────────────────────────────────────────
-st.subheader("Group-Level Metrics")
+# Agent metric coverage warning
+if not coverage.empty:
+    for _, cr in coverage.iterrows():
+        grp = cr["experiment_group"]
+        total = int(cr["total_tasks"])
+        matched = int(cr["tasks_with_agent"])
+        cov_rate = matched / total if total > 0 else 0
+        if cov_rate < 0.99:
+            st.warning(
+                f"Group {grp}: Agent metric coverage is incomplete "
+                f"({matched}/{total} = {cov_rate:.1%}). "
+                "Guardrail metrics are unavailable for part of the experiment population."
+            )
+
+# ── Outcome Metrics ────────────────────────────────────────────────────────
+st.subheader("Outcome Metrics (Percentage Scale)")
 
 if not summary.empty:
-    metrics_to_plot = ["avg_export_rate", "avg_field_accuracy", "avg_latency_ms", "cost_per_task"]
-    labels_map = {
-        "avg_export_rate": "Export Rate",
-        "avg_field_accuracy": "Field Accuracy",
-        "avg_latency_ms": "Avg Latency (ms)",
-        "cost_per_task": "Cost / Task",
-    }
+    outcome_metrics = ["avg_export_rate", "avg_field_accuracy"]
+    outcome_labels = {"avg_export_rate": "Export Rate", "avg_field_accuracy": "Field Accuracy"}
 
-    fig = go.Figure()
+    fig_outcome = go.Figure()
     for grp in sorted(summary["experiment_group"].unique()):
         subset = summary[summary["experiment_group"] == grp]
-        vals = [subset[col].iloc[0] if col in subset.columns else 0 for col in metrics_to_plot]
-        fig.add_trace(
+        vals = []
+        texts = []
+        for m in outcome_metrics:
+            raw = subset[m].iloc[0] if m in subset.columns else None
+            v = _safe_float(raw, None)
+            vals.append(v)
+            texts.append(format_kpi_value(v, "percent"))
+        fig_outcome.add_trace(
             go.Bar(
                 name=f"Group {grp}",
-                x=[labels_map[m] for m in metrics_to_plot],
+                x=[outcome_labels[m] for m in outcome_metrics],
                 y=vals,
-                text=[
-                    f"{v:.2%}" if m in ("avg_export_rate", "avg_field_accuracy") else f"{v:.2f}"
-                    for v, m in zip(vals, metrics_to_plot, strict=False)
-                ],
+                text=texts,
                 textposition="auto",
             )
         )
-
-    fig.update_layout(
-        title="Key Metrics by Experiment Group",
-        yaxis_title="Value",
+    fig_outcome.update_layout(
+        title="Outcome Metrics by Experiment Group",
+        yaxis_tickformat=".0%",
         barmode="group",
         height=400,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig_outcome, use_container_width=True)
+else:
+    st.info("No experiment summary data available.")
 
-    # Detail table
+# ── Guardrail Latency ──────────────────────────────────────────────────────
+st.subheader("Guardrail: Latency (ms Scale)")
+
+if not summary.empty:
+    fig_lat = go.Figure()
+    for grp in sorted(summary["experiment_group"].unique()):
+        subset = summary[summary["experiment_group"] == grp]
+        raw = subset["avg_latency_ms"].iloc[0] if "avg_latency_ms" in subset.columns else None
+        v = _safe_float(raw, None)
+        fig_lat.add_trace(
+            go.Bar(
+                name=f"Group {grp}",
+                x=[f"Group {grp}"],
+                y=[v],
+                text=[format_kpi_value(v, "latency_ms")],
+                textposition="auto",
+            )
+        )
+    fig_lat.update_layout(
+        title="Avg Latency by Experiment Group",
+        yaxis_title="Latency (ms)",
+        height=350,
+    )
+    st.plotly_chart(fig_lat, use_container_width=True)
+else:
+    st.info("No latency data available.")
+
+# ── Guardrail Cost ─────────────────────────────────────────────────────────
+st.subheader("Guardrail: Cost per Task (USD Scale)")
+
+if not summary.empty:
+    fig_cost = go.Figure()
+    for grp in sorted(summary["experiment_group"].unique()):
+        subset = summary[summary["experiment_group"] == grp]
+        raw = subset["cost_per_task"].iloc[0] if "cost_per_task" in subset.columns else None
+        v = _safe_float(raw, None)
+        fig_cost.add_trace(
+            go.Bar(
+                name=f"Group {grp}",
+                x=[f"Group {grp}"],
+                y=[v],
+                text=[format_kpi_value(v, "currency")],
+                textposition="auto",
+            )
+        )
+    fig_cost.update_layout(
+        title="Cost per Task by Experiment Group",
+        yaxis_title="Cost (USD)",
+        height=350,
+    )
+    st.plotly_chart(fig_cost, use_container_width=True)
+else:
+    st.info("No cost data available.")
+
+# ── KPI cards with explicit formats ────────────────────────────────────────
+st.subheader("Guardrail KPIs")
+if not summary.empty:
+    cards_latency = []
+    cards_cost = []
+    for _, r in summary.iterrows():
+        grp = r["experiment_group"]
+        lat = _safe_float(r.get("avg_latency_ms"), None)
+        cost = _safe_float(r.get("cost_per_task"), None)
+        cards_latency.append(
+            {
+                "label": f"Latency Group {grp}",
+                "value": lat,
+                "format_type": "latency_ms",
+                "help": f"Average end-to-end latency for Group {grp}.",
+            }
+        )
+        cards_cost.append(
+            {
+                "label": f"Cost/Task Group {grp}",
+                "value": cost,
+                "format_type": "currency",
+                "help": f"Average cost per task for Group {grp}.",
+            }
+        )
+    kpi_row(cards_latency, cols=4)
+    kpi_row(cards_cost, cols=4)
+
+# ── Detail Table ───────────────────────────────────────────────────────────
+if not summary.empty:
+    st.subheader("Detailed Summary")
     detail = summary.copy()
-    detail["avg_export_rate"] = detail["avg_export_rate"].apply(lambda v: f"{v:.2%}")
-    detail["avg_field_accuracy"] = detail["avg_field_accuracy"].apply(lambda v: f"{v:.2%}")
-    detail["avg_latency_ms"] = detail["avg_latency_ms"].apply(lambda v: f"{v:,.1f}")
-    detail["cost_per_task"] = detail["cost_per_task"].apply(lambda v: f"${v:.4f}")
-    detail["user_count"] = detail["user_count"].apply(lambda v: f"{v:,}")
-    detail["total_tasks"] = detail["total_tasks"].apply(lambda v: f"{v:,}")
+    for col in ["avg_export_rate", "avg_field_accuracy"]:
+        detail[col] = detail[col].apply(lambda v: format_kpi_value(v, "percent"))
+    detail["avg_latency_ms"] = detail["avg_latency_ms"].apply(
+        lambda v: format_kpi_value(v, "latency_ms")
+    )
+    detail["cost_per_task"] = detail["cost_per_task"].apply(
+        lambda v: format_kpi_value(v, "currency")
+    )
+    detail["user_count"] = detail["user_count"].apply(
+        lambda v: format_kpi_value(int(v) if pd.notna(v) else None, "integer")
+    )
+    detail["total_tasks"] = detail["total_tasks"].apply(
+        lambda v: format_kpi_value(int(v) if pd.notna(v) else None, "integer")
+    )
     st.dataframe(detail, use_container_width=True, hide_index=True)
-else:
-    st.info("No experiment summary data available for the selected filters.")
 
-# ── Guardrails ───────────────────────────────────────────────────────────────
-st.subheader("Guardrails")
-
-if not summary.empty:
-    guardrails = (
-        summary.groupby("experiment_group")[["avg_latency_ms", "cost_per_task"]]
-        .mean()
-        .reset_index()
-    )
-
-    kpi_row(
-        [
-            {
-                "label": f"Avg Latency (Group {r['experiment_group']})",
-                "value": r["avg_latency_ms"],
-                "help": "Average end-to-end latency. Increase may indicate performance regression.",
-            }
-            for _, r in guardrails.iterrows()
-        ]
-    )
-    kpi_row(
-        [
-            {
-                "label": f"Cost / Task (Group {r['experiment_group']})",
-                "value": r["cost_per_task"],
-                "help": "Average cost per task. Increase may indicate cost regression.",
-            }
-            for _, r in guardrails.iterrows()
-        ],
-        cols=4,
-    )
-
-    fig = go.Figure()
-    guardrail_metrics = ["avg_latency_ms", "cost_per_task"]
-    guardrail_labels = ["Avg Latency (ms)", "Cost / Task ($)"]
-
-    for grp in sorted(summary["experiment_group"].unique()):
-        subset = summary[summary["experiment_group"] == grp]
-        vals = [subset[m].iloc[0] if m in subset.columns else 0 for m in guardrail_metrics]
-        fig.add_trace(
-            go.Bar(
-                name=f"Group {grp}",
-                x=guardrail_labels,
-                y=vals,
-                textposition="auto",
-            )
-        )
-
-    fig.update_layout(
-        title="Guardrail Metrics by Experiment Group",
-        yaxis_title="Value",
-        barmode="group",
-        height=400,
-    )
-    st.plotly_chart(fig, use_container_width=True)
-else:
-    st.info("No guardrail data available.")
-
-# ── User Distribution ────────────────────────────────────────────────────────
+# ── User Distribution ──────────────────────────────────────────────────────
 st.subheader("User-Level Metric Distributions")
 
 if not user_metrics.empty:
     col_dist1, col_dist2 = st.columns(2)
 
     with col_dist1:
-        fig = px.histogram(
-            user_metrics,
-            x="export_rate",
-            color="experiment_group",
-            nbins=40,
-            barmode="overlay",
-            title="Export Rate Distribution by Group",
-            labels={"export_rate": "Export Rate"},
-        )
-        fig.update_layout(height=350)
-        st.plotly_chart(fig, use_container_width=True)
+        # Filter out NaN values from histogram data
+        dist_data = user_metrics[user_metrics["export_rate"].notna()]
+        if not dist_data.empty:
+            fig = px.histogram(
+                dist_data,
+                x="export_rate",
+                color="experiment_group",
+                nbins=40,
+                barmode="overlay",
+                title="Export Rate Distribution by Group",
+                labels={"export_rate": "Export Rate"},
+            )
+            fig.update_layout(height=350)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No valid export rate data for distribution chart.")
 
     with col_dist2:
-        fig = px.histogram(
-            user_metrics,
-            x="avg_field_accuracy",
-            color="experiment_group",
-            nbins=40,
-            barmode="overlay",
-            title="Field Accuracy Distribution by Group",
-            labels={"avg_field_accuracy": "Field Accuracy"},
-        )
-        fig.update_layout(height=350)
-        st.plotly_chart(fig, use_container_width=True)
+        dist_data2 = user_metrics[user_metrics["avg_field_accuracy"].notna()]
+        if not dist_data2.empty:
+            fig = px.histogram(
+                dist_data2,
+                x="avg_field_accuracy",
+                color="experiment_group",
+                nbins=40,
+                barmode="overlay",
+                title="Field Accuracy Distribution by Group",
+                labels={"avg_field_accuracy": "Field Accuracy"},
+            )
+            fig.update_layout(height=350)
+            st.plotly_chart(fig, use_container_width=True)
+        else:
+            st.info("No valid field accuracy data for distribution chart.")
 else:
     st.info("No user-level metric data available.")
 
-# ── Note ─────────────────────────────────────────────────────────────────────
+# ── Notes ──────────────────────────────────────────────────────────────────
 st.info(
     "A/B metrics use the experiment's fixed assignment window, "
     "not the global product date filter."

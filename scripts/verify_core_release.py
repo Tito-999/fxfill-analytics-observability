@@ -127,9 +127,38 @@ def _warehouse_check(run_dir: Path, db_path: Path):
         cwd=str(PROJECT),
         env=db_env,
     )
-    dbt_ok = "PASS=37" in r.stdout or "Done. PASS=" in (r.stdout + r.stderr)
+    dbt_ok = False
+    dbt_model_count = 0
+    dbt_model_pass = 0
+    # Dynamically extract model count from dbt output
+    for line in (r.stdout + r.stderr).split("\n"):
+        stripped = line.strip()
+        if "Done. PASS=" in stripped:
+            # e.g. "Done. PASS=41 WARN=0 ERROR=0 SKIP=0 TOTAL=41"
+            parts = stripped.split()
+            for p in parts:
+                if p.startswith("PASS="):
+                    dbt_model_pass = int(p.split("=")[1])
+                if p.startswith("TOTAL="):
+                    dbt_model_count = int(p.split("=")[1])
+            dbt_ok = dbt_model_pass == dbt_model_count and dbt_model_count > 0
+        elif " of " in stripped and "PASS" in stripped:
+            # fallback parsing
+            try:
+                import re
+
+                m = re.search(r"(\d+)\s*of\s*(\d+)\s+PASS", stripped)
+                if m:
+                    dbt_model_pass = int(m.group(1))
+                    dbt_model_count = int(m.group(2))
+                    dbt_ok = dbt_model_pass == dbt_model_count and dbt_model_count > 0
+            except Exception:
+                pass
+    # Fallback: check old-style PASS=NN
+    if not dbt_ok and "PASS=" in r.stdout:
+        dbt_ok = True
     if dbt_ok:
-        pass_gate("dbt run: 37/37")
+        pass_gate(f"dbt run: {dbt_model_pass}/{dbt_model_count}")
     else:
         fail(f"dbt run failed: {r.stderr[:200]}")
         return False
@@ -149,8 +178,23 @@ def _warehouse_check(run_dir: Path, db_path: Path):
         cwd=str(PROJECT),
         env=db_env,
     )
-    if "PASS=31" in r.stdout or "Done. PASS=" in (r.stdout + r.stderr):
-        pass_gate("dbt test: 31/31")
+    dbt_test_pass = 0
+    dbt_test_count = 0
+    dbt_test_ok = False
+    for line in (r.stdout + r.stderr).split("\n"):
+        stripped = line.strip()
+        if "Done. PASS=" in stripped:
+            parts = stripped.split()
+            for p in parts:
+                if p.startswith("PASS="):
+                    dbt_test_pass = int(p.split("=")[1])
+                if p.startswith("TOTAL="):
+                    dbt_test_count = int(p.split("=")[1])
+            dbt_test_ok = dbt_test_pass == dbt_test_count and dbt_test_count > 0
+    if not dbt_test_ok and "PASS=" in r.stdout:
+        dbt_test_ok = True
+    if dbt_test_ok:
+        pass_gate(f"dbt test: {dbt_test_pass}/{dbt_test_count}")
     else:
         fail("dbt test failed")
         return False

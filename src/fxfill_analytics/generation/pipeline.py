@@ -230,10 +230,30 @@ def run_pipeline(
         )
         table_timings["product_events"] = time.perf_counter() - t0
 
-        # ── Step 5: Agent Runs ──
+        # ── Build task_context from product events for agent-run linkage ──
+        task_context = (
+            events_df.groupby("task_id", as_index=False)
+            .agg(
+                user_id=("user_id", "first"),
+                document_id=("document_id", "first"),
+                task_started_at=("event_time", "min"),
+                experiment_id=("experiment_id", "first"),
+                experiment_group=("experiment_group", "first"),
+            )
+            .sort_values("task_id")
+            .reset_index(drop=True)
+        )
+
+        # ── Step 5: Agent Runs (linked to product task_context) ──
         t0 = time.perf_counter()
         agent_runs_df = generate_agent_runs(
-            rng_ar, cfg["agent_runs"], user_ids, doc_ids, start_date, end_date
+            rng_ar,
+            cfg["agent_runs"],
+            user_ids,
+            doc_ids,
+            start_date,
+            end_date,
+            task_context=task_context,
         )
         table_timings["agent_runs"] = time.perf_counter() - t0
 

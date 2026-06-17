@@ -51,22 +51,26 @@ if not scorecard_df.empty:
             {
                 "label": "Total Exported Tasks",
                 "value": int(agg["north_star_metric"]) if pd.notna(agg["north_star_metric"]) else 0,
+                "format_type": "integer",
                 "help": "North star metric — total successfully exported tasks.",
             },
             {
                 "label": "Avg DAU",
                 "value": int(agg["dau"]) if pd.notna(agg["dau"]) else 0,
+                "format_type": "integer",
                 "help": "Daily active users — average over the selected period.",
             },
             {
                 "label": "Avg Export Rate",
                 "value": agg["export_rate"] if pd.notna(agg["export_rate"]) else 0,
+                "format_type": "percent",
                 "help": "Fraction of started tasks that reach export.",
             },
             {
-                "label": "Avg D7 Retention",
+                "label": "Avg D7 Retention Rate",
                 "value": agg["d7_retention"] if pd.notna(agg["d7_retention"]) else 0,
-                "help": "Fraction of users active on day 7 after signup.",
+                "format_type": "percent",
+                "help": "Fraction of users active on day 7 after signup (matured cohorts only).",
             },
         ]
     )
@@ -75,6 +79,7 @@ if not scorecard_df.empty:
             {
                 "label": "Avg Agent Success Rate",
                 "value": agg["agent_success_rate"] if pd.notna(agg["agent_success_rate"]) else 0,
+                "format_type": "percent",
                 "help": "Fraction of agent runs completed without error.",
             },
             {
@@ -82,6 +87,7 @@ if not scorecard_df.empty:
                 "value": (
                     agg["agent_p95_latency_ms"] if pd.notna(agg["agent_p95_latency_ms"]) else 0
                 ),
+                "format_type": "latency_ms",
                 "help": "95th percentile agent latency in milliseconds.",
             },
             {
@@ -91,6 +97,7 @@ if not scorecard_df.empty:
                     if pd.notna(agg["cost_per_successful_task"])
                     else 0
                 ),
+                "format_type": "currency",
                 "help": "Average estimated cost per successfully exported task (USD).",
             },
         ],
