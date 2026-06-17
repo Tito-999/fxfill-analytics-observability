@@ -22,7 +22,7 @@ def test_performance_fields_present():
     ]:
         assert key in data, f"Missing {key}"
         assert data[key] is not None
-        assert isinstance(data[key], (int, float)), f"{key} not numeric"
+        assert isinstance(data[key], int | float), f"{key} not numeric"
 
 
 def test_mart_benchmarks():

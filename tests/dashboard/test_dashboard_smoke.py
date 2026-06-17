@@ -64,6 +64,8 @@ def test_database_read_only():
     result = conn.execute("SELECT 1").fetchone()
     assert result[0] == 1
     # Verify write is blocked
-    with pytest.raises(Exception):
+    import duckdb
+
+    with pytest.raises(duckdb.Error):
         conn.execute("CREATE TABLE test_write (x INT)")
     conn.close()

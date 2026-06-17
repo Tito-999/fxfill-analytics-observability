@@ -117,9 +117,9 @@ def benchmark_sql_portfolio(conn):
         # Extract business question from header
         lines = sql_text.split("\n")
         bq = ""
-        for l in lines:
-            if l.startswith("-- Business question:"):
-                bq = l.split(":", 1)[1].strip()
+        for line in lines:
+            if line.startswith("-- Business question:"):
+                bq = line.split(":", 1)[1].strip()
                 break
         try:
             t0 = time.perf_counter()
