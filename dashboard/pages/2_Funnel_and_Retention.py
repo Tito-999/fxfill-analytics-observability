@@ -7,7 +7,7 @@ import streamlit as st
 
 from dashboard.components.filters import render_filters
 from dashboard.components.kpi_cards import kpi_row
-from dashboard.services.database import get_connection
+from dashboard.services.query import query_df
 
 st.set_page_config(page_title="Funnel & Retention", layout="wide")
 
@@ -21,54 +21,88 @@ channel = filters.get("acquisition_channel", "All")
 device = filters.get("device_type", "All")
 complexity = filters.get("complexity", "All")
 
-conn = get_connection()
+# ── Build dynamic WHERE clause for funnel (date + channel + device + complexity) ──
+funnel_where = ["event_date BETWEEN ? AND ?"]
+funnel_params = [ds, de]
 
+if channel != "All":
+    funnel_where.append("acquisition_channel = ?")
+    funnel_params.append(channel)
+if device != "All":
+    funnel_where.append("device_type = ?")
+    funnel_params.append(device)
+if complexity != "All":
+    funnel_where.append("complexity = ?")
+    funnel_params.append(complexity)
 
-def q(query_str: str) -> pd.DataFrame:
-    return conn.execute(query_str).fetchdf()
+funnel_where_sql = " AND ".join(funnel_where)
 
-
-channel_clause = "" if channel == "All" else f"AND channel = '{channel}'"
-device_clause = "" if device == "All" else f"AND device_type = '{device}'"
-complexity_clause = "" if complexity == "All" else f"AND complexity = '{complexity}'"
-
-# ── Funnel Query ─────────────────────────────────────────────────────────
-funnel = q(
+# ── Funnel: compute 7-step counts via conditional aggregation ───────────────
+funnel_base = query_df(
     f"""
     SELECT
-        step_name,
-        step_order,
-        user_count,
-        event_count,
-        pct_of_step1                                           AS step_to_start_pct,
-        pct_of_prior_step                                      AS step_to_prior_pct
-    FROM main_marts.mart_conversion_funnel
-    WHERE date BETWEEN '{ds}' AND '{de}'
-      {channel_clause}
-      {device_clause}
-      {complexity_clause}
-    ORDER BY step_order
-"""
+        COUNT(DISTINCT CASE WHEN did_upload = 1 THEN task_id END) AS upload,
+        COUNT(DISTINCT CASE WHEN did_complete_ocr = 1 THEN task_id END) AS ocr,
+        COUNT(DISTINCT CASE WHEN did_complete_anonymization = 1 THEN task_id END) AS anonymization,
+        COUNT(DISTINCT CASE WHEN did_complete_risk_detection = 1 THEN task_id END) AS risk_detection,
+        COUNT(DISTINCT CASE WHEN did_complete_autofill = 1 THEN task_id END) AS autofill,
+        COUNT(DISTINCT CASE WHEN did_start_review = 1 THEN task_id END) AS review,
+        COUNT(DISTINCT CASE WHEN did_export = 1 THEN task_id END) AS export
+    FROM main_intermediate.int_task_funnel_enriched
+    WHERE {funnel_where_sql}
+    """,
+    funnel_params,
 )
 
-# ── Retention Query ──────────────────────────────────────────────────────
-retention = q(
+step_names = [
+    "Upload", "OCR", "Anonymization",
+    "Risk Detection", "Autofill", "Review", "Export",
+]
+step_cols = ["upload", "ocr", "anonymization", "risk_detection", "autofill", "review", "export"]
+
+funnel_rows = []
+first_val = None
+prev_val = None
+for i, (name, col) in enumerate(zip(step_names, step_cols)):
+    val = int(funnel_base.iloc[0][col]) if not funnel_base.empty else 0
+    if first_val is None:
+        first_val = val
+    pct_of_step1 = val / first_val if first_val and first_val > 0 else 0
+    pct_of_prior = val / prev_val if i > 0 and prev_val and prev_val > 0 else 1.0 if i == 0 else 0
+    funnel_rows.append({
+        "step_order": i + 1,
+        "step_name": name,
+        "user_count": val,
+        "pct_of_step1": pct_of_step1,
+        "pct_of_prior_step": pct_of_prior,
+    })
+    prev_val = val
+
+funnel = pd.DataFrame(funnel_rows)
+
+# ── Retention: query mart_retention_cohort (date + channel only) ────────────
+retention_where = ["cohort_date BETWEEN ? AND ?"]
+retention_params = [ds, de]
+
+if channel != "All":
+    retention_where.append("acquisition_channel = ?")
+    retention_params.append(channel)
+
+retention_where_sql = " AND ".join(retention_where)
+
+retention = query_df(
     f"""
-    SELECT
-        cohort_date,
-        channel,
-        d1_retention,
-        d7_retention,
-        d30_retention
+    SELECT cohort_date, acquisition_channel, eligible_users,
+           d1_retained_users, d7_retained_users, d30_retained_users,
+           d1_retention_rate, d7_retention_rate, d30_retention_rate
     FROM main_marts.mart_retention_cohort
-    WHERE cohort_date BETWEEN '{ds}' AND '{de}'
-      {channel_clause}
-      {device_clause}
+    WHERE {retention_where_sql}
     ORDER BY cohort_date
-"""
+    """,
+    retention_params,
 )
 
-# ── Summary KPIs ─────────────────────────────────────────────────────────
+# ── Summary KPIs ─────────────────────────────────────────────────────────────
 if not funnel.empty:
     total_start = int(funnel.iloc[0]["user_count"]) if len(funnel) > 0 else 0
     total_exported = int(funnel.iloc[-1]["user_count"]) if len(funnel) > 0 else 0
@@ -84,7 +118,7 @@ if not funnel.empty:
             {
                 "label": "Users Exported",
                 "value": total_exported,
-                "help": "Number of unique users who reached form_exported (final step).",
+                "help": "Number of unique users who reached export (final step).",
             },
             {
                 "label": "Overall Conversion Rate",
@@ -101,11 +135,10 @@ if not funnel.empty:
 else:
     st.info("No funnel data available for the selected filters.")
 
-# ── Funnel Chart ─────────────────────────────────────────────────────────
+# ── Funnel Chart ─────────────────────────────────────────────────────────────
 st.subheader("Conversion Funnel")
 
 if not funnel.empty:
-    # Funnel bar chart
     fig = go.Figure()
     fig.add_trace(
         go.Bar(
@@ -113,7 +146,7 @@ if not funnel.empty:
             y=funnel["step_name"],
             orientation="h",
             marker={
-                "color": funnel["step_to_prior_pct"],
+                "color": funnel["pct_of_prior_step"],
                 "colorscale": "Blues",
                 "reversescale": True,
                 "colorbar": {"title": "Step-to-Prior %"},
@@ -140,32 +173,29 @@ if not funnel.empty:
 
     # Step-to-step conversion table
     st.subheader("Step-to-Step Conversion")
-    display = funnel[
-        ["step_name", "user_count", "event_count", "pct_of_step1", "pct_of_prior_step"]
-    ].copy()
+    display = funnel[["step_name", "user_count", "pct_of_step1", "pct_of_prior_step"]].copy()
     display["user_count"] = display["user_count"].apply(lambda v: f"{v:,}")
-    display["event_count"] = display["event_count"].apply(lambda v: f"{v:,}")
     display["pct_of_step1"] = display["pct_of_step1"].apply(lambda v: f"{v:.1%}")
     display["pct_of_prior_step"] = display["pct_of_prior_step"].apply(lambda v: f"{v:.1%}")
-    display.columns = ["Step", "Users", "Events", "vs Step 1", "vs Prior Step"]
+    display.columns = ["Step", "Users", "vs Step 1", "vs Prior Step"]
     st.dataframe(display, use_container_width=True, hide_index=True)
 else:
     st.info("No funnel data to display.")
 
-# ── Retention Chart ──────────────────────────────────────────────────────
+# ── Retention Chart ──────────────────────────────────────────────────────────
 st.subheader("Retention Cohorts")
 
 if not retention.empty:
-    available_channels = retention["channel"].dropna().unique()
+    available_channels = retention["acquisition_channel"].dropna().unique()
     palette = px.colors.qualitative.Plotly
 
     fig = go.Figure()
     for i, ch in enumerate(available_channels):
-        subset = retention[retention["channel"] == ch].sort_values("cohort_date")
+        subset = retention[retention["acquisition_channel"] == ch].sort_values("cohort_date")
         fig.add_trace(
             go.Scatter(
                 x=subset["cohort_date"],
-                y=subset["d1_retention"],
+                y=subset["d1_retention_rate"],
                 mode="lines+markers",
                 name=f"D1 — {ch}",
                 line={"color": palette[i % len(palette)], "dash": "dot"},
@@ -174,7 +204,7 @@ if not retention.empty:
         fig.add_trace(
             go.Scatter(
                 x=subset["cohort_date"],
-                y=subset["d7_retention"],
+                y=subset["d7_retention_rate"],
                 mode="lines+markers",
                 name=f"D7 — {ch}",
                 line={"color": palette[i % len(palette)], "dash": "dash"},
@@ -183,7 +213,7 @@ if not retention.empty:
         fig.add_trace(
             go.Scatter(
                 x=subset["cohort_date"],
-                y=subset["d30_retention"],
+                y=subset["d30_retention_rate"],
                 mode="lines+markers",
                 name=f"D30 — {ch}",
                 line={"color": palette[i % len(palette)], "dash": "solid"},
@@ -202,17 +232,25 @@ if not retention.empty:
 
     # Average retention summary
     avg_ret = (
-        retention.groupby("channel")[["d1_retention", "d7_retention", "d30_retention"]]
+        retention.groupby("acquisition_channel")[
+            ["d1_retention_rate", "d7_retention_rate", "d30_retention_rate"]
+        ]
         .mean()
         .reset_index()
     )
-    for col in ["d1_retention", "d7_retention", "d30_retention"]:
+    for col in ["d1_retention_rate", "d7_retention_rate", "d30_retention_rate"]:
         avg_ret[col] = avg_ret[col].apply(lambda v: f"{v:.1%}")
     avg_ret.columns = ["Channel", "Avg D1", "Avg D7", "Avg D30"]
     st.dataframe(avg_ret, use_container_width=True, hide_index=True)
 else:
     st.info("No retention data available for the selected filters.")
 
-# ── Footer ───────────────────────────────────────────────────────────────
+# ── Filter Applicability Note ────────────────────────────────────────────────
+st.info(
+    "Device and complexity filters apply to the task funnel. "
+    "Retention is cohort-level."
+)
+
+# ── Footer ───────────────────────────────────────────────────────────────────
 st.markdown("---")
-st.caption("⚠️ **ALL DATA IS SYNTHETIC.** No real user, financial, or business data is displayed.")
+st.caption("ALL DATA IS SYNTHETIC")

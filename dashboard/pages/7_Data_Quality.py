@@ -8,39 +8,35 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from dashboard.components.filters import render_filters
 from dashboard.components.kpi_cards import kpi_row
-from dashboard.services.database import get_connection
+from dashboard.services.query import query_df
 
 st.set_page_config(page_title="Data Quality", layout="wide")
 
 st.title("Data Quality Dashboard")
 st.markdown("Pipeline audit results, reconciliation checks, and schema-level row counts")
 
-filters = render_filters(page_name="all")
-# Data Quality uses fixed reports, not date-filtered queries
-
-conn = get_connection()
+st.sidebar.caption("Data Quality Dashboard — pipeline audit and reconciliation reports")
 
 
-def q(query_str: str) -> pd.DataFrame:
-    return conn.execute(query_str).fetchdf()
-
-
-def load_report(relative_path: str):  # Returns parsed JSON
-    """Load a JSON report from the reports/ directory."""
+def load_report(relative_path: str):
+    """Load a JSON report from the reports/ directory with UTF-8 encoding."""
     path = Path(__file__).resolve().parent.parent.parent / relative_path
     if not path.exists():
         st.error(f"Report not found: {path}")
         return {}
-    with open(path) as f:
-        return json.load(f)
+    try:
+        with path.open("r", encoding="utf-8-sig") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        st.error(f"Error loading report {path}: {e}")
+        return {}
 
 
 phase1 = load_report("reports/phase1_final_audit.json")
 phase2 = load_report("reports/phase2_final_audit.json")
 
-# ── Phase 1 Checks Summary ───────────────────────────────────────────────
+# ── Phase 1 Checks Summary ───────────────────────────────────────────────────
 st.subheader("Phase 1 — Phenomena Validation Checks")
 
 p1_phenomena = phase1.get("phenomena", [])
@@ -76,7 +72,6 @@ if total_checks > 0:
         cols=4,
     )
 
-    # Phase 1 detail table
     rows = []
     for p in p1_phenomena:
         rows.append(
@@ -96,7 +91,7 @@ if total_checks > 0:
 else:
     st.info("No Phase 1 phenomena data loaded.")
 
-# ── Phase 2 dbt Tests ────────────────────────────────────────────────────
+# ── Phase 2 dbt Tests ────────────────────────────────────────────────────────
 st.subheader("Phase 2 — dbt Tests & Quality Gates")
 
 p2_eng = phase1.get("engineering_gates", {})
@@ -149,7 +144,7 @@ if p2_eng:
             "pip-audit": p2_eng.get("pip_check_status", "N/A"),
         }
         for tool, status in checks.items():
-            icon = "✅" if status == "passed" else "❌"
+            icon = chr(9989) if status == "passed" else chr(10060)
             st.markdown(f"{icon} **{tool}**: {status}")
 
     with quality_col2:
@@ -163,7 +158,7 @@ if p2_eng:
 else:
     st.info("No Phase 2 engineering gate data available.")
 
-# ── Reconciliation Status ────────────────────────────────────────────────
+# ── Reconciliation Status ────────────────────────────────────────────────────
 st.subheader("Reconciliation Status")
 
 recon_data = phase2.get("reconciliation", {})
@@ -173,33 +168,33 @@ all_passed = recon_data.get("all_passed", False)
 n_passed_recon = sum(1 for i in recon_items if i.get("passed"))
 n_total_recon = len(recon_items)
 
-kpi_row(
-    [
-        {
-            "label": "Reconciliation: Passed",
-            "value": n_passed_recon,
-            "help": f"Number of reconciled metrics that matched within tolerance ({n_total_recon} total).",
-        },
-        {
-            "label": "Reconciliation: Total",
-            "value": n_total_recon,
-            "help": "Total number of reconciled metric checks.",
-        },
-        {
-            "label": "All Passed",
-            "value": all_passed,
-            "help": "Whether every reconciliation check passed.",
-        },
-        {
-            "label": "Schema Version",
-            "value": phase1.get("schema_version", "N/A"),
-            "help": "Audit report schema version.",
-        },
-    ],
-    cols=4,
-)
+if n_total_recon > 0:
+    kpi_row(
+        [
+            {
+                "label": "Reconciliation: Passed",
+                "value": n_passed_recon,
+                "help": f"Number of reconciled metrics that matched within tolerance ({n_total_recon} total).",
+            },
+            {
+                "label": "Reconciliation: Total",
+                "value": n_total_recon,
+                "help": "Total number of reconciled metric checks.",
+            },
+            {
+                "label": "All Passed",
+                "value": all_passed,
+                "help": "Whether every reconciliation check passed.",
+            },
+            {
+                "label": "Schema Version",
+                "value": phase1.get("schema_version", "N/A"),
+                "help": "Audit report schema version.",
+            },
+        ],
+        cols=4,
+    )
 
-if recon_items:
     recon_rows = []
     for item in recon_items:
         recon_rows.append(
@@ -217,19 +212,22 @@ if recon_items:
 else:
     st.info("No reconciliation data available.")
 
-# ── Canonical Hash Status ────────────────────────────────────────────────
+# ── Canonical Hash Status ────────────────────────────────────────────────────
 st.subheader("Canonical Hash Status (Determinism Check)")
 
 hashes = phase1.get("canonical_hashes", {})
 if hashes:
     hash_rows = []
     for table_name, hinfo in hashes.items():
+        h1 = hinfo.get("run1", "")[:16] + "..." if hinfo.get("run1") else "N/A"
+        h2 = hinfo.get("run2", "")[:16] + "..." if hinfo.get("run2") else "N/A"
+        match = "YES" if hinfo.get("match") else "NO"
         hash_rows.append(
             {
                 "Table": table_name,
-                "Run 1 Hash": hinfo.get("run1", "")[:16] + "...",
-                "Run 2 Hash": hinfo.get("run2", "")[:16] + "...",
-                "Match": "YES" if hinfo.get("match") else "NO",
+                "Run 1 Hash": h1,
+                "Run 2 Hash": h2,
+                "Match": match,
             }
         )
     df_hash = pd.DataFrame(hash_rows)
@@ -249,59 +247,37 @@ if hashes:
 else:
     st.info("No canonical hash data available.")
 
-# ── Row Count Comparison ─────────────────────────────────────────────────
+# ── Row Count Comparison ─────────────────────────────────────────────────────
 st.subheader("Per-Table Row Counts: Raw vs Staging vs Mart")
 
-raw_counts = q(
+staging_counts = query_df(
     """
-    SELECT
-        'stg_users'                         AS table_name,
-        (SELECT COUNT(*) FROM main_staging.stg_users) AS staging_count
+    SELECT 'stg_users' AS table_name,
+           (SELECT COUNT(*) FROM main_staging.stg_users) AS row_count
     UNION ALL
-    SELECT
-        'stg_documents',
-        (SELECT COUNT(*) FROM main_staging.stg_documents)
+    SELECT 'stg_documents',
+           (SELECT COUNT(*) FROM main_staging.stg_documents)
     UNION ALL
-    SELECT
-        'stg_sessions',
-        (SELECT COUNT(*) FROM main_staging.stg_sessions)
+    SELECT 'stg_sessions',
+           (SELECT COUNT(*) FROM main_staging.stg_sessions)
     UNION ALL
-    SELECT
-        'stg_product_events',
-        (SELECT COUNT(*) FROM main_staging.stg_product_events)
+    SELECT 'stg_product_events',
+           (SELECT COUNT(*) FROM main_staging.stg_product_events)
     UNION ALL
-    SELECT
-        'stg_agent_runs',
-        (SELECT COUNT(*) FROM main_staging.stg_agent_runs)
+    SELECT 'stg_agent_runs',
+           (SELECT COUNT(*) FROM main_staging.stg_agent_runs)
     UNION ALL
-    SELECT
-        'stg_agent_spans',
-        (SELECT COUNT(*) FROM main_staging.stg_agent_spans)
+    SELECT 'stg_agent_spans',
+           (SELECT COUNT(*) FROM main_staging.stg_agent_spans)
     UNION ALL
-    SELECT
-        'stg_experiment_assignments',
-        (SELECT COUNT(*) FROM main_staging.stg_experiment_assignments)
-"""
+    SELECT 'stg_experiment_assignments',
+           (SELECT COUNT(*) FROM main_staging.stg_experiment_assignments)
+    """
 )
 
-# Get row counts from phase1 for raw tables
-p1_row_counts = phase1.get("performance", {}).get("table_row_counts", {})
-raw_to_staging_map = {
-    "users": "stg_users",
-    "documents": "stg_documents",
-    "sessions": "stg_sessions",
-    "product_events": "stg_product_events",
-    "agent_runs": "stg_agent_runs",
-    "agent_spans": "stg_agent_spans",
-    "experiment_assignments": "stg_experiment_assignments",
-}
-
-# Mart counts
-mart_counts_raw = q(
+mart_counts = query_df(
     """
-    SELECT
-        'mart_daily_product_kpis' AS table_name,
-        COUNT(*)                  AS row_count
+    SELECT 'mart_daily_product_kpis' AS table_name, COUNT(*) AS row_count
     FROM main_marts.mart_daily_product_kpis
     UNION ALL
     SELECT 'mart_conversion_funnel', COUNT(*) FROM main_marts.mart_conversion_funnel
@@ -313,28 +289,38 @@ mart_counts_raw = q(
     SELECT 'mart_ab_test_summary', COUNT(*) FROM main_marts.mart_ab_test_summary
     UNION ALL
     SELECT 'mart_executive_daily_scorecard', COUNT(*) FROM main_marts.mart_executive_daily_scorecard
-"""
+    """
 )
 
-if not raw_counts.empty:
-    # Build comparison table
+# Get raw counts from phase1 report
+p1_row_counts = phase1.get("performance", {}).get("table_row_counts", {})
+raw_to_staging_map = {
+    "users": "stg_users",
+    "documents": "stg_documents",
+    "sessions": "stg_sessions",
+    "product_events": "stg_product_events",
+    "agent_runs": "stg_agent_runs",
+    "agent_spans": "stg_agent_spans",
+    "experiment_assignments": "stg_experiment_assignments",
+}
+
+if not staging_counts.empty:
     comp_rows = []
     for raw_key, stg_name in raw_to_staging_map.items():
         raw_val = p1_row_counts.get(raw_key, 0)
-        stg_row = raw_counts[raw_counts["table_name"] == stg_name]
-        stg_val = int(stg_row.iloc[0]["staging_count"]) if not stg_row.empty else 0
+        stg_row = staging_counts[staging_counts["table_name"] == stg_name]
+        stg_val = int(stg_row.iloc[0]["row_count"]) if not stg_row.empty else 0
         comp_rows.append(
             {
                 "Table": raw_key,
-                "Raw Count": f"{raw_val:,}",
-                "Staging Count": f"{stg_val:,}",
+                "Raw Count": f"{raw_val:,}" if raw_val else "—",
+                "Staging Count": f"{stg_val:,}" if stg_val else "—",
                 "Mart Count": "—",
             }
         )
 
-    # Add mart rows
-    if not mart_counts_raw.empty:
-        for _, row in mart_counts_raw.iterrows():
+    if not mart_counts.empty:
+        for _, row in mart_counts.iterrows():
             comp_rows.append(
                 {
                     "Table": row["table_name"],
@@ -347,7 +333,7 @@ if not raw_counts.empty:
     df_counts = pd.DataFrame(comp_rows)
     st.dataframe(df_counts, use_container_width=True, hide_index=True)
 
-    # Row count bar chart
+    # Row count bar chart (Raw vs Staging)
     fig = go.Figure()
     raw_tables = [r["Table"] for r in comp_rows if r["Raw Count"] != "—"]
     raw_vals = [int(r["Raw Count"].replace(",", "")) for r in comp_rows if r["Raw Count"] != "—"]
@@ -358,21 +344,11 @@ if not raw_counts.empty:
 
     if raw_tables:
         fig.add_trace(
-            go.Bar(
-                name="Raw",
-                x=raw_tables,
-                y=raw_vals,
-                marker_color="#636EFA",
-            )
+            go.Bar(name="Raw", x=raw_tables, y=raw_vals, marker_color="#636EFA")
         )
     if stg_tables:
         fig.add_trace(
-            go.Bar(
-                name="Staging",
-                x=stg_tables,
-                y=stg_vals,
-                marker_color="#00CC96",
-            )
+            go.Bar(name="Staging", x=stg_tables, y=stg_vals, marker_color="#00CC96")
         )
 
     if raw_tables or stg_tables:
@@ -385,9 +361,9 @@ if not raw_counts.empty:
         st.plotly_chart(fig, use_container_width=True)
 
     # Mart row counts bar chart
-    if not mart_counts_raw.empty:
+    if not mart_counts.empty:
         fig2 = px.bar(
-            mart_counts_raw,
+            mart_counts,
             x="table_name",
             y="row_count",
             title="Mart Row Counts",
@@ -399,7 +375,7 @@ if not raw_counts.empty:
 else:
     st.info("Unable to query staging row counts from the database.")
 
-# ── P07 / P08 Anomaly Explanation ────────────────────────────────────────
+# ── P07 / P08 Anomaly Explanation ───────────────────────────────────────────
 st.subheader("Injected Anomalies: P07 and P08")
 
 p07 = next((p for p in p1_phenomena if p.get("phenomenon_id") == "P07"), None)
@@ -419,7 +395,8 @@ with col_p7:
         """
         )
     st.info(
-        "**P07 and P08 are intentionally injected synthetic anomalies** designed to test the observability pipeline's ability to detect data quality issues."
+        "**P07 and P08 are intentionally injected synthetic anomalies** designed to test "
+        "the observability pipeline's ability to detect data quality issues."
     )
 
 with col_p8:
@@ -433,11 +410,10 @@ with col_p8:
         """
         )
     st.info(
-        "These anomalies are expected to be detected and flagged. They demonstrate the pipeline's monitoring and alerting capabilities on synthetic data."
+        "These anomalies are expected to be detected and flagged. "
+        "They demonstrate the pipeline's monitoring and alerting capabilities on synthetic data."
     )
 
-# ── Footer ───────────────────────────────────────────────────────────────
+# ── Footer ───────────────────────────────────────────────────────────────────
 st.markdown("---")
-st.caption(
-    "⚠️ **ALL DATA IS SYNTHETIC.** P07 and P08 are intentionally injected synthetic anomalies."
-)
+st.caption("ALL DATA IS SYNTHETIC. P07 and P08 are intentionally injected synthetic anomalies.")

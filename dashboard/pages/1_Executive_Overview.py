@@ -7,7 +7,7 @@ import streamlit as st
 
 from dashboard.components.filters import render_filters
 from dashboard.components.kpi_cards import kpi_row
-from dashboard.services.database import get_connection
+from dashboard.services.query import query_df
 
 st.set_page_config(page_title="Executive Overview", layout="wide")
 
@@ -17,121 +17,72 @@ st.markdown("North star metrics and top-level product KPIs")
 filters = render_filters(page_name="executive")
 ds = filters["date_start"]
 de = filters["date_end"]
-channel = filters.get("acquisition_channel", "All")
-device = filters.get("device_type", "All")
 
-conn = get_connection()
-
-
-# ── Queries ──────────────────────────────────────────────────────────────
-def q(query_str: str) -> pd.DataFrame:
-    """Helper: run raw SQL and return a DataFrame."""
-    return conn.execute(query_str).fetchdf()
-
-
-channel_clause = "" if channel == "All" else f"AND channel = '{channel}'"
-device_clause = "" if device == "All" else f"AND device_type = '{device}'"
-
-# 1. Mart daily product KPIs
-daily_kpis = q(
-    f"""
-    SELECT
-        date,
-        dau,
-        new_users,
-        export_rate,
-        agent_success_rate,
-        p95_latency_ms,
-        cost_per_successful_task
-    FROM main_marts.mart_daily_product_kpis
-    WHERE date BETWEEN '{ds}' AND '{de}'
-      {channel_clause}
-      {device_clause}
-    ORDER BY date
-"""
-)
-
-# 2. Executive daily scorecard
-scorecard = q(
-    f"""
-    SELECT
-        date,
-        weekly_successful_exported_tasks,
-        d7_retention_rate,
-        active_users,
-        revenue
+# ── Query Scorecard ──────────────────────────────────────────────────────────
+scorecard_df = query_df(
+    """
+    SELECT event_date, dau, north_star_metric, export_rate, abandonment_rate,
+           avg_manual_edits, d7_retention, agent_success_rate,
+           agent_p95_latency_ms, cost_per_successful_task, data_quality_status
     FROM main_marts.mart_executive_daily_scorecard
-    WHERE date BETWEEN '{ds}' AND '{de}'
-    ORDER BY date
-"""
+    WHERE event_date BETWEEN ? AND ?
+    ORDER BY event_date
+    """,
+    [ds, de],
 )
 
-# 3. Overall averages
-overall = q(
-    f"""
-    SELECT
-        AVG(dau)                                                         AS avg_dau,
-        AVG(export_rate)                                                 AS avg_export_rate,
-        AVG(d7_retention_rate)                                           AS avg_d7_retention,
-        AVG(agent_success_rate)                                          AS avg_agent_success_rate,
-        AVG(p95_latency_ms)                                              AS avg_p95_latency,
-        AVG(cost_per_successful_task)                                    AS avg_cost_per_task,
-        MAX(weekly_successful_exported_tasks)                            AS weekly_exported_tasks
-    FROM main_marts.mart_daily_product_kpis k
-    LEFT JOIN main_marts.mart_executive_daily_scorecard s USING (date)
-    WHERE k.date BETWEEN '{ds}' AND '{de}'
-      {channel_clause}
-      {device_clause}
-"""
-)
-
-# ── KPIs ─────────────────────────────────────────────────────────────────
+# ── KPIs ─────────────────────────────────────────────────────────────────────
 st.subheader("Key Metrics")
-if not overall.empty and overall.iloc[0]["avg_dau"] is not None:
-    r = overall.iloc[0]
+
+if not scorecard_df.empty:
+    agg = scorecard_df.agg({
+        "north_star_metric": "sum",
+        "dau": "mean",
+        "export_rate": "mean",
+        "d7_retention": "mean",
+        "agent_success_rate": "mean",
+        "agent_p95_latency_ms": "mean",
+        "cost_per_successful_task": "mean",
+    })
     kpi_row(
         [
             {
-                "label": "Weekly Successful Exported Tasks",
-                "value": (
-                    int(r["weekly_exported_tasks"]) if pd.notna(r["weekly_exported_tasks"]) else 0
-                ),
-                "help": "Number of tasks that reached form_exported in the latest week.",
+                "label": "Total Exported Tasks",
+                "value": int(agg["north_star_metric"]) if pd.notna(agg["north_star_metric"]) else 0,
+                "help": "North star metric — total successfully exported tasks.",
             },
             {
-                "label": "DAU",
-                "value": int(r["avg_dau"]) if pd.notna(r["avg_dau"]) else 0,
+                "label": "Avg DAU",
+                "value": int(agg["dau"]) if pd.notna(agg["dau"]) else 0,
                 "help": "Daily active users — average over the selected period.",
             },
             {
-                "label": "Export Rate",
-                "value": r["avg_export_rate"] if pd.notna(r["avg_export_rate"]) else 0,
-                "help": "Fraction of started tasks that reach form_exported.",
+                "label": "Avg Export Rate",
+                "value": agg["export_rate"] if pd.notna(agg["export_rate"]) else 0,
+                "help": "Fraction of started tasks that reach export.",
             },
             {
-                "label": "D7 Retention",
-                "value": r["avg_d7_retention"] if pd.notna(r["avg_d7_retention"]) else 0,
-                "help": "Fraction of users active on signup_date + 7 days.",
+                "label": "Avg D7 Retention",
+                "value": agg["d7_retention"] if pd.notna(agg["d7_retention"]) else 0,
+                "help": "Fraction of users active on day 7 after signup.",
             },
         ]
     )
     kpi_row(
         [
             {
-                "label": "Agent Success Rate",
-                "value": (
-                    r["avg_agent_success_rate"] if pd.notna(r["avg_agent_success_rate"]) else 0
-                ),
+                "label": "Avg Agent Success Rate",
+                "value": agg["agent_success_rate"] if pd.notna(agg["agent_success_rate"]) else 0,
                 "help": "Fraction of agent runs completed without error.",
             },
             {
-                "label": "P95 Latency",
-                "value": r["avg_p95_latency"] if pd.notna(r["avg_p95_latency"]) else 0,
-                "help": "95th percentile of end-to-end task latency in milliseconds.",
+                "label": "Avg P95 Latency",
+                "value": agg["agent_p95_latency_ms"] if pd.notna(agg["agent_p95_latency_ms"]) else 0,
+                "help": "95th percentile agent latency in milliseconds.",
             },
             {
-                "label": "Cost / Successful Task",
-                "value": r["avg_cost_per_task"] if pd.notna(r["avg_cost_per_task"]) else 0,
+                "label": "Avg Cost / Task",
+                "value": agg["cost_per_successful_task"] if pd.notna(agg["cost_per_successful_task"]) else 0,
                 "help": "Average estimated cost per successfully exported task (USD).",
             },
         ],
@@ -140,18 +91,18 @@ if not overall.empty and overall.iloc[0]["avg_dau"] is not None:
 else:
     st.info("No KPI data available for the selected filters.")
 
-# ── Charts ───────────────────────────────────────────────────────────────
+# ── Charts ───────────────────────────────────────────────────────────────────
 st.subheader("Trends")
 
 col1, col2 = st.columns(2)
 
 with col1:
-    if not scorecard.empty:
+    if not scorecard_df.empty:
         fig = px.line(
-            scorecard,
-            x="date",
-            y="weekly_successful_exported_tasks",
-            title="North Star: Weekly Successful Exported Tasks",
+            scorecard_df,
+            x="event_date",
+            y="north_star_metric",
+            title="North Star: Total Exported Tasks",
             markers=True,
         )
         fig.update_layout(yaxis_title="Tasks")
@@ -160,40 +111,31 @@ with col1:
         st.info("No north star trend data.")
 
 with col2:
-    if not daily_kpis.empty:
+    if not scorecard_df.empty:
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
-                x=daily_kpis["date"],
-                y=daily_kpis["dau"],
+                x=scorecard_df["event_date"],
+                y=scorecard_df["dau"],
                 mode="lines+markers",
                 name="DAU",
                 line={"color": "#636EFA"},
             )
         )
-        fig.add_trace(
-            go.Scatter(
-                x=daily_kpis["date"],
-                y=daily_kpis["new_users"],
-                mode="lines+markers",
-                name="New Users",
-                line={"color": "#EF553B"},
-            )
-        )
-        fig.update_layout(title="DAU + New Users", yaxis_title="Users")
+        fig.update_layout(title="DAU Trend", yaxis_title="Users")
         st.plotly_chart(fig, use_container_width=True)
     else:
-        st.info("No daily KPI data.")
+        st.info("No DAU trend data.")
 
 col3, col4 = st.columns(2)
 
 with col3:
-    if not daily_kpis.empty:
+    if not scorecard_df.empty:
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
-                x=daily_kpis["date"],
-                y=daily_kpis["export_rate"],
+                x=scorecard_df["event_date"],
+                y=scorecard_df["export_rate"],
                 mode="lines+markers",
                 name="Export Rate",
                 line={"color": "#00CC96"},
@@ -201,27 +143,29 @@ with col3:
         )
         fig.add_trace(
             go.Scatter(
-                x=daily_kpis["date"],
-                y=daily_kpis["agent_success_rate"],
+                x=scorecard_df["event_date"],
+                y=scorecard_df["agent_success_rate"],
                 mode="lines+markers",
                 name="Agent Success Rate",
                 line={"color": "#AB63FA"},
             )
         )
         fig.update_layout(
-            title="Export Rate vs Agent Success Rate", yaxis_title="Rate", yaxis_tickformat=".0%"
+            title="Export Rate vs Agent Success Rate",
+            yaxis_title="Rate",
+            yaxis_tickformat=".0%",
         )
         st.plotly_chart(fig, use_container_width=True)
     else:
         st.info("No rate trend data.")
 
 with col4:
-    if not daily_kpis.empty:
+    if not scorecard_df.empty:
         fig = go.Figure()
         fig.add_trace(
             go.Scatter(
-                x=daily_kpis["date"],
-                y=daily_kpis["p95_latency_ms"],
+                x=scorecard_df["event_date"],
+                y=scorecard_df["agent_p95_latency_ms"],
                 mode="lines+markers",
                 name="P95 Latency (ms)",
                 yaxis="y1",
@@ -230,8 +174,8 @@ with col4:
         )
         fig.add_trace(
             go.Scatter(
-                x=daily_kpis["date"],
-                y=daily_kpis["cost_per_successful_task"],
+                x=scorecard_df["event_date"],
+                y=scorecard_df["cost_per_successful_task"],
                 mode="lines+markers",
                 name="Cost / Task ($)",
                 yaxis="y2",
@@ -247,6 +191,6 @@ with col4:
     else:
         st.info("No latency / cost trend data.")
 
-# ── Footer ───────────────────────────────────────────────────────────────
+# ── Footer ───────────────────────────────────────────────────────────────────
 st.markdown("---")
-st.caption("⚠️ **ALL DATA IS SYNTHETIC.** No real user, financial, or business data is displayed.")
+st.caption("ALL DATA IS SYNTHETIC")
