@@ -8,6 +8,7 @@ relationships mirroring a real document processing pipeline:
   form_autofill → output_validation
 """
 
+import hashlib
 from datetime import datetime, timedelta
 
 import numpy as np
@@ -139,10 +140,15 @@ def generate_agent_runs(
     output_tokens = rng.integers(500, 5001, size=n)
     costs = _estimate_cost(model_names, input_tokens, output_tokens)
 
-    # Deterministic experiment group assignment (avoid spurious correlation)
+    # Deterministic experiment group assignment (avoids spurious correlation)
+    # Uses MD5 instead of Python hash() which is non-deterministic across processes
     assigned_user_ids = list(rng.choice(user_ids, size=n))
     exp_groups = [
-        ("A" if hash(uid) % 2 == 0 else "B") if rng.random() < experiment_fraction else None
+        (
+            ("A" if int(hashlib.md5(uid.encode()).hexdigest(), 16) % 2 == 0 else "B")
+            if rng.random() < experiment_fraction
+            else None
+        )
         for uid in assigned_user_ids
     ]
 

@@ -181,33 +181,45 @@ def run_pipeline(
     tmp_dir.mkdir(parents=True, exist_ok=True)
 
     try:
-        rng = np.random.default_rng(seed)
+        # ── Independent RNG streams per module (SeedSequence) ──
+        ss = np.random.SeedSequence(seed)
+        rng_streams = ss.spawn(
+            9
+        )  # users, docs, sessions, events, runs, spans, exps, phenomena, hash
+        rng_u = np.random.default_rng(rng_streams[0])
+        rng_d = np.random.default_rng(rng_streams[1])
+        rng_s = np.random.default_rng(rng_streams[2])
+        rng_e = np.random.default_rng(rng_streams[3])
+        rng_ar = np.random.default_rng(rng_streams[4])
+        rng_as = np.random.default_rng(rng_streams[5])
+        rng_exp = np.random.default_rng(rng_streams[6])
+        rng_phen = np.random.default_rng(rng_streams[7])
 
         # ── Step 1: Users ──
         t0 = time.perf_counter()
-        users_df = generate_users(rng, cfg["users"], start_date, end_date)
+        users_df = generate_users(rng_u, cfg["users"], start_date, end_date)
         table_timings["users"] = time.perf_counter() - t0
 
-        user_ids = list(users_df["user_id"])
+        user_ids = sorted(users_df["user_id"].tolist())
 
         # ── Step 2: Documents ──
         t0 = time.perf_counter()
-        docs_df = generate_documents(rng, cfg["documents"], user_ids, start_date, end_date)
+        docs_df = generate_documents(rng_d, cfg["documents"], user_ids, start_date, end_date)
         table_timings["documents"] = time.perf_counter() - t0
 
-        doc_ids = list(docs_df["document_id"])
+        doc_ids = sorted(docs_df["document_id"].tolist())
 
         # ── Step 3: Sessions ──
         t0 = time.perf_counter()
-        sessions_df = generate_sessions(rng, cfg["sessions"], user_ids, start_date, end_date)
+        sessions_df = generate_sessions(rng_s, cfg["sessions"], user_ids, start_date, end_date)
         table_timings["sessions"] = time.perf_counter() - t0
 
-        session_ids = list(sessions_df["session_id"])
+        session_ids = sorted(sessions_df["session_id"].tolist())
 
         # ── Step 4: Product Events (with task pipeline) ──
         t0 = time.perf_counter()
         events_df = generate_product_events(
-            rng,
+            rng_e,
             cfg["events"],
             user_ids,
             session_ids,
@@ -221,23 +233,23 @@ def run_pipeline(
         # ── Step 5: Agent Runs ──
         t0 = time.perf_counter()
         agent_runs_df = generate_agent_runs(
-            rng, cfg["agent_runs"], user_ids, doc_ids, start_date, end_date
+            rng_ar, cfg["agent_runs"], user_ids, doc_ids, start_date, end_date
         )
         table_timings["agent_runs"] = time.perf_counter() - t0
 
-        trace_ids = list(agent_runs_df["trace_id"])
+        trace_ids = sorted(agent_runs_df["trace_id"].tolist())
 
         # ── Step 6: Agent Spans ──
         t0 = time.perf_counter()
         agent_spans_df = generate_agent_spans(
-            rng, cfg["agent_spans"], trace_ids, start_date, end_date
+            rng_as, cfg["agent_spans"], trace_ids, start_date, end_date
         )
         table_timings["agent_spans"] = time.perf_counter() - t0
 
         # ── Step 7: Experiment Assignments ──
         t0 = time.perf_counter()
         experiment_df = generate_experiment_assignments(
-            rng, cfg["experiment_users"], user_ids, start_date, end_date
+            rng_exp, cfg["experiment_users"], user_ids, start_date, end_date
         )
         table_timings["experiment_assignments"] = time.perf_counter() - t0
 
@@ -256,7 +268,7 @@ def run_pipeline(
 
         tables, observed_signals = inject_phenomena(
             tables_raw,
-            rng,
+            rng_phen,
             end_date,
             phenomena_cfg=phenomena_config,
             disabled_ids=disable_phenomena,
@@ -295,19 +307,30 @@ def run_pipeline(
             file_size = path.stat().st_size
             total_size_bytes += file_size
             actual_rows[name] = len(df)
-            # Compute canonical hash: sort by PK, fixed column order, null→"", UTC iso
+            # Compute canonical hash: sort by PK, fixed col order, normalized values
             pk = _get_pk(name)
-            df_sorted = df.sort_values(pk) if pk and pk in df.columns else df
+            df_sorted = (
+                df.sort_values(pk).reset_index(drop=True)
+                if pk and pk in df.columns
+                else df.reset_index(drop=True)
+            )
             cols = sorted(df_sorted.columns)
-            df_canon = df_sorted[cols].copy()
-            for c in df_canon.columns:
-                if df_canon[c].dtype.name.startswith("datetime"):
-                    df_canon[c] = df_canon[c].apply(lambda x: x.isoformat() if pd.notna(x) else "")
-                elif df_canon[c].dtype == object:
-                    df_canon[c] = df_canon[c].fillna("").astype(str)
-            df_canon = df_canon.fillna("")
-            csv_bytes = df_canon.to_csv(index=False, lineterminator="\n").encode("utf-8")
-            canonical_hashes[name] = hashlib.sha256(csv_bytes).hexdigest()
+            hasher = hashlib.sha256()
+            for c in cols:
+                hasher.update(c.encode("utf-8") + b"\x00")
+                s = df_sorted[c]
+                if hasattr(s.dtype, "tz") and s.dtype.tz is not None:
+                    s = s.dt.tz_convert("UTC")
+                if s.dtype.name.startswith("datetime"):
+                    vals = s.dt.strftime("%Y-%m-%dT%H:%M:%S.%f").fillna("NULL")
+                elif s.dtype == bool:
+                    vals = s.map({True: "true", False: "false"}).fillna("NULL")
+                elif "float" in str(s.dtype):
+                    vals = s.apply(lambda x: f"{x:.10f}" if pd.notna(x) else "NULL")
+                else:
+                    vals = s.fillna("NULL").astype(str)
+                hasher.update("\n".join(vals.tolist()).encode("utf-8") + b"\n")
+            canonical_hashes[name] = hasher.hexdigest()
 
         # ── Build manifest ──
         finished_at = datetime.now(UTC)

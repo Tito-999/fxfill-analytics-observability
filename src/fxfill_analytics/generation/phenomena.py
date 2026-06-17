@@ -199,34 +199,41 @@ def inject_phenomena(
     if "P02" in enabled and events is not None:
         documents = tables.get("documents")
         if documents is not None:
-            complex_docs = set(documents[documents["complexity_level"] == "complex"]["document_id"])
-            complex_events = events[events["document_id"].isin(complex_docs)]
-            complex_tasks = set(complex_events["task_id"])
-            n_extra = 0
-            for task_id in sorted(complex_tasks)[: min(len(complex_tasks), 10000)]:
-                task_evts = events[events["task_id"] == task_id]
-                review_rows = task_evts[task_evts["event_name"] == "form_review_started"]
-                if len(review_rows) == 0:
-                    continue
-                review_time = review_rows["event_time"].iloc[0]
-                n_new = int(rng.integers(1, 3))
-                for j in range(n_new):
-                    extra = review_rows.iloc[0:1].copy()
-                    extra["event_name"] = "field_edited"
-                    extra["event_time"] = review_time + pd.Timedelta(
-                        seconds=float(rng.uniform(5, 30))
-                    )
-                    extra["event_id"] = f"EVT_P02_{task_id}_{j}"
-                    extra["latency_ms"] = max(int(rng.normal(400, 150)), 0)
-                    events = pd.concat([events, extra], ignore_index=True)
-events = events.reset_index(drop=True)
-                    n_extra += 1
-            tables["product_events"] = events
-            observed["P02"] = {
-                "affected_rows": n_extra,
-                "observed_signal": f"Added {n_extra} field_edited events for complex documents",
-                "validation_status": "injected",
-            }
+            complex_doc_ids = set(
+                documents[documents["complexity_level"] == "complex"]["document_id"]
+            )
+            review_mask = (events["event_name"] == "form_review_started") & events[
+                "document_id"
+            ].isin(complex_doc_ids)
+            review_rows = events[review_mask]
+            if len(review_rows) > 0:
+                n_tasks = len(review_rows)
+                n_extra_per = rng.integers(2, 4, size=n_tasks)
+                total_extra = int(n_extra_per.sum())
+                ridx = np.repeat(review_rows.index.values, n_extra_per)
+                extra_rows = events.loc[ridx].copy()
+                extra_rows["event_name"] = "field_edited"
+                offsets = np.concatenate([np.arange(c) * rng.uniform(5, 20) for c in n_extra_per])
+                extra_rows["event_time"] = extra_rows["event_time"] + pd.to_timedelta(
+                    offsets, unit="s"
+                )
+                extra_rows["latency_ms"] = np.maximum(
+                    rng.normal(400, 150, size=total_extra).astype(int), 0
+                )
+                max_id = len(events)
+                extra_rows["event_id"] = [
+                    f"EVT_P02_{i:07d}" for i in range(max_id + 1, max_id + 1 + total_extra)
+                ]
+                events = pd.concat([events, extra_rows], ignore_index=True)
+                events = events.sort_values(["task_id", "event_time", "event_id"]).reset_index(
+                    drop=True
+                )
+                tables["product_events"] = events
+                observed["P02"] = {
+                    "affected_rows": total_extra,
+                    "observed_signal": f"{total_extra} extra edits for {n_tasks} complex docs (avg {total_extra/max(n_tasks,1):.1f}/task)",
+                    "validation_status": "injected",
+                }
         else:
             observed["P02"] = {
                 "affected_rows": 0,
@@ -258,7 +265,7 @@ events = events.reset_index(drop=True)
             completed_mobile = mobile_review_tasks & mobile_export_tasks
             if len(completed_mobile) > 0:
                 n_convert = max(int(len(completed_mobile) * (multiplier - 1.0) * 0.5), 1)
-                tasks_to_abandon = list(completed_mobile)[:n_convert]
+                tasks_to_abandon = sorted(completed_mobile)[:n_convert]
                 abandon_mask = (
                     (events["user_id"].isin(mobile_users))
                     & (events["event_name"] == "form_exported")
@@ -443,9 +450,7 @@ events = events.reset_index(drop=True)
         multiplier = cfg.get("effect_parameter", {}).get("retry_multiplier", 2.5)
         documents = tables.get("documents")
         if documents is not None:
-            high_risk_docs = set(
-                documents[documents["contains_high_risk_terms"]]["document_id"]
-            )
+            high_risk_docs = set(documents[documents["contains_high_risk_terms"]]["document_id"])
             mask = agent_runs["document_id"].isin(high_risk_docs)
             n_affected = mask.sum()
             if n_affected > 0:

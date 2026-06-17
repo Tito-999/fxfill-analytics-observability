@@ -505,7 +505,7 @@ def validate_p09_high_risk_retry(tables: dict[str, pd.DataFrame]) -> dict[str, A
     merged = runs.merge(
         documents[["document_id", "contains_high_risk_terms"]], on="document_id", how="inner"
     )
-    high_risk = merged[merged["contains_high_risk_terms"] .eq(True)]["retry_count"]  # noqa: E712
+    high_risk = merged[merged["contains_high_risk_terms"].eq(True)]["retry_count"]  # noqa: E712
     low_risk = merged[merged["contains_high_risk_terms"] == False]["retry_count"]  # noqa: E712
     if len(high_risk) == 0 or len(low_risk) == 0:
         return _make_result(
