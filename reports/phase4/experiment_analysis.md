@@ -1,6 +1,6 @@
 # Experiment Analysis: validation_before_autofill_v1
-Generated: 2026-06-17T11:54:29.599988+00:00
-Duration: 1.5s
+Generated: 2026-06-17T11:56:41.755516+00:00
+Duration: 1.2s
 
 ## Primary Metric
 A users: ?, B users: ?
