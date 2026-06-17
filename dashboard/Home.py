@@ -2,6 +2,8 @@
 
 import streamlit as st
 
+from dashboard.services.database import get_min_max_dates, health_check
+
 st.set_page_config(
     page_title="FxFill Analytics",
     page_icon="📊",
@@ -47,8 +49,6 @@ Synthetic Events → Parquet → DuckDB Raw → dbt Staging → Intermediate →
 )
 
 # Database health
-from dashboard.services.database import get_min_max_dates, health_check
-
 health = health_check()
 min_d, max_d = get_min_max_dates()
 

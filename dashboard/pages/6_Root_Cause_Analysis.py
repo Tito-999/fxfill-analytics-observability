@@ -84,23 +84,23 @@ pct_change = rate_change / pri_rate if pri_rate != 0 else 0
 
 kpi_row(
     [
-        dict(
-            label="Prior 7d Export Rate",
-            value=pri_rate if pri_rate else 0,
-            help="Average export rate in the prior 7-day window.",
-        ),
-        dict(
-            label="Current 7d Export Rate",
-            value=cur_rate if cur_rate else 0,
-            help="Average export rate in the current 7-day window.",
-        ),
-        dict(
-            label="Absolute Change",
-            value=rate_change,
-            delta=f"{rate_change:+.2%}",
-            help="Change in export rate between the two periods.",
-            delta_color="inverse",
-        ),
+        {
+            "label": "Prior 7d Export Rate",
+            "value": pri_rate if pri_rate else 0,
+            "help": "Average export rate in the prior 7-day window.",
+        },
+        {
+            "label": "Current 7d Export Rate",
+            "value": cur_rate if cur_rate else 0,
+            "help": "Average export rate in the current 7-day window.",
+        },
+        {
+            "label": "Absolute Change",
+            "value": rate_change,
+            "delta": f"{rate_change:+.2%}",
+            "help": "Change in export rate between the two periods.",
+            "delta_color": "inverse",
+        },
     ]
 )
 
@@ -175,7 +175,7 @@ dimensions = [
 col1, col2 = st.columns(2)
 current_col = col1
 
-for i, (dim, title) in enumerate(dimensions):
+for _i, (dim, title) in enumerate(dimensions):
     with current_col:
         st.subheader(title)
         result = decompose_by(dim)
@@ -231,9 +231,10 @@ for i, (dim, title) in enumerate(dimensions):
                 "rate_change",
                 "contribution",
             ]:
-                result_display[col] = result_display[col].apply(
-                    lambda v: f"{v:+.2%}" if "contribution" not in col else f"{v:+.4f}"
-                )
+                if "contribution" not in col:
+                    result_display[col] = result_display[col].apply(lambda v: f"{v:+.2%}")
+                else:
+                    result_display[col] = result_display[col].apply(lambda v: f"{v:+.4f}")
             result_display.columns = [
                 "Segment",
                 "Prior Volume Share",
@@ -310,7 +311,7 @@ else:
 st.subheader("Top Contributors to Export Rate Change")
 
 all_contributions = []
-for dim, title in dimensions:
+for dim, _title in dimensions:
     result = decompose_by(dim)
     if not result.empty:
         for _, row in result.iterrows():

@@ -76,26 +76,26 @@ if not funnel.empty:
 
     kpi_row(
         [
-            dict(
-                label="Users Entered Funnel",
-                value=total_start,
-                help="Number of unique users who performed the first funnel step.",
-            ),
-            dict(
-                label="Users Exported",
-                value=total_exported,
-                help="Number of unique users who reached form_exported (final step).",
-            ),
-            dict(
-                label="Overall Conversion Rate",
-                value=overall_conversion,
-                help="Fraction of users who completed all 7 funnel steps.",
-            ),
-            dict(
-                label="Funnel Steps",
-                value=len(funnel),
-                help="Number of discrete steps in the task funnel.",
-            ),
+            {
+                "label": "Users Entered Funnel",
+                "value": total_start,
+                "help": "Number of unique users who performed the first funnel step.",
+            },
+            {
+                "label": "Users Exported",
+                "value": total_exported,
+                "help": "Number of unique users who reached form_exported (final step).",
+            },
+            {
+                "label": "Overall Conversion Rate",
+                "value": overall_conversion,
+                "help": "Fraction of users who completed all 7 funnel steps.",
+            },
+            {
+                "label": "Funnel Steps",
+                "value": len(funnel),
+                "help": "Number of discrete steps in the task funnel.",
+            },
         ]
     )
 else:
@@ -112,12 +112,12 @@ if not funnel.empty:
             x=funnel["user_count"],
             y=funnel["step_name"],
             orientation="h",
-            marker=dict(
-                color=funnel["step_to_prior_pct"],
-                colorscale="Blues",
-                reversescale=True,
-                colorbar=dict(title="Step-to-Prior %"),
-            ),
+            marker={
+                "color": funnel["step_to_prior_pct"],
+                "colorscale": "Blues",
+                "reversescale": True,
+                "colorbar": {"title": "Step-to-Prior %"},
+            },
             text=funnel["user_count"].apply(lambda v: f"{v:,}"),
             textposition="inside",
             hovertemplate=(
@@ -133,7 +133,7 @@ if not funnel.empty:
     fig.update_layout(
         title="7-Step Task Funnel (Users)",
         xaxis_title="Users",
-        yaxis=dict(autorange="reversed"),
+        yaxis={"autorange": "reversed"},
         height=450,
     )
     st.plotly_chart(fig, use_container_width=True)
@@ -168,7 +168,7 @@ if not retention.empty:
                 y=subset["d1_retention"],
                 mode="lines+markers",
                 name=f"D1 — {ch}",
-                line=dict(color=palette[i % len(palette)], dash="dot"),
+                line={"color": palette[i % len(palette)], "dash": "dot"},
             )
         )
         fig.add_trace(
@@ -177,7 +177,7 @@ if not retention.empty:
                 y=subset["d7_retention"],
                 mode="lines+markers",
                 name=f"D7 — {ch}",
-                line=dict(color=palette[i % len(palette)], dash="dash"),
+                line={"color": palette[i % len(palette)], "dash": "dash"},
             )
         )
         fig.add_trace(
@@ -186,7 +186,7 @@ if not retention.empty:
                 y=subset["d30_retention"],
                 mode="lines+markers",
                 name=f"D30 — {ch}",
-                line=dict(color=palette[i % len(palette)], dash="solid"),
+                line={"color": palette[i % len(palette)], "dash": "solid"},
             )
         )
 
@@ -196,7 +196,7 @@ if not retention.empty:
         yaxis_title="Retention Rate",
         yaxis_tickformat=".0%",
         height=450,
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1},
     )
     st.plotly_chart(fig, use_container_width=True)
 

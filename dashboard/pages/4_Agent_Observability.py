@@ -155,50 +155,50 @@ if not overall.empty and overall.iloc[0]["avg_success_rate"] is not None:
 
     kpi_row(
         [
-            dict(
-                label="Agent Success Rate",
-                value=r["avg_success_rate"],
-                help="Fraction of agent runs completed without error.",
-            ),
-            dict(
-                label="P50 Latency",
-                value=r["avg_p50"],
-                help="Median end-to-end agent latency in milliseconds.",
-            ),
-            dict(
-                label="P95 Latency",
-                value=r["avg_p95"],
-                help="95th percentile agent latency in milliseconds.",
-            ),
-            dict(
-                label="P99 Latency",
-                value=r["avg_p99"],
-                help="99th percentile agent latency in milliseconds.",
-            ),
+            {
+                "label": "Agent Success Rate",
+                "value": r["avg_success_rate"],
+                "help": "Fraction of agent runs completed without error.",
+            },
+            {
+                "label": "P50 Latency",
+                "value": r["avg_p50"],
+                "help": "Median end-to-end agent latency in milliseconds.",
+            },
+            {
+                "label": "P95 Latency",
+                "value": r["avg_p95"],
+                "help": "95th percentile agent latency in milliseconds.",
+            },
+            {
+                "label": "P99 Latency",
+                "value": r["avg_p99"],
+                "help": "99th percentile agent latency in milliseconds.",
+            },
         ]
     )
     kpi_row(
         [
-            dict(
-                label="Avg Cost / Run",
-                value=r["avg_cost_per_run"],
-                help="Average estimated cost per agent run (USD).",
-            ),
-            dict(
-                label="Cost / Successful Task",
-                value=r["avg_cost_per_success"],
-                help="Average cost per successfully completed agent task (USD).",
-            ),
-            dict(
-                label="Avg Field Accuracy",
-                value=fa_val if pd.notna(fa_val) else 0,
-                help="Average field-level accuracy score across all model runs.",
-            ),
-            dict(
-                label="Total Runs",
-                value=int(r["total_runs"]) if pd.notna(r["total_runs"]) else 0,
-                help="Total number of agent runs in the selected period.",
-            ),
+            {
+                "label": "Avg Cost / Run",
+                "value": r["avg_cost_per_run"],
+                "help": "Average estimated cost per agent run (USD).",
+            },
+            {
+                "label": "Cost / Successful Task",
+                "value": r["avg_cost_per_success"],
+                "help": "Average cost per successfully completed agent task (USD).",
+            },
+            {
+                "label": "Avg Field Accuracy",
+                "value": fa_val if pd.notna(fa_val) else 0,
+                "help": "Average field-level accuracy score across all model runs.",
+            },
+            {
+                "label": "Total Runs",
+                "value": int(r["total_runs"]) if pd.notna(r["total_runs"]) else 0,
+                "help": "Total number of agent runs in the selected period.",
+            },
         ],
         cols=4,
     )
@@ -219,7 +219,7 @@ with col1:
                 y=daily_kpis["success_rate"],
                 mode="lines+markers",
                 name="Success Rate",
-                line=dict(color="#00CC96"),
+                line={"color": "#00CC96"},
             )
         )
         fig.update_layout(
@@ -238,7 +238,7 @@ with col2:
                 y=daily_kpis["p50_latency_ms"],
                 mode="lines+markers",
                 name="P50",
-                line=dict(color="#636EFA"),
+                line={"color": "#636EFA"},
             )
         )
         fig.add_trace(
@@ -247,7 +247,7 @@ with col2:
                 y=daily_kpis["p95_latency_ms"],
                 mode="lines+markers",
                 name="P95",
-                line=dict(color="#EF553B"),
+                line={"color": "#EF553B"},
             )
         )
         fig.add_trace(
@@ -256,7 +256,7 @@ with col2:
                 y=daily_kpis["p99_latency_ms"],
                 mode="lines+markers",
                 name="P99",
-                line=dict(color="#FFA15A"),
+                line={"color": "#FFA15A"},
             )
         )
         fig.update_layout(title="Latency Percentiles (ms)", yaxis_title="Latency (ms)")
@@ -275,7 +275,7 @@ with col3:
                 y=daily_kpis["cost_per_successful_task"],
                 mode="lines+markers",
                 name="Cost / Successful Task",
-                line=dict(color="#AB63FA"),
+                line={"color": "#AB63FA"},
             )
         )
         fig.add_trace(
@@ -284,7 +284,7 @@ with col3:
                 y=daily_kpis["avg_cost_per_run"],
                 mode="lines+markers",
                 name="Avg Cost / Run",
-                line=dict(color="#19D3F3"),
+                line={"color": "#19D3F3"},
             )
         )
         fig.update_layout(title="Cost Trends (USD)", yaxis_title="Cost (USD)")
@@ -342,7 +342,7 @@ if not stage_perf.empty:
     for col in ["avg_duration_ms", "avg_cost_usd"]:
         if col in detail.columns:
             detail[col] = detail[col].apply(
-                lambda v: f"{v:,.1f}" if "duration" in col else f"${v:.5f}"
+                lambda v, c=col: f"{v:,.1f}" if "duration" in c else f"${v:.5f}"
             )
     detail["error_rate"] = detail["error_rate"].apply(lambda v: f"{v:.2%}")
     st.dataframe(detail, use_container_width=True, hide_index=True)
@@ -370,18 +370,22 @@ if not errors.empty:
             name="Cumulative %",
             yaxis="y2",
             mode="lines+markers",
-            marker=dict(color="#636EFA"),
-            line=dict(color="#636EFA"),
+            marker={"color": "#636EFA"},
+            line={"color": "#636EFA"},
         )
     )
     fig.update_layout(
         title="Error Categories — Pareto Analysis",
         xaxis_title="Error Category",
-        yaxis=dict(title="Error Count"),
-        yaxis2=dict(
-            title="Cumulative %", overlaying="y", side="right", tickformat=".0%", range=[0, 1.05]
-        ),
-        legend=dict(orientation="h", yanchor="bottom", y=1.02, xanchor="right", x=1),
+        yaxis={"title": "Error Count"},
+        yaxis2={
+            "title": "Cumulative %",
+            "overlaying": "y",
+            "side": "right",
+            "tickformat": ".0%",
+            "range": [0, 1.05],
+        },
+        legend={"orientation": "h", "yanchor": "bottom", "y": 1.02, "xanchor": "right", "x": 1},
         height=400,
     )
     st.plotly_chart(fig, use_container_width=True)

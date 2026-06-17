@@ -91,47 +91,49 @@ if not overall.empty and overall.iloc[0]["avg_dau"] is not None:
     r = overall.iloc[0]
     kpi_row(
         [
-            dict(
-                label="Weekly Successful Exported Tasks",
-                value=(
+            {
+                "label": "Weekly Successful Exported Tasks",
+                "value": (
                     int(r["weekly_exported_tasks"]) if pd.notna(r["weekly_exported_tasks"]) else 0
                 ),
-                help="Number of tasks that reached form_exported in the latest week.",
-            ),
-            dict(
-                label="DAU",
-                value=int(r["avg_dau"]) if pd.notna(r["avg_dau"]) else 0,
-                help="Daily active users — average over the selected period.",
-            ),
-            dict(
-                label="Export Rate",
-                value=r["avg_export_rate"] if pd.notna(r["avg_export_rate"]) else 0,
-                help="Fraction of started tasks that reach form_exported.",
-            ),
-            dict(
-                label="D7 Retention",
-                value=r["avg_d7_retention"] if pd.notna(r["avg_d7_retention"]) else 0,
-                help="Fraction of users active on signup_date + 7 days.",
-            ),
+                "help": "Number of tasks that reached form_exported in the latest week.",
+            },
+            {
+                "label": "DAU",
+                "value": int(r["avg_dau"]) if pd.notna(r["avg_dau"]) else 0,
+                "help": "Daily active users — average over the selected period.",
+            },
+            {
+                "label": "Export Rate",
+                "value": r["avg_export_rate"] if pd.notna(r["avg_export_rate"]) else 0,
+                "help": "Fraction of started tasks that reach form_exported.",
+            },
+            {
+                "label": "D7 Retention",
+                "value": r["avg_d7_retention"] if pd.notna(r["avg_d7_retention"]) else 0,
+                "help": "Fraction of users active on signup_date + 7 days.",
+            },
         ]
     )
     kpi_row(
         [
-            dict(
-                label="Agent Success Rate",
-                value=r["avg_agent_success_rate"] if pd.notna(r["avg_agent_success_rate"]) else 0,
-                help="Fraction of agent runs completed without error.",
-            ),
-            dict(
-                label="P95 Latency",
-                value=r["avg_p95_latency"] if pd.notna(r["avg_p95_latency"]) else 0,
-                help="95th percentile of end-to-end task latency in milliseconds.",
-            ),
-            dict(
-                label="Cost / Successful Task",
-                value=r["avg_cost_per_task"] if pd.notna(r["avg_cost_per_task"]) else 0,
-                help="Average estimated cost per successfully exported task (USD).",
-            ),
+            {
+                "label": "Agent Success Rate",
+                "value": (
+                    r["avg_agent_success_rate"] if pd.notna(r["avg_agent_success_rate"]) else 0
+                ),
+                "help": "Fraction of agent runs completed without error.",
+            },
+            {
+                "label": "P95 Latency",
+                "value": r["avg_p95_latency"] if pd.notna(r["avg_p95_latency"]) else 0,
+                "help": "95th percentile of end-to-end task latency in milliseconds.",
+            },
+            {
+                "label": "Cost / Successful Task",
+                "value": r["avg_cost_per_task"] if pd.notna(r["avg_cost_per_task"]) else 0,
+                "help": "Average estimated cost per successfully exported task (USD).",
+            },
         ],
         cols=4,
     )
@@ -166,7 +168,7 @@ with col2:
                 y=daily_kpis["dau"],
                 mode="lines+markers",
                 name="DAU",
-                line=dict(color="#636EFA"),
+                line={"color": "#636EFA"},
             )
         )
         fig.add_trace(
@@ -175,7 +177,7 @@ with col2:
                 y=daily_kpis["new_users"],
                 mode="lines+markers",
                 name="New Users",
-                line=dict(color="#EF553B"),
+                line={"color": "#EF553B"},
             )
         )
         fig.update_layout(title="DAU + New Users", yaxis_title="Users")
@@ -194,7 +196,7 @@ with col3:
                 y=daily_kpis["export_rate"],
                 mode="lines+markers",
                 name="Export Rate",
-                line=dict(color="#00CC96"),
+                line={"color": "#00CC96"},
             )
         )
         fig.add_trace(
@@ -203,7 +205,7 @@ with col3:
                 y=daily_kpis["agent_success_rate"],
                 mode="lines+markers",
                 name="Agent Success Rate",
-                line=dict(color="#AB63FA"),
+                line={"color": "#AB63FA"},
             )
         )
         fig.update_layout(
@@ -223,7 +225,7 @@ with col4:
                 mode="lines+markers",
                 name="P95 Latency (ms)",
                 yaxis="y1",
-                line=dict(color="#FFA15A"),
+                line={"color": "#FFA15A"},
             )
         )
         fig.add_trace(
@@ -233,13 +235,13 @@ with col4:
                 mode="lines+markers",
                 name="Cost / Task ($)",
                 yaxis="y2",
-                line=dict(color="#19D3F3"),
+                line={"color": "#19D3F3"},
             )
         )
         fig.update_layout(
             title="P95 Latency + Cost Trend",
-            yaxis=dict(title="Latency (ms)", side="left"),
-            yaxis2=dict(title="Cost (USD)", overlaying="y", side="right"),
+            yaxis={"title": "Latency (ms)", "side": "left"},
+            yaxis2={"title": "Cost (USD)", "overlaying": "y", "side": "right"},
         )
         st.plotly_chart(fig, use_container_width=True)
     else:

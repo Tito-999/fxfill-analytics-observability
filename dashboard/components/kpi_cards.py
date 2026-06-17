@@ -3,7 +3,7 @@
 import streamlit as st
 
 
-def kpi_card(label: str, value, delta=None, help_text: str = "", delta_color: str = "normal"):
+def kpi_card(label: str, value, delta=None, help_text: str = "", delta_color: str = "normal") -> None:
     """Render a KPI metric card with tooltip and optional delta."""
     formatted_value = value
     if isinstance(value, float):
@@ -22,7 +22,7 @@ def kpi_card(label: str, value, delta=None, help_text: str = "", delta_color: st
         label=label,
         value=formatted_value,
         delta=delta,
-        delta_color=delta_color,
+        delta_color=delta_color,  # type: ignore[arg-type]
         help=help_text or f"Metric: {label}",
     )
 

@@ -123,21 +123,21 @@ n_contaminated = len(contaminated) if not contaminated.empty else 0
 
 kpi_row(
     [
-        dict(
-            label="Group A (Clean)",
-            value=n_clean_a,
-            help="Number of users cleanly assigned to experiment group A.",
-        ),
-        dict(
-            label="Group B (Clean)",
-            value=n_clean_b,
-            help="Number of users cleanly assigned to experiment group B.",
-        ),
-        dict(
-            label="Contaminated Users (Excluded)",
-            value=n_contaminated,
-            help="Users found in both A and B groups, excluded from analysis.",
-        ),
+        {
+            "label": "Group A (Clean)",
+            "value": n_clean_a,
+            "help": "Number of users cleanly assigned to experiment group A.",
+        },
+        {
+            "label": "Group B (Clean)",
+            "value": n_clean_b,
+            "help": "Number of users cleanly assigned to experiment group B.",
+        },
+        {
+            "label": "Contaminated Users (Excluded)",
+            "value": n_contaminated,
+            "help": "Users found in both A and B groups, excluded from analysis.",
+        },
     ],
     cols=3,
 )
@@ -209,41 +209,41 @@ if not summary.empty:
 
     kpi_row(
         [
-            dict(
-                label=f"P95 Latency (Group {r['experiment_group']})",
-                value=r["p95_latency_ms"],
-                help="95th percentile end-to-end latency. Increase may indicate performance regression.",
-            )
+            {
+                "label": f"P95 Latency (Group {r['experiment_group']})",
+                "value": r["p95_latency_ms"],
+                "help": "95th percentile end-to-end latency. Increase may indicate performance regression.",
+            }
             for _, r in guardrails.iterrows()
         ]
     )
     kpi_row(
         [
-            dict(
-                label=f"Cost / Task (Group {r['experiment_group']})",
-                value=r["cost_per_successful_task"],
-                help="Average cost per successful task. Increase may indicate cost regression.",
-            )
+            {
+                "label": f"Cost / Task (Group {r['experiment_group']})",
+                "value": r["cost_per_successful_task"],
+                "help": "Average cost per successful task. Increase may indicate cost regression.",
+            }
             for _, r in guardrails.iterrows()
         ]
     )
     kpi_row(
         [
-            dict(
-                label=f"Abandonment Rate (Group {r['experiment_group']})",
-                value=r["abandonment_rate"],
-                help="Fraction of tasks abandoned before completion.",
-            )
+            {
+                "label": f"Abandonment Rate (Group {r['experiment_group']})",
+                "value": r["abandonment_rate"],
+                "help": "Fraction of tasks abandoned before completion.",
+            }
             for _, r in guardrails.iterrows()
         ]
     )
     kpi_row(
         [
-            dict(
-                label=f"Agent Error Rate (Group {r['experiment_group']})",
-                value=r["agent_error_rate"],
-                help="Fraction of agent runs ending with an error.",
-            )
+            {
+                "label": f"Agent Error Rate (Group {r['experiment_group']})",
+                "value": r["agent_error_rate"],
+                "help": "Fraction of agent runs ending with an error.",
+            }
             for _, r in guardrails.iterrows()
         ],
         cols=4,

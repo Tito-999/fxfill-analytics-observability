@@ -83,19 +83,19 @@ if not adoption.empty:
         if not row.empty:
             r = row.iloc[0]
             cards.append(
-                dict(
-                    label=f"{feat} Adoption",
-                    value=r["adoption_rate"] if r["total_users"] > 0 else 0,
-                    help=f"Fraction of users who have used {feat} at least once.",
-                )
+                {
+                    "label": f"{feat} Adoption",
+                    "value": r["adoption_rate"] if r["total_users"] > 0 else 0,
+                    "help": f"Fraction of users who have used {feat} at least once.",
+                }
             )
         else:
             cards.append(
-                dict(
-                    label=f"{feat} Adoption",
-                    value=0,
-                    help=f"Fraction of users who have used {feat} at least once.",
-                )
+                {
+                    "label": f"{feat} Adoption",
+                    "value": 0,
+                    "help": f"Fraction of users who have used {feat} at least once.",
+                }
             )
 
     if cards:
@@ -137,7 +137,7 @@ if not adoption.empty:
     features_list = adoption["feature_name"].unique()
 
     fig = go.Figure()
-    for i, feat in enumerate(features_list):
+    for _i, feat in enumerate(features_list):
         subset = adoption[adoption["feature_name"] == feat]
         fig.add_trace(
             go.Bar(

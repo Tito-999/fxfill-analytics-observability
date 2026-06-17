@@ -47,7 +47,7 @@ def health_check() -> dict:
     """Verify database health and required schemas exist."""
     conn = get_connection()
     schemas = ["raw", "main_staging", "main_intermediate", "main_marts"]
-    result = {"connected": True, "schemas": {}}
+    result: dict = {"connected": True, "schemas": {}}
     for s in schemas:
         try:
             conn.execute(

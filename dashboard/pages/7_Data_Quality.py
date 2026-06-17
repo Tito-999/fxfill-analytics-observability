@@ -27,7 +27,7 @@ def q(query_str: str) -> pd.DataFrame:
     return conn.execute(query_str).fetchdf()
 
 
-def load_report(relative_path: str) -> dict:
+def load_report(relative_path: str):  # Returns parsed JSON
     """Load a JSON report from the reports/ directory."""
     path = Path(__file__).resolve().parent.parent.parent / relative_path
     if not path.exists():
@@ -52,26 +52,26 @@ anomalies_detected = sum(1 for p in p1_phenomena if p.get("phenomenon_id") in ("
 if total_checks > 0:
     kpi_row(
         [
-            dict(
-                label="Total Checks (P01-P10)",
-                value=total_checks,
-                help="All 10 predefined phenomena checks (P01 through P10).",
-            ),
-            dict(
-                label="Passed",
-                value=passed_checks,
-                help="Checks whose observed value met the configured threshold.",
-            ),
-            dict(
-                label="Warnings / Failures",
-                value=warnings,
-                help="Checks where the observed value did not meet expectations.",
-            ),
-            dict(
-                label="Anomalies Detected (P07/P08)",
-                value=anomalies_detected,
-                help="P07 = duplicate upload spike, P08 = cross-group experiment contamination.",
-            ),
+            {
+                "label": "Total Checks (P01-P10)",
+                "value": total_checks,
+                "help": "All 10 predefined phenomena checks (P01 through P10).",
+            },
+            {
+                "label": "Passed",
+                "value": passed_checks,
+                "help": "Checks whose observed value met the configured threshold.",
+            },
+            {
+                "label": "Warnings / Failures",
+                "value": warnings,
+                "help": "Checks where the observed value did not meet expectations.",
+            },
+            {
+                "label": "Anomalies Detected (P07/P08)",
+                "value": anomalies_detected,
+                "help": "P07 = duplicate upload spike, P08 = cross-group experiment contamination.",
+            },
         ],
         cols=4,
     )
@@ -115,26 +115,26 @@ if p2_eng:
 
     kpi_row(
         [
-            dict(
-                label="dbt Generic Tests",
-                value=dbt_generic,
-                help="Standard dbt schema tests (not_null, unique, accepted_values, etc.).",
-            ),
-            dict(
-                label="dbt Singular Tests",
-                value=dbt_singular,
-                help="Custom dbt data tests defined in tests/ directory.",
-            ),
-            dict(
-                label="pytest (passed/failed)",
-                value=f"{pytest_passed}/{pytest_failed}",
-                help="Unit and integration test results.",
-            ),
-            dict(
-                label="Code Coverage",
-                value=coverage / 100,
-                help="Line coverage percentage from pytest-cov.",
-            ),
+            {
+                "label": "dbt Generic Tests",
+                "value": dbt_generic,
+                "help": "Standard dbt schema tests (not_null, unique, accepted_values, etc.).",
+            },
+            {
+                "label": "dbt Singular Tests",
+                "value": dbt_singular,
+                "help": "Custom dbt data tests defined in tests/ directory.",
+            },
+            {
+                "label": "pytest (passed/failed)",
+                "value": f"{pytest_passed}/{pytest_failed}",
+                "help": "Unit and integration test results.",
+            },
+            {
+                "label": "Code Coverage",
+                "value": coverage / 100,
+                "help": "Line coverage percentage from pytest-cov.",
+            },
         ],
         cols=4,
     )
@@ -175,24 +175,26 @@ n_total_recon = len(recon_items)
 
 kpi_row(
     [
-        dict(
-            label="Reconciliation: Passed",
-            value=n_passed_recon,
-            help=f"Number of reconciled metrics that matched within tolerance ({n_total_recon} total).",
-        ),
-        dict(
-            label="Reconciliation: Total",
-            value=n_total_recon,
-            help="Total number of reconciled metric checks.",
-        ),
-        dict(
-            label="All Passed", value=all_passed, help="Whether every reconciliation check passed."
-        ),
-        dict(
-            label="Schema Version",
-            value=phase1.get("schema_version", "N/A"),
-            help="Audit report schema version.",
-        ),
+        {
+            "label": "Reconciliation: Passed",
+            "value": n_passed_recon,
+            "help": f"Number of reconciled metrics that matched within tolerance ({n_total_recon} total).",
+        },
+        {
+            "label": "Reconciliation: Total",
+            "value": n_total_recon,
+            "help": "Total number of reconciled metric checks.",
+        },
+        {
+            "label": "All Passed",
+            "value": all_passed,
+            "help": "Whether every reconciliation check passed.",
+        },
+        {
+            "label": "Schema Version",
+            "value": phase1.get("schema_version", "N/A"),
+            "help": "Audit report schema version.",
+        },
     ],
     cols=4,
 )
