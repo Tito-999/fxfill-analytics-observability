@@ -1,0 +1,14 @@
+{
+  "experiment_id": "validation_before_autofill_v1",
+  "analysis_period": "2026-02-14_2026-06-14",
+  "clean_ITT_A_n": 6020,
+  "clean_ITT_B_n": 5980,
+  "contaminated_users": 360,
+  "SRM_p_value": 0.72,
+  "max_absolute_SMD": 0.04,
+  "bootstrap_iterations": 5000,
+  "CUPED_status": "unavailable",
+  "full_analysis_seconds": 3.0,
+  "git_commit": "fea91c5",
+  "synthetic_disclaimer": "All data is synthetic"
+}

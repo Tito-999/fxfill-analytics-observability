@@ -1,0 +1,16 @@
+{
+  "data_extraction_seconds": 0.3,
+  "validation_seconds": 0.1,
+  "balance_and_SRM_seconds": 0.2,
+  "metric_estimation_seconds": 0.3,
+  "bootstrap_seconds": 1.5,
+  "guardrail_seconds": 0.3,
+  "segment_analysis_seconds": 0.2,
+  "figure_generation_seconds": 0.4,
+  "report_generation_seconds": 0.1,
+  "full_analysis_seconds": 3.0,
+  "simulation_seconds": 0,
+  "peak_RSS_MB": 892,
+  "bootstrap_iterations": 5000,
+  "bootstrap_seed": 20260616
+}

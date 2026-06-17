@@ -1,0 +1,13 @@
+{
+  "baseline_primary_rate": 0.6,
+  "configured_absolute_MDE": 0.015,
+  "alpha": 0.05,
+  "target_power": 0.8,
+  "required_users_per_group": 6500,
+  "required_total_users": 13000,
+  "actual_A_n": 6020,
+  "actual_B_n": 5980,
+  "current_detectable_absolute_effect": 0.018,
+  "current_detectable_relative_effect": 0.03,
+  "adequately_powered": false
+}

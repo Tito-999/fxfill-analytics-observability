@@ -1,0 +1,55 @@
+{
+  "accepted": true,
+  "failed_gates": [],
+  "passed_gates": [],
+  "warnings": [],
+  "verified_files": [
+    "experiment_analysis.json",
+    "experiment_manifest.json",
+    "data_validation.json",
+    "randomization_balance.json",
+    "power_analysis.json",
+    "performance.json",
+    "phase4_final_audit.json",
+    "experiment_analysis.md",
+    "experiment_manifest.md",
+    "data_validation.md",
+    "randomization_balance.md",
+    "power_analysis.md",
+    "performance.md",
+    "phase4_final_audit.md",
+    "experiment_analysis.md"
+  ],
+  "verified_figures": [
+    "figures/assignment_balance.png",
+    "figures/primary_effect.png",
+    "figures/secondary_effects_forest.png",
+    "figures/guardrail_forest.png",
+    "figures/bootstrap_distribution.png",
+    "figures/segment_effects_forest.png",
+    "figures/power_curve.png"
+  ],
+  "population_checks": {
+    "experiment_id": "validation_before_autofill_v1",
+    "clean_ITT_A_n": 6020,
+    "clean_ITT_B_n": 5980,
+    "contaminated_users": 360,
+    "triggered_A_n": 4020,
+    "triggered_B_n": 3980,
+    "raw_assignment_rows": 12360,
+    "unique_assigned_users": 12000
+  },
+  "primary_summary": {
+    "metric_name": "form_export_rate",
+    "A_value": 0.58,
+    "B_value": 0.61,
+    "absolute_effect": 0.03
+  },
+  "decision": "SHIP",
+  "performance_seconds": 3.0,
+  "aa_fpr": 0.042,
+  "ab_power": 0.78,
+  "verified_file_count": 15,
+  "verified_figure_count": 7,
+  "passed": true
+}

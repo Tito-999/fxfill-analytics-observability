@@ -1,0 +1,19 @@
+{
+  "experiment_id": "validation_before_autofill_v1",
+  "experiment_start": "2026-02-14",
+  "experiment_end": "2026-06-14",
+  "raw_assignment_rows": 12360,
+  "unique_assigned_users": 12000,
+  "canonical_first_assignment_users": 12000,
+  "clean_ITT_users": 12000,
+  "clean_ITT_A_n": 6020,
+  "clean_ITT_B_n": 5980,
+  "contaminated_users": 360,
+  "triggered_users": 8000,
+  "triggered_A_n": 4020,
+  "triggered_B_n": 3980,
+  "users_with_post_assignment_outcomes": 12000,
+  "missing_outcome_users": 0,
+  "analysis_grain": "user_id",
+  "checks_passed": true
+}

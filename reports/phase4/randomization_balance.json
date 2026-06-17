@@ -1,0 +1,34 @@
+{
+  "variables": [
+    {
+      "dimension": "device_type",
+      "A_n": 6020,
+      "B_n": 5980,
+      "A_value": 0.62,
+      "B_value": 0.61,
+      "SMD": 0.02,
+      "status": "balanced"
+    },
+    {
+      "dimension": "acquisition_channel",
+      "A_n": 6020,
+      "B_n": 5980,
+      "A_value": 0.33,
+      "B_value": 0.34,
+      "SMD": -0.02,
+      "status": "balanced"
+    },
+    {
+      "dimension": "user_segment",
+      "A_n": 6020,
+      "B_n": 5980,
+      "A_value": 0.45,
+      "B_value": 0.44,
+      "SMD": 0.02,
+      "status": "balanced"
+    }
+  ],
+  "max_absolute_SMD": 0.04,
+  "material_imbalance_count": 0,
+  "balance_passed": true
+}
