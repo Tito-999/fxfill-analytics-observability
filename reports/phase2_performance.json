@@ -1,0 +1,84 @@
+{
+  "dbt_run_duration_seconds": 5.7,
+  "dbt_test_duration_seconds": 5.3,
+  "database_size_mb": 2.0,
+  "raw_load_duration_seconds": 0.1,
+  "dbt_seed_duration_seconds": 0,
+  "total_build_duration_seconds": 11.1,
+  "peak_memory_mb": 892,
+  "duckdb_version": "0.10.2",
+  "mart_query_benchmarks": {
+    "mart_executive_daily_scorecard": {
+      "cold_duration_ms": 2.5,
+      "warm_run_1_ms": 1.0,
+      "warm_run_2_ms": 1.2,
+      "warm_run_3_ms": 1.2,
+      "warm_median_ms": 1.2,
+      "row_count": 600,
+      "target_ms": 2000,
+      "passed_under_2000ms": true
+    },
+    "mart_conversion_funnel": {
+      "cold_duration_ms": 0.6,
+      "warm_run_1_ms": 0.3,
+      "warm_run_2_ms": 0.3,
+      "warm_run_3_ms": 0.3,
+      "warm_median_ms": 0.3,
+      "row_count": 7,
+      "target_ms": 2000,
+      "passed_under_2000ms": true
+    },
+    "mart_retention_cohort": {
+      "cold_duration_ms": 3.2,
+      "warm_run_1_ms": 2.9,
+      "warm_run_2_ms": 3.0,
+      "warm_run_3_ms": 3.2,
+      "warm_median_ms": 3.0,
+      "row_count": 605,
+      "target_ms": 2000,
+      "passed_under_2000ms": true
+    },
+    "mart_agent_daily_kpis": {
+      "cold_duration_ms": 1.2,
+      "warm_run_1_ms": 0.7,
+      "warm_run_2_ms": 0.7,
+      "warm_run_3_ms": 0.8,
+      "warm_median_ms": 0.7,
+      "row_count": 121,
+      "target_ms": 2000,
+      "passed_under_2000ms": true
+    },
+    "mart_ab_test_summary": {
+      "cold_duration_ms": 0.5,
+      "warm_run_1_ms": 0.3,
+      "warm_run_2_ms": 0.3,
+      "warm_run_3_ms": 0.4,
+      "warm_median_ms": 0.3,
+      "row_count": 2,
+      "target_ms": 2000,
+      "passed_under_2000ms": true
+    }
+  },
+  "five_slowest_models": [
+    {
+      "model_name": "mart_conversion_funnel",
+      "execution_time_ms": 800
+    },
+    {
+      "model_name": "mart_retention_cohort",
+      "execution_time_ms": 500
+    },
+    {
+      "model_name": "mart_agent_daily_kpis",
+      "execution_time_ms": 900
+    },
+    {
+      "model_name": "mart_ab_test_segment_effects",
+      "execution_time_ms": 400
+    },
+    {
+      "model_name": "mart_executive_daily_scorecard",
+      "execution_time_ms": 300
+    }
+  ]
+}

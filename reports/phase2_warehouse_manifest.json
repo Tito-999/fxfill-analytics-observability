@@ -1,25 +1,75 @@
 {
   "input_run_id": "run_medium_20260616_2b56dbc931f8",
-  "database_relative_path": "warehouse/fxfill.duckdb",
-  "database_size_mb": 2.26,
-  "duckdb_version": "0.10.2",
-  "dbt_core_version": "1.8.8",
-  "dbt_duckdb_version": "1.8.1",
-  "raw_view_count": 7,
-  "dbt_model_count": 37,
-  "analytics_mart_count": 18,
-  "models_by_layer": {
-    "staging": 7,
-    "intermediate": 12,
-    "product_marts": 6,
-    "agent_marts": 5,
-    "experiment_marts": 4,
-    "executive_marts": 3
+  "input_config_hash": "2b56dbc931f8",
+  "database_path": "F:\\RAG\\fxfill-analytics-observability\\warehouse\\fxfill.duckdb",
+  "build_started_at": "2026-06-17T03:59:19.855316+00:00",
+  "build_finished_at": "2026-06-17T03:59:19.997625+00:00",
+  "build_duration_seconds": 0.142309,
+  "raw_layer": {
+    "tables": {
+      "users.parquet": 20000,
+      "documents.parquet": 80000,
+      "sessions.parquet": 60000,
+      "product_events.parquet": 491122,
+      "agent_runs.parquet": 80000,
+      "agent_spans.parquet": 300000,
+      "experiment_assignments.parquet": 12360
+    },
+    "verification": {
+      "tables": {
+        "raw_users": {
+          "raw_rows": 20000,
+          "manifest_rows": 20000,
+          "row_count_ok": true,
+          "pk_null_count": 0,
+          "pk_ok": true
+        },
+        "raw_documents": {
+          "raw_rows": 80000,
+          "manifest_rows": 80000,
+          "row_count_ok": true,
+          "pk_null_count": 0,
+          "pk_ok": true
+        },
+        "raw_sessions": {
+          "raw_rows": 60000,
+          "manifest_rows": 60000,
+          "row_count_ok": true,
+          "pk_null_count": 0,
+          "pk_ok": true
+        },
+        "raw_product_events": {
+          "raw_rows": 491122,
+          "manifest_rows": 491122,
+          "row_count_ok": true,
+          "pk_null_count": 0,
+          "pk_ok": true
+        },
+        "raw_agent_runs": {
+          "raw_rows": 80000,
+          "manifest_rows": 80000,
+          "row_count_ok": true,
+          "pk_null_count": 0,
+          "pk_ok": true
+        },
+        "raw_agent_spans": {
+          "raw_rows": 300000,
+          "manifest_rows": 300000,
+          "row_count_ok": true,
+          "pk_null_count": 0,
+          "pk_ok": true
+        },
+        "raw_experiment_assignments": {
+          "raw_rows": 12360,
+          "manifest_rows": 12360,
+          "row_count_ok": true,
+          "pk_null_count": 0,
+          "pk_ok": true
+        }
+      },
+      "passed": true
+    }
   },
-  "generic_test_count": 21,
-  "singular_test_count": 10,
-  "interview_query_count": 20,
-  "reconciliation_status": "all_passed",
-  "git_commit": "e766a1f74a40",
-  "generated_at": "2026-06-17T03:42:30.829103+00:00"
+  "dbt_status": "skipped",
+  "git_commit": "0067e25c73c82ad45521cbbcb5f8e375c7be0336"
 }
