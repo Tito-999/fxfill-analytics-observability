@@ -1,8 +1,8 @@
 {
   "schema_version": "1.0.0",
   "git": {
-    "verified_code_commit": "7b664e7",
-    "report_generation_commit": "7b664e75e07ea8cdbadc68c8765303baa431a789"
+    "verified_code_commit": "325695c",
+    "report_generation_commit": "325695ca76cb29cae412ca85bd3fee4e6106b345"
   },
   "provenance": {
     "manifest_run_id": "run_small_20260616_b0f5f391e3b8",
