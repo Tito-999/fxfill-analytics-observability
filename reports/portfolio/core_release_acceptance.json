@@ -5,7 +5,7 @@
   "environment": {
     "python_version": "3.11",
     "temporary_environment_used": true,
-    "clean_build_duration_seconds": 40.5
+    "clean_build_duration_seconds": 46.4
   },
   "clean_build": {
     "synthetic_data_generated": true,
@@ -14,7 +14,7 @@
     "dbt_run_passed": true,
     "dbt_test_passed": true,
     "experiment_analysis_passed": true,
-    "duration_seconds": 40.5
+    "duration_seconds": 46.4
   },
   "dashboard": {
     "health_http_status": 200,
@@ -46,6 +46,6 @@
     "tracked_secret_files": 0
   },
   "git": {
-    "commit": "1b9faeb4242e"
+    "commit": "5018c5b18208"
   }
 }
