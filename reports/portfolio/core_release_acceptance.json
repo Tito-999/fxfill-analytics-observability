@@ -1,11 +1,13 @@
 {
-  "accepted": true,
-  "failed_gates": [],
+  "accepted": false,
+  "failed_gates": [
+    "pytest: 1 failed"
+  ],
   "warnings": [],
   "environment": {
     "python_version": "3.11",
     "temporary_environment_used": true,
-    "clean_build_duration_seconds": 49.6
+    "clean_build_duration_seconds": 40.2
   },
   "clean_build": {
     "synthetic_data_generated": true,
@@ -14,7 +16,7 @@
     "dbt_run_passed": true,
     "dbt_test_passed": true,
     "experiment_analysis_passed": true,
-    "duration_seconds": 49.6
+    "duration_seconds": 40.2
   },
   "dashboard": {
     "health_http_status": 200,
@@ -29,9 +31,9 @@
     "bootstrap_iterations": 5000
   },
   "engineering": {
-    "collected": 234,
-    "passed": 234,
-    "failed": 0,
+    "collected": 243,
+    "passed": 242,
+    "failed": 1,
     "errors": 0,
     "skipped": 0,
     "deselected": 0
@@ -46,6 +48,6 @@
     "tracked_secret_files": 0
   },
   "git": {
-    "commit": "84f67879bb51"
+    "commit": "bee8e512c3c6"
   }
 }
