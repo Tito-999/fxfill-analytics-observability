@@ -1,6 +1,9 @@
 """Streamlit AppTest for the three remaining business pages."""
-import os, sys
+
+import os
+import sys
 from pathlib import Path
+
 import pytest
 
 PROJECT = Path(__file__).resolve().parent.parent.parent

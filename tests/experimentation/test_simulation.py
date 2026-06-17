@@ -1,4 +1,5 @@
 """A/A and A/B simulation calibration tests."""
+
 import numpy as np
 import pytest
 from scipy import stats

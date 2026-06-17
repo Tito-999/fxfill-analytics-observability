@@ -50,8 +50,7 @@ def load_experiment_config(experiment_id: str | None = None) -> dict[str, Any]:
 
     if experiment_id not in experiments:
         raise KeyError(
-            f"Experiment {experiment_id!r} not found. "
-            f"Available: {list(experiments.keys())}"
+            f"Experiment {experiment_id!r} not found. " f"Available: {list(experiments.keys())}"
         )
 
     config: dict[str, Any] = experiments[experiment_id]

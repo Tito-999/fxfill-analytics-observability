@@ -35,15 +35,17 @@ scorecard_df = query_df(
 st.subheader("Key Metrics")
 
 if not scorecard_df.empty:
-    agg = scorecard_df.agg({
-        "north_star_metric": "sum",
-        "dau": "mean",
-        "export_rate": "mean",
-        "d7_retention": "mean",
-        "agent_success_rate": "mean",
-        "agent_p95_latency_ms": "mean",
-        "cost_per_successful_task": "mean",
-    })
+    agg = scorecard_df.agg(
+        {
+            "north_star_metric": "sum",
+            "dau": "mean",
+            "export_rate": "mean",
+            "d7_retention": "mean",
+            "agent_success_rate": "mean",
+            "agent_p95_latency_ms": "mean",
+            "cost_per_successful_task": "mean",
+        }
+    )
     kpi_row(
         [
             {
@@ -77,12 +79,18 @@ if not scorecard_df.empty:
             },
             {
                 "label": "Avg P95 Latency",
-                "value": agg["agent_p95_latency_ms"] if pd.notna(agg["agent_p95_latency_ms"]) else 0,
+                "value": (
+                    agg["agent_p95_latency_ms"] if pd.notna(agg["agent_p95_latency_ms"]) else 0
+                ),
                 "help": "95th percentile agent latency in milliseconds.",
             },
             {
                 "label": "Avg Cost / Task",
-                "value": agg["cost_per_successful_task"] if pd.notna(agg["cost_per_successful_task"]) else 0,
+                "value": (
+                    agg["cost_per_successful_task"]
+                    if pd.notna(agg["cost_per_successful_task"])
+                    else 0
+                ),
                 "help": "Average estimated cost per successfully exported task (USD).",
             },
         ],

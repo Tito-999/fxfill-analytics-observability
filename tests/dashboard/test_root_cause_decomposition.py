@@ -1,13 +1,16 @@
 """Unit test: Kitagawa decomposition on hand-crafted two-segment dataset."""
-import pytest
 
 
 def decompose(curr_vols, prev_vols, curr_rates, prev_rates):
     """Symmetric Kitagawa decomposition. Returns drivers list."""
     total_cv = sum(curr_vols)
     total_pv = sum(prev_vols)
-    total_cr = sum(cv * cr for cv, cr in zip(curr_vols, curr_rates)) / max(total_cv, 1)
-    total_pr = sum(pv * pr for pv, pr in zip(prev_vols, prev_rates)) / max(total_pv, 1)
+    total_cr = sum(cv * cr for cv, cr in zip(curr_vols, curr_rates, strict=False)) / max(
+        total_cv, 1
+    )
+    total_pr = sum(pv * pr for pv, pr in zip(prev_vols, prev_rates, strict=False)) / max(
+        total_pv, 1
+    )
     drivers = []
     sum_re = sum_me = 0.0
     for i in range(len(curr_vols)):
@@ -69,6 +72,7 @@ class TestKitagawaDecomposition:
     def test_drivers_sum_to_overall_change(self):
         """Generic test: driver contributions sum exactly to overall change."""
         import numpy as np
+
         rng = np.random.default_rng(42)
         for _ in range(5):
             vols_c = rng.integers(10, 100, 5)

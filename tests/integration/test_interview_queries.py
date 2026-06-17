@@ -1,9 +1,8 @@
 """Verify 20 SQL portfolio queries exist, compile, and return results."""
 
 import glob
-from pathlib import Path
-
 import os
+from pathlib import Path
 
 import duckdb
 import pytest
@@ -29,11 +28,13 @@ def test_no_placeholder_queries():
 def test_all_queries_executable():
     if not Path(DB).exists():
         pytest.skip("DuckDB not built — run build_warehouse first")
-    conn = duckdb.connect(DB)
-    for f in sorted(glob.glob(str(SQL_DIR / "*.sql"))):
-        sql = Path(f).read_text(encoding="utf-8")
-        try:
-            conn.execute(sql).fetchall()
-        except Exception as e:
-            pytest.fail(f"{Path(f).name}: {e}")
-    conn.close()
+    conn = duckdb.connect(DB, read_only=True)
+    try:
+        for f in sorted(glob.glob(str(SQL_DIR / "*.sql"))):
+            sql = Path(f).read_text(encoding="utf-8")
+            try:
+                conn.execute(sql).fetchall()
+            except Exception as e:
+                pytest.fail(f"{Path(f).name}: {e}")
+    finally:
+        conn.close()

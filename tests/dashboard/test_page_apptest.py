@@ -1,38 +1,10 @@
-"""Page execution tests for dashboard pages."""
-import sys, unittest.mock
+"""Database contract tests for dashboard pages — no Streamlit/Plotly mocks."""
+
+import sys
 from pathlib import Path
-import pytest
 
 PROJECT = Path(__file__).resolve().parent.parent.parent
-
-@pytest.fixture(autouse=True)
-def _mock_streamlit():
-    """Mock streamlit and plotly for import testing. Auto-restored after test."""
-    saved_st = sys.modules.get("streamlit")
-    saved_px = sys.modules.get("plotly.express")
-    saved_go = sys.modules.get("plotly.graph_objects")
-
-    _mock = unittest.mock.MagicMock()
-    _mock.set_page_config = unittest.mock.MagicMock()
-    _mock.columns = lambda n, **kw: [unittest.mock.MagicMock() for _ in range(n)]
-    _mock.session_state = {}
-    _mock.cache_data = lambda **kw: lambda f: f
-    _mock.cache_resource = lambda **kw: lambda f: f
-    _mock.button = lambda label, **kw: False
-    _mock.selectbox = lambda label, options, **kw: options[0]
-    _mock.date_input = lambda label, **kw: (None, None)
-    _mock.plotly_chart = unittest.mock.MagicMock()
-    _mock.dataframe = unittest.mock.MagicMock()
-    _mock.metric = unittest.mock.MagicMock()
-    sys.modules["streamlit"] = _mock
-    sys.modules["plotly.express"] = unittest.mock.MagicMock()
-    sys.modules["plotly.graph_objects"] = unittest.mock.MagicMock()
-
-    yield
-
-    if saved_st: sys.modules["streamlit"] = saved_st
-    if saved_px: sys.modules["plotly.express"] = saved_px
-    if saved_go: sys.modules["plotly.graph_objects"] = saved_go
+sys.path.insert(0, str(PROJECT))
 
 
 class TestHomePage:
@@ -142,6 +114,13 @@ class TestKPIHelpers:
         assert len(METRIC_DEFINITIONS) >= 8
 
     def test_kpi_card(self):
-        from dashboard.components.kpi_cards import kpi_card
+        from unittest import mock
 
-        kpi_card("Test Rate", 0.75, delta=0.05)
+        import streamlit as st
+
+        calls = []
+        with mock.patch.object(st, "metric", side_effect=lambda *a, **kw: calls.append((a, kw))):
+            from dashboard.components.kpi_cards import kpi_card
+
+            kpi_card("Test Rate", 0.75, delta=0.05)
+        assert len(calls) == 1

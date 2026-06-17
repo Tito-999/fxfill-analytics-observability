@@ -1,6 +1,5 @@
 """A/B Test Dashboard — Experiment group comparison, contamination, and guardrails."""
 
-import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
@@ -37,18 +36,34 @@ if exp_group != "All":
 _um_sql += " ORDER BY experiment_group, user_id"
 user_metrics = query_df(_um_sql, _um_params)
 # Validate contract
-_req = {"user_id","experiment_group","total_tasks","exported_tasks","export_rate","avg_field_accuracy","avg_latency_ms","total_cost_usd"}
+_req = {
+    "user_id",
+    "experiment_group",
+    "total_tasks",
+    "exported_tasks",
+    "export_rate",
+    "avg_field_accuracy",
+    "avg_latency_ms",
+    "total_cost_usd",
+}
 _miss = _req - set(user_metrics.columns)
-if _miss: raise RuntimeError("A/B user metrics contract failed: " + ", ".join(sorted(_miss)))
+if _miss:
+    raise RuntimeError("A/B user metrics contract failed: " + ", ".join(sorted(_miss)))
 
 # ── Clean Assignments ───────────────────────────────────────────────────────
-clean = query_df("""SELECT user_id, experiment_group, assigned_at FROM main_intermediate.int_experiment_clean_assignments ORDER BY user_id""")
+clean = query_df(
+    """SELECT user_id, experiment_group, assigned_at FROM main_intermediate.int_experiment_clean_assignments ORDER BY user_id"""
+)
 
 # ── Contaminated Users ──────────────────────────────────────────────────────
-contaminated = query_df("""SELECT user_id, group_count, assigned_groups, is_intentional_contamination FROM main_intermediate.int_experiment_contaminated_users ORDER BY user_id""")
+contaminated = query_df(
+    """SELECT user_id, group_count, assigned_groups, is_intentional_contamination FROM main_intermediate.int_experiment_contaminated_users ORDER BY user_id"""
+)
 
 # ── Experiment Period ────────────────────────────────────────────────────────
-exp_period = query_df("""SELECT MIN(assigned_at) AS experiment_start, MAX(assigned_at) AS experiment_end FROM main_intermediate.int_experiment_clean_assignments""")
+exp_period = query_df(
+    """SELECT MIN(assigned_at) AS experiment_start, MAX(assigned_at) AS experiment_end FROM main_intermediate.int_experiment_clean_assignments"""
+)
 
 # ── Summary Info ─────────────────────────────────────────────────────────────
 st.subheader("Experiment Overview")
@@ -111,7 +126,10 @@ if not summary.empty:
                 name=f"Group {grp}",
                 x=[labels_map[m] for m in metrics_to_plot],
                 y=vals,
-                text=[f"{v:.2%}" if m in ("avg_export_rate", "avg_field_accuracy") else f"{v:.2f}" for v, m in zip(vals, metrics_to_plot)],
+                text=[
+                    f"{v:.2%}" if m in ("avg_export_rate", "avg_field_accuracy") else f"{v:.2f}"
+                    for v, m in zip(vals, metrics_to_plot, strict=False)
+                ],
                 textposition="auto",
             )
         )

@@ -1,5 +1,8 @@
 """Machine-verifiable Phase 4 acceptance checker."""
-import argparse, json, sys, time, os, struct
+
+import argparse
+import json
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -12,29 +15,42 @@ def _fail(msg: str, results: dict) -> None:
 
 
 def verify(report_dir: Path, config_path: Path) -> dict[str, Any]:
-    results: dict = {"accepted": True, "failed_gates": [], "passed_gates": [],
-                      "warnings": [], "verified_files": [], "verified_figures": []}
+    results: dict = {
+        "accepted": True,
+        "failed_gates": [],
+        "passed_gates": [],
+        "warnings": [],
+        "verified_files": [],
+        "verified_figures": [],
+    }
 
-    # Load config
+    # Verify config can be loaded
     with open(config_path) as f:
-        cfg = yaml.safe_load(f) if (config_path.suffix == '.yaml' or config_path.suffix == '.yml') else json.load(f)
-    try:
-        import yaml as _yaml
-        with open(config_path) as f: cfg = _yaml.safe_load(f)
-    except Exception:
-        with open(config_path) as f: cfg = json.load(f)
+        _cfg = (
+            yaml.safe_load(f)
+            if (config_path.suffix == ".yaml" or config_path.suffix == ".yml")
+            else json.load(f)
+        )
+    assert _cfg is not None, f"Failed to load config from {config_path}"
 
     # 1. Required files
     required_jsons = [
-        "experiment_analysis.json", "experiment_manifest.json",
-        "data_validation.json", "randomization_balance.json",
-        "power_analysis.json", "performance.json", "phase4_final_audit.json",
+        "experiment_analysis.json",
+        "experiment_manifest.json",
+        "data_validation.json",
+        "randomization_balance.json",
+        "power_analysis.json",
+        "performance.json",
+        "phase4_final_audit.json",
     ]
     required_mds = [r.replace(".json", ".md") for r in required_jsons] + ["experiment_analysis.md"]
     required_figs = [
-        "figures/assignment_balance.png", "figures/primary_effect.png",
-        "figures/secondary_effects_forest.png", "figures/guardrail_forest.png",
-        "figures/bootstrap_distribution.png", "figures/segment_effects_forest.png",
+        "figures/assignment_balance.png",
+        "figures/primary_effect.png",
+        "figures/secondary_effects_forest.png",
+        "figures/guardrail_forest.png",
+        "figures/bootstrap_distribution.png",
+        "figures/segment_effects_forest.png",
         "figures/power_curve.png",
     ]
 
@@ -63,9 +79,16 @@ def verify(report_dir: Path, config_path: Path) -> dict[str, Any]:
             ea = json.load(f)
 
         # Population
-        pop_keys = ["experiment_id", "clean_ITT_A_n", "clean_ITT_B_n",
-                     "contaminated_users", "triggered_A_n", "triggered_B_n",
-                     "raw_assignment_rows", "unique_assigned_users"]
+        pop_keys = [
+            "experiment_id",
+            "clean_ITT_A_n",
+            "clean_ITT_B_n",
+            "contaminated_users",
+            "triggered_A_n",
+            "triggered_B_n",
+            "raw_assignment_rows",
+            "unique_assigned_users",
+        ]
         for k in pop_keys:
             if k not in ea or ea[k] is None:
                 _fail(f"Missing population field: {k}", results)
@@ -87,10 +110,21 @@ def verify(report_dir: Path, config_path: Path) -> dict[str, Any]:
 
         # Primary
         prim = ea.get("primary", {})
-        prim_keys = ["metric_name", "estimand", "A_n", "B_n", "A_value", "B_value",
-                      "absolute_effect", "relative_uplift", "risk_ratio",
-                      "absolute_effect_CI_lower", "absolute_effect_CI_upper",
-                      "raw_p_value", "practical_threshold"]
+        prim_keys = [
+            "metric_name",
+            "estimand",
+            "A_n",
+            "B_n",
+            "A_value",
+            "B_value",
+            "absolute_effect",
+            "relative_uplift",
+            "risk_ratio",
+            "absolute_effect_CI_lower",
+            "absolute_effect_CI_upper",
+            "raw_p_value",
+            "practical_threshold",
+        ]
         for k in prim_keys:
             if k not in prim or prim[k] is None:
                 _fail(f"Missing primary field: {k}", results)
@@ -112,7 +146,13 @@ def verify(report_dir: Path, config_path: Path) -> dict[str, Any]:
 
         # Decision
         dec = ea.get("decision", {})
-        valid_decisions = ["SHIP", "SHIP_WITH_MONITORING", "CONTINUE_EXPERIMENT", "STOP_FOR_HARM", "INCONCLUSIVE"]
+        valid_decisions = [
+            "SHIP",
+            "SHIP_WITH_MONITORING",
+            "CONTINUE_EXPERIMENT",
+            "STOP_FOR_HARM",
+            "INCONCLUSIVE",
+        ]
         if dec.get("recommendation") not in valid_decisions:
             _fail(f"Invalid/explicit decision: {dec.get('recommendation')}", results)
 
@@ -123,7 +163,9 @@ def verify(report_dir: Path, config_path: Path) -> dict[str, Any]:
                 _fail(f"Forbidden placeholder found: '{forbidden}'", results)
 
         results["population_checks"] = {k: ea.get(k) for k in pop_keys}
-        results["primary_summary"] = {k: prim.get(k) for k in ["metric_name", "A_value", "B_value", "absolute_effect"]}
+        results["primary_summary"] = {
+            k: prim.get(k) for k in ["metric_name", "A_value", "B_value", "absolute_effect"]
+        }
         results["decision"] = dec.get("recommendation")
 
     # 3. Performance
@@ -176,11 +218,14 @@ def main():
     with open(out_dir / "phase4_acceptance.json", "w") as f:
         json.dump(results, f, indent=2, default=str)
 
-    md = [f"# Phase 4 Acceptance\n", f"Accepted: **{results['accepted']}**\n",
-          f"Passed gates: {len(results['passed_gates'])}, Failed: {len(results['failed_gates'])}\n",
-          f"Verified files: {len(results['verified_files'])}, Figures: {results['verified_figure_count']}\n",
-          f"A/A FPR: {results.get('aa_fpr','?')}, A/B Power: {results.get('ab_power','?')}\n",
-          f"Performance: {results.get('performance_seconds','?')}s\n"]
+    md = [
+        "# Phase 4 Acceptance\n",
+        f"Accepted: **{results['accepted']}**\n",
+        f"Passed gates: {len(results['passed_gates'])}, Failed: {len(results['failed_gates'])}\n",
+        f"Verified files: {len(results['verified_files'])}, Figures: {results['verified_figure_count']}\n",
+        f"A/A FPR: {results.get('aa_fpr','?')}, A/B Power: {results.get('ab_power','?')}\n",
+        f"Performance: {results.get('performance_seconds','?')}s\n",
+    ]
     if results["failed_gates"]:
         md.append("\n## FAILED\n")
         for g in results["failed_gates"]:
@@ -197,4 +242,5 @@ def main():
 
 if __name__ == "__main__":
     import yaml
+
     main()

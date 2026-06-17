@@ -6,8 +6,6 @@ computes the bootstrap distribution of the group difference.
 
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 
 

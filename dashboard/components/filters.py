@@ -1,4 +1,5 @@
 """Global filter sidebar with robust date clamping and page-specific controls."""
+
 from datetime import date, timedelta
 
 import streamlit as st
@@ -6,10 +7,18 @@ import streamlit as st
 from dashboard.services.database import get_min_max_dates
 
 FILTER_STATE_KEYS = {
-    "date_filter", "date_start", "date_end",
-    "min_date", "max_date", "_date_bounds", "filters_initialized",
-    "filter_device", "filter_channel", "filter_complexity",
-    "filter_model", "filter_exp_group",
+    "date_filter",
+    "date_start",
+    "date_end",
+    "min_date",
+    "max_date",
+    "_date_bounds",
+    "filters_initialized",
+    "filter_device",
+    "filter_channel",
+    "filter_complexity",
+    "filter_model",
+    "filter_exp_group",
 }
 
 PAGE_FILTERS = {
@@ -98,8 +107,10 @@ def render_filters(page_name: str = "executive"):
             )
             if isinstance(selected, tuple) and len(selected) == 2:
                 clamped = clamp_date_range(
-                    selected[0], selected[1],
-                    st.session_state.min_date, st.session_state.max_date,
+                    selected[0],
+                    selected[1],
+                    st.session_state.min_date,
+                    st.session_state.max_date,
                 )
                 st.session_state.date_start = clamped[0]
                 st.session_state.date_end = clamped[1]

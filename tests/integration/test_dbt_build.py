@@ -28,7 +28,10 @@ class TestDuckDBConnection:
         if db_path.exists():
             import duckdb
 
-            conn = duckdb.connect(str(db_path))
-            result = conn.execute("SELECT COUNT(*) FROM raw.raw_users").fetchone()
-            assert result[0] > 0
-            conn.close()
+            conn = duckdb.connect(str(db_path), read_only=True)
+            try:
+                result = conn.execute("SELECT COUNT(*) FROM raw.raw_users").fetchone()
+                assert result is not None
+                assert result[0] > 0
+            finally:
+                conn.close()

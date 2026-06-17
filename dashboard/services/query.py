@@ -1,4 +1,5 @@
 """Shared parameterized query helper for dashboard pages."""
+
 from collections.abc import Sequence
 
 import pandas as pd

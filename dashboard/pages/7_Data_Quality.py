@@ -343,13 +343,9 @@ if not staging_counts.empty:
     ]
 
     if raw_tables:
-        fig.add_trace(
-            go.Bar(name="Raw", x=raw_tables, y=raw_vals, marker_color="#636EFA")
-        )
+        fig.add_trace(go.Bar(name="Raw", x=raw_tables, y=raw_vals, marker_color="#636EFA"))
     if stg_tables:
-        fig.add_trace(
-            go.Bar(name="Staging", x=stg_tables, y=stg_vals, marker_color="#00CC96")
-        )
+        fig.add_trace(go.Bar(name="Staging", x=stg_tables, y=stg_vals, marker_color="#00CC96"))
 
     if raw_tables or stg_tables:
         fig.update_layout(

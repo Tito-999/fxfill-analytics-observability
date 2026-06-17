@@ -1,7 +1,6 @@
 """Feature Adoption — Adoption rates, time-to-first-use, and segment analysis."""
-import pandas as pd
+
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
 from dashboard.components.filters import render_filters
@@ -139,7 +138,12 @@ trend = query_df(
 if not trend.empty:
     trend_long = trend.melt(
         id_vars="event_date",
-        value_vars=["ocr_adoption", "anonymization_adoption", "risk_detection_adoption", "autofill_adoption"],
+        value_vars=[
+            "ocr_adoption",
+            "anonymization_adoption",
+            "risk_detection_adoption",
+            "autofill_adoption",
+        ],
         var_name="feature",
         value_name="rate",
     )

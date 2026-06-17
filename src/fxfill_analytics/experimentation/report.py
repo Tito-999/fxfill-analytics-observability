@@ -14,12 +14,22 @@ import numpy as np
 from fxfill_analytics import settings
 from fxfill_analytics.experimentation import (
     bootstrap,
-    config as cfg,
-    decision as decision_module,
     estimators,
-    guardrails as guard_module,
-    metrics as metrics_module,
     multiplicity,
+)
+from fxfill_analytics.experimentation import (
+    config as cfg,
+)
+from fxfill_analytics.experimentation import (
+    decision as decision_module,
+)
+from fxfill_analytics.experimentation import (
+    guardrails as guard_module,
+)
+from fxfill_analytics.experimentation import (
+    metrics as metrics_module,
+)
+from fxfill_analytics.experimentation import (
     srm as srm_module,
 )
 
@@ -105,12 +115,15 @@ def generate_report(
 
         # 2. SRM test
         srm_result: dict[str, Any] = srm_module.srm_test(
-            db_experiment_id, conn=conn, config=config,
+            db_experiment_id,
+            conn=conn,
+            config=config,
         )
 
         # 3. User-level metrics (contaminated users excluded)
         user_metrics: dict[str, Any] = metrics_module.get_user_metrics(
-            db_experiment_id, conn=conn,
+            db_experiment_id,
+            conn=conn,
         )
         groups: list[str] = user_metrics.get("groups", [])
         metrics_data: dict[str, dict[str, list[float]]] = user_metrics.get("metrics", {})
@@ -121,13 +134,23 @@ def generate_report(
 
         # 4. Primary metric analysis
         primary_results = _analyze_named_metrics(
-            primary_configs, metrics_data, groups, alpha, boot_iter, boot_seed,
+            primary_configs,
+            metrics_data,
+            groups,
+            alpha,
+            boot_iter,
+            boot_seed,
         )
         primary_result: dict[str, Any] | None = primary_results[0] if primary_results else None
 
         # 5. Secondary metric analysis
         secondary_results = _analyze_named_metrics(
-            secondary_configs, metrics_data, groups, alpha, boot_iter, boot_seed,
+            secondary_configs,
+            metrics_data,
+            groups,
+            alpha,
+            boot_iter,
+            boot_seed,
         )
 
         # 6. Benjamini-Hochberg correction on secondary p-values
@@ -138,14 +161,16 @@ def generate_report(
         ]
         if sec_pvals:
             corrected = multiplicity.bh_correction(sec_pvals, alpha=alpha)
-            for corr, res in zip(corrected, secondary_results):
+            for corr, res in zip(corrected, secondary_results, strict=False):
                 if "p_value" in res or "welch_p_value" in res:
                     res["adjusted_p"] = corr["adjusted_p"]
                     res["bh_rejected"] = corr["rejected"]
 
         # 7. Guardrail analysis
         guardrail_results = _analyze_guardrails(
-            guardrail_configs, metrics_data, groups,
+            guardrail_configs,
+            metrics_data,
+            groups,
         )
 
         # 8. Decision
@@ -228,29 +253,34 @@ def _analyze_named_metrics(
         b_vals = metrics_data.get(b_group, {}).get(col, [])
 
         if not a_vals or not b_vals:
-            results.append({
-                "metric_name": name,
-                "direction": direction,
-                "status": "no_data",
-                "note": f"Metric column {col!r} not available for both groups.",
-            })
+            results.append(
+                {
+                    "metric_name": name,
+                    "direction": direction,
+                    "status": "no_data",
+                    "note": f"Metric column {col!r} not available for both groups.",
+                }
+            )
             continue
 
         # Continuous Welch t-test
         try:
             cont = estimators.continuous_effect(a_vals, b_vals)
         except ValueError:
-            results.append({
-                "metric_name": name,
-                "direction": direction,
-                "status": "insufficient_data",
-                "note": "One or both groups have fewer than 2 observations.",
-            })
+            results.append(
+                {
+                    "metric_name": name,
+                    "direction": direction,
+                    "status": "insufficient_data",
+                    "note": "One or both groups have fewer than 2 observations.",
+                }
+            )
             continue
 
         # Bootstrap
         boot = bootstrap.bootstrap_diff(
-            a_vals, b_vals,
+            a_vals,
+            b_vals,
             iterations=boot_iter,
             seed=boot_seed,
         )
@@ -308,15 +338,18 @@ def _analyze_guardrails(
         b_vals = metrics_data.get(b_group, {}).get(col, [])
 
         if not a_vals or not b_vals:
-            results.append({
-                "metric_name": name,
-                "status": "no_data",
-                "note": f"Metric column {col!r} not available for both groups.",
-            })
+            results.append(
+                {
+                    "metric_name": name,
+                    "status": "no_data",
+                    "note": f"Metric column {col!r} not available for both groups.",
+                }
+            )
             continue
 
         gr = guard_module.test_guardrail(
-            a_vals, b_vals,
+            a_vals,
+            b_vals,
             margin=margin,
             higher_is_better=higher_is_better,
         )

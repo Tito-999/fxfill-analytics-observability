@@ -1,5 +1,10 @@
 """CLI for Phase 4 statistical experiment analysis."""
-import argparse, json, sys, time, os
+
+import argparse
+import json
+import os
+import sys
+import time
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -38,8 +43,8 @@ def main():
 
     os.environ["FXFILL_DUCKDB_PATH"] = str(db_path)
     import duckdb
-    from fxfill_analytics.experimentation.report import generate_report
     from fxfill_analytics.experimentation.config import load_experiment_config
+    from fxfill_analytics.experimentation.report import generate_report
 
     cfg = load_experiment_config(args.experiment)
     if args.bootstrap_iterations:
@@ -51,17 +56,24 @@ def main():
     print(f"Running experiment analysis: {args.experiment}")
     report = generate_report(args.experiment, conn)
     elapsed = time.perf_counter() - t0
-    report["performance"] = {"total_duration_seconds": round(elapsed, 1), "peak_memory_mb": "see_diagnostic"}
+    report["performance"] = {
+        "total_duration_seconds": round(elapsed, 1),
+        "peak_memory_mb": "see_diagnostic",
+    }
     conn.close()
 
     with open(out_dir / "experiment_analysis.json", "w") as f:
         json.dump(report, f, indent=2, default=str)
-    md = [f"# Experiment Analysis: {args.experiment}\n", f"Generated: {datetime.now(UTC).isoformat()}\n",
-          f"Duration: {elapsed:.1f}s\n", f"\n## Primary Metric\n",
-          f"A users: {report.get('primary',{}).get('a_n','?')}, B users: {report.get('primary',{}).get('b_n','?')}\n",
-          f"Effect: {report.get('primary',{}).get('effect','?')}\n",
-          f"Decision: **{report.get('decision',{}).get('recommendation','?')}**\n",
-          f"\n*Synthetic data experiment — not a real production result.*\n"]
+    md = [
+        f"# Experiment Analysis: {args.experiment}\n",
+        f"Generated: {datetime.now(UTC).isoformat()}\n",
+        f"Duration: {elapsed:.1f}s\n",
+        "\n## Primary Metric\n",
+        f"A users: {report.get('primary',{}).get('a_n','?')}, B users: {report.get('primary',{}).get('b_n','?')}\n",
+        f"Effect: {report.get('primary',{}).get('effect','?')}\n",
+        f"Decision: **{report.get('decision',{}).get('recommendation','?')}**\n",
+        "\n*Synthetic data experiment — not a real production result.*\n",
+    ]
     with open(out_dir / "experiment_analysis.md", "w") as f:
         f.write("".join(md))
     print(f"Analysis complete: {elapsed:.1f}s. Report: {out_dir}/experiment_analysis.json")

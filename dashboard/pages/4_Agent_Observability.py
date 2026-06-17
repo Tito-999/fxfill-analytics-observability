@@ -384,9 +384,17 @@ if not model_comp.empty:
     st.plotly_chart(fig, use_container_width=True)
 
     detail_comp = model_comp[
-        ["model_name", "prompt_version", "run_count", "avg_cost_usd",
-         "avg_latency_ms", "avg_field_accuracy", "avg_quality_score",
-         "success_rate", "avg_retry_count"]
+        [
+            "model_name",
+            "prompt_version",
+            "run_count",
+            "avg_cost_usd",
+            "avg_latency_ms",
+            "avg_field_accuracy",
+            "avg_quality_score",
+            "success_rate",
+            "avg_retry_count",
+        ]
     ].copy()
     detail_comp["avg_cost_usd"] = detail_comp["avg_cost_usd"].apply(lambda v: f"${v:.5f}")
     detail_comp["avg_latency_ms"] = detail_comp["avg_latency_ms"].apply(lambda v: f"{v:,.1f}")

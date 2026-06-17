@@ -1,4 +1,5 @@
 """SRM test with known-answer data."""
+
 import numpy as np
 from scipy.stats import chisquare
 
@@ -16,12 +17,12 @@ def _compute_srm(observed: dict, expected_allocation: dict, srm_alpha=0.001):
 def test_srm_balanced():
     """50/50 split should not reject."""
     r = _compute_srm({"A": 500, "B": 500}, {"A": 0.5, "B": 0.5})
-    assert r["passed"] == True
+    assert r["passed"]
     assert r["p_value"] > 0.05
 
 
 def test_srm_imbalanced():
     """70/30 split should clearly reject."""
     r = _compute_srm({"A": 700, "B": 300}, {"A": 0.5, "B": 0.5})
-    assert r["passed"] == False
+    assert not r["passed"]
     assert r["p_value"] < 0.001

@@ -1,5 +1,8 @@
 """Audit Git-tracked files for secrets, private paths, and sensitive data."""
-import json, subprocess, sys
+
+import json
+import subprocess
+import sys
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
@@ -22,15 +25,15 @@ MEDIUM_SEVERITY = [
     (r"/home/[^/]+/", "Linux home path"),
 ]
 ALLOWLIST_PATHS = set()
-ALLOWLIST_API = {"dbt_fxfill/models/intermediate/int_task_outcomes.sql",
-                  "tests/unit/test_smoke.py"}
+ALLOWLIST_API = {"dbt_fxfill/models/intermediate/int_task_outcomes.sql", "tests/unit/test_smoke.py"}
 TRACKED_LARGE = [".duckdb", ".parquet"]
 
 findings = {"high_severity": [], "medium_severity": [], "tracked_large_files": []}
 
 SKIP_SELF = {"scripts/audit_public_release.py", "reports/portfolio/public_release_audit.json"}
 for f in files:
-    if f in SKIP_SELF: continue
+    if f in SKIP_SELF:
+        continue
     path = PROJECT / f
     if not path.exists() or path.stat().st_size > 50_000_000:
         continue
@@ -47,14 +50,20 @@ for f in files:
     if f not in ALLOWLIST_API:
         for pattern, desc in HIGH_SEVERITY:
             import re
+
             if re.search(pattern, content):
-                findings["high_severity"].append({"file": f, "pattern": pattern, "description": desc})
+                findings["high_severity"].append(
+                    {"file": f, "pattern": pattern, "description": desc}
+                )
 
     if f not in ALLOWLIST_PATHS:
         for pattern, desc in MEDIUM_SEVERITY:
             import re
+
             if re.search(pattern, content):
-                findings["medium_severity"].append({"file": f, "pattern": pattern, "description": desc})
+                findings["medium_severity"].append(
+                    {"file": f, "pattern": pattern, "description": desc}
+                )
 
     # Check for .env
     if f.endswith(".env") and f != ".env.example":
@@ -77,7 +86,9 @@ summary = {
 }
 with open(R / "public_release_audit.json", "w") as f:
     json.dump(summary, f, indent=2)
-print(f"High severity: {summary['high_severity_findings']}, Medium: {summary['medium_severity_findings']}")
+print(
+    f"High severity: {summary['high_severity_findings']}, Medium: {summary['medium_severity_findings']}"
+)
 if summary["high_severity_findings"] > 0:
     print("PUBLIC RELEASE BLOCKED")
     sys.exit(1)

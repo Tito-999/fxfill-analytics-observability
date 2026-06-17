@@ -6,8 +6,6 @@ effect sizes, confidence intervals, and p-values.
 
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 from scipy import stats
 

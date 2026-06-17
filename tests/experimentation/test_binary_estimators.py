@@ -1,5 +1,5 @@
 """Binary estimator tests with known rates."""
-import numpy as np
+
 from fxfill_analytics.experimentation.estimators import binary_effect
 
 

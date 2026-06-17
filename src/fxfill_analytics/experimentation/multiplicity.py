@@ -59,7 +59,11 @@ def bh_correction(
     # Build final result sorted by adjusted p-value
     result = sorted(
         [
-            {"raw_p": float(p_values[i]), "adjusted_p": adjusted_original[i], "rejected": rejected_original[i]}
+            {
+                "raw_p": float(p_values[i]),
+                "adjusted_p": adjusted_original[i],
+                "rejected": rejected_original[i],
+            }
             for i in range(n)
         ],
         key=lambda x: x["adjusted_p"],

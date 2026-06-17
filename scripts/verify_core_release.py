@@ -1,5 +1,13 @@
 """Core Release Acceptance — keeps temp DB alive through full pytest."""
-import json, sys, time, os, socket, subprocess, struct, re, shutil, tempfile
+
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent
@@ -33,10 +41,22 @@ def _env_check():
 
 def _data_check(output_dir: Path):
     r = subprocess.run(
-        [sys.executable, str(PROJECT / "scripts/generate_data.py"),
-         "--size", "small", "--seed", "20260616", "--output-dir", str(output_dir), "--overwrite"],
-        capture_output=True, text=True, timeout=300, cwd=str(PROJECT),
-        env={**os.environ}
+        [
+            sys.executable,
+            str(PROJECT / "scripts/generate_data.py"),
+            "--size",
+            "small",
+            "--seed",
+            "20260616",
+            "--output-dir",
+            str(output_dir),
+            "--overwrite",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=300,
+        cwd=str(PROJECT),
+        env={**os.environ},
     )
     if r.returncode != 0:
         fail(f"Data generation failed: {r.stderr[:200]}")
@@ -46,7 +66,15 @@ def _data_check(output_dir: Path):
         fail("No run directory created")
         return None
     rd = run_dirs[0]
-    tables = ["users", "documents", "sessions", "product_events", "agent_runs", "agent_spans", "experiment_assignments"]
+    tables = [
+        "users",
+        "documents",
+        "sessions",
+        "product_events",
+        "agent_runs",
+        "agent_spans",
+        "experiment_assignments",
+    ]
     for t in tables:
         if not (rd / f"{t}.parquet").exists():
             fail(f"Missing table: {t}")
@@ -56,25 +84,49 @@ def _data_check(output_dir: Path):
 
 def _warehouse_check(run_dir: Path, db_path: Path):
     r = subprocess.run(
-        [sys.executable, str(PROJECT / "scripts/build_warehouse.py"),
-         "--input-run", str(run_dir), "--database", str(db_path), "--full-refresh", "--skip-dbt"],
-        capture_output=True, text=True, timeout=120, cwd=str(PROJECT),
-        env={**os.environ}
+        [
+            sys.executable,
+            str(PROJECT / "scripts/build_warehouse.py"),
+            "--input-run",
+            str(run_dir),
+            "--database",
+            str(db_path),
+            "--full-refresh",
+            "--skip-dbt",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=120,
+        cwd=str(PROJECT),
+        env={**os.environ},
     )
     if r.returncode != 0:
         fail(f"Warehouse build failed: {r.stderr[:200]}")
         return False
 
-    dbt_exe = os.environ.get("CONDA_PREFIX", "")
-    if dbt_exe:
-        dbt_exe = str(Path(dbt_exe) / "Scripts" / "dbt.exe")
-    if not dbt_exe or not Path(dbt_exe).exists():
+    # Resolve dbt relative to the current Python interpreter (robust across envs)
+    dbt_exe = str(Path(sys.executable).parent / "Scripts" / "dbt.exe")
+    if not Path(dbt_exe).exists():
+        dbt_exe = str(Path(sys.executable).parent / "dbt")
+    if not Path(dbt_exe).exists():
         dbt_exe = "dbt"
 
     db_env = {**os.environ, "FXFILL_DUCKDB_PATH": str(db_path)}
-    r = subprocess.run([dbt_exe, "run", "--project-dir", str(PROJECT / "dbt_fxfill"),
-                        "--profiles-dir", str(PROJECT / "dbt_fxfill")],
-                       capture_output=True, text=True, timeout=180, cwd=str(PROJECT), env=db_env)
+    r = subprocess.run(
+        [
+            dbt_exe,
+            "run",
+            "--project-dir",
+            str(PROJECT / "dbt_fxfill"),
+            "--profiles-dir",
+            str(PROJECT / "dbt_fxfill"),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=180,
+        cwd=str(PROJECT),
+        env=db_env,
+    )
     dbt_ok = "PASS=37" in r.stdout or "Done. PASS=" in (r.stdout + r.stderr)
     if dbt_ok:
         pass_gate("dbt run: 37/37")
@@ -82,9 +134,21 @@ def _warehouse_check(run_dir: Path, db_path: Path):
         fail(f"dbt run failed: {r.stderr[:200]}")
         return False
 
-    r = subprocess.run([dbt_exe, "test", "--project-dir", str(PROJECT / "dbt_fxfill"),
-                        "--profiles-dir", str(PROJECT / "dbt_fxfill")],
-                       capture_output=True, text=True, timeout=180, cwd=str(PROJECT), env=db_env)
+    r = subprocess.run(
+        [
+            dbt_exe,
+            "test",
+            "--project-dir",
+            str(PROJECT / "dbt_fxfill"),
+            "--profiles-dir",
+            str(PROJECT / "dbt_fxfill"),
+        ],
+        capture_output=True,
+        text=True,
+        timeout=180,
+        cwd=str(PROJECT),
+        env=db_env,
+    )
     if "PASS=31" in r.stdout or "Done. PASS=" in (r.stdout + r.stderr):
         pass_gate("dbt test: 31/31")
     else:
@@ -95,11 +159,22 @@ def _warehouse_check(run_dir: Path, db_path: Path):
 
 def _experiment_check(db_path: Path):
     r = subprocess.run(
-        [sys.executable, str(PROJECT / "scripts/run_experiment_analysis.py"),
-         "--experiment", "validation_before_autofill_v1", "--database", str(db_path),
-         "--output-dir", str(PROJECT / "reports/phase4"), "--overwrite"],
-        capture_output=True, text=True, timeout=180, cwd=str(PROJECT),
-        env={**os.environ}
+        [
+            sys.executable,
+            str(PROJECT / "scripts/run_experiment_analysis.py"),
+            "--experiment",
+            "validation_before_autofill_v1",
+            "--database",
+            str(db_path),
+            "--output-dir",
+            str(PROJECT / "reports/phase4"),
+            "--overwrite",
+        ],
+        capture_output=True,
+        text=True,
+        timeout=180,
+        cwd=str(PROJECT),
+        env={**os.environ},
     )
     if r.returncode == 0:
         pass_gate("Experiment analysis passed")
@@ -110,6 +185,7 @@ def _experiment_check(db_path: Path):
 
 def _dashboard_check(db_path: Path):
     from fxfill_analytics.verification.streamlit_smoke import run_streamlit_smoke
+
     result = run_streamlit_smoke(str(db_path))
     if result["health_http_status"] == 200:
         pass_gate("Dashboard: health HTTP 200")
@@ -125,9 +201,13 @@ def _dashboard_check(db_path: Path):
 
 
 def _link_check():
-    readme = (PROJECT / "README.md").read_text(encoding="utf-8") if (PROJECT / "README.md").exists() else ""
+    readme = (
+        (PROJECT / "README.md").read_text(encoding="utf-8")
+        if (PROJECT / "README.md").exists()
+        else ""
+    )
     broken = checked = missing = case_err = 0
-    for img_ref in re.findall(r'\((docs/[^)]+\.(?:png|svg|jpg))\)', readme):
+    for img_ref in re.findall(r"\((docs/[^)]+\.(?:png|svg|jpg))\)", readme):
         checked += 1
         p = PROJECT / img_ref
         if not p.exists():
@@ -139,7 +219,7 @@ def _link_check():
                 else:
                     missing += 1
                     broken += 1
-    for link_ref in re.findall(r'\(([^)]+\.(?:md|json|py|ps1))\)', readme):
+    for link_ref in re.findall(r"\(([^)]+\.(?:md|json|py|ps1))\)", readme):
         checked += 1
         p = PROJECT / link_ref
         if not p.exists():
@@ -149,12 +229,22 @@ def _link_check():
         pass_gate(f"Links: {checked} checked, 0 broken")
     else:
         fail(f"Links: {broken} broken")
-    return {"checked_link_count": checked, "broken_link_count": broken, "missing_asset_count": missing, "case_mismatch_count": case_err}
+    return {
+        "checked_link_count": checked,
+        "broken_link_count": broken,
+        "missing_asset_count": missing,
+        "case_mismatch_count": case_err,
+    }
 
 
 def _public_audit():
-    r = subprocess.run([sys.executable, str(PROJECT / "scripts/audit_public_release.py")],
-                       capture_output=True, text=True, timeout=30, cwd=str(PROJECT))
+    r = subprocess.run(
+        [sys.executable, str(PROJECT / "scripts/audit_public_release.py")],
+        capture_output=True,
+        text=True,
+        timeout=30,
+        cwd=str(PROJECT),
+    )
     if r.returncode == 0:
         audit_path = PROJECT / "reports/portfolio/public_release_audit.json"
         if audit_path.exists():
@@ -172,17 +262,25 @@ def _public_audit():
 
 def _pytest(db_path: Path):
     """Run full pytest with temporary warehouse available."""
-    env = {**os.environ, "FXFILL_DUCKDB_PATH": str(db_path),
-           "NO_PROXY": "127.0.0.1,localhost", "no_proxy": "127.0.0.1,localhost",
-           "PYTHONPATH": str(PROJECT)}
+    env = {
+        **os.environ,
+        "FXFILL_DUCKDB_PATH": str(db_path),
+        "NO_PROXY": "127.0.0.1,localhost",
+        "no_proxy": "127.0.0.1,localhost",
+        "PYTHONPATH": str(PROJECT),
+    }
     junit_path = str(R / "core_release_pytest.xml")
     r = subprocess.run(
-        [sys.executable, "-m", "pytest", str(PROJECT / "tests"), "-v",
-         f"--junitxml={junit_path}"],
-        capture_output=True, text=True, timeout=600, cwd=str(PROJECT), env=env
+        [sys.executable, "-m", "pytest", str(PROJECT / "tests"), "-v", f"--junitxml={junit_path}"],
+        capture_output=True,
+        text=True,
+        timeout=600,
+        cwd=str(PROJECT),
+        env=env,
     )
     # Parse JUnit XML
     import xml.etree.ElementTree as ET
+
     collected = passed = failed = errors = skipped = 0
     try:
         tree = ET.parse(junit_path)
@@ -198,14 +296,19 @@ def _pytest(db_path: Path):
         lines = (r.stdout + r.stderr).split("\n")
         for line in lines:
             import re as _re
-            m = _re.search(r'(\d+)\s+passed', line)
-            if m: passed = int(m.group(1))
-            m = _re.search(r'(\d+)\s+failed', line)
-            if m: failed = int(m.group(1))
-            m = _re.search(r'(\d+)\s+skipped', line)
-            if m: skipped = int(m.group(1))
-            m = _re.search(r'collected\s+(\d+)', line)
-            if m: collected = int(m.group(1))
+
+            m = _re.search(r"(\d+)\s+passed", line)
+            if m:
+                passed = int(m.group(1))
+            m = _re.search(r"(\d+)\s+failed", line)
+            if m:
+                failed = int(m.group(1))
+            m = _re.search(r"(\d+)\s+skipped", line)
+            if m:
+                skipped = int(m.group(1))
+            m = _re.search(r"collected\s+(\d+)", line)
+            if m:
+                collected = int(m.group(1))
         errors = 0
 
     if failed == 0 and errors == 0:
@@ -216,7 +319,14 @@ def _pytest(db_path: Path):
         fail(f"pytest: {errors} errors")
     if skipped > 0:
         warn(f"pytest: {skipped} skipped")
-    return {"collected": collected, "passed": passed, "failed": failed, "errors": errors, "skipped": skipped, "deselected": 0}
+    return {
+        "collected": collected,
+        "passed": passed,
+        "failed": failed,
+        "errors": errors,
+        "skipped": skipped,
+        "deselected": 0,
+    }
 
 
 def main():
@@ -256,10 +366,14 @@ def main():
 
     # Write and sanitize reports BEFORE audit
     import re as _re
+
     def _sanitize_paths(text: str) -> str:
-        text = _re.sub(r'C:\\Users\\[^\\]+\\AppData\\Local\\Temp\\[^\\"\'\\s,}]+', '<TEMP_DIR>', text)
-        text = _re.sub(r'F:\\RAG\\[^"\'\\s,}]*', '<PROJECT_ROOT>', text)
+        text = _re.sub(
+            r'C:\\Users\\[^\\]+\\AppData\\Local\\Temp\\[^\\"\'\\s,}]+', "<TEMP_DIR>", text
+        )
+        text = _re.sub(r'F:\\RAG\\[^"\'\\s,}]*', "<PROJECT_ROOT>", text)
         return text
+
     junit_path = R / "core_release_pytest.xml"
     if junit_path.exists():
         content = junit_path.read_text(encoding="utf-8", errors="replace")
@@ -271,28 +385,46 @@ def main():
         "accepted": results["accepted"] and len(results["failed_gates"]) == 0,
         "failed_gates": results["failed_gates"],
         "warnings": results["warnings"],
-        "environment": {"python_version": env_py, "temporary_environment_used": True,
-                        "clean_build_duration_seconds": round(t1 - t0, 1)},
+        "environment": {
+            "python_version": env_py,
+            "temporary_environment_used": True,
+            "clean_build_duration_seconds": round(t1 - t0, 1),
+        },
         "clean_build": {
-            "synthetic_data_generated": run_dir is not None, "data_quality_passed": True,
-            "duckdb_built": wh_ok, "dbt_run_passed": wh_ok, "dbt_test_passed": wh_ok,
-            "experiment_analysis_passed": exp_ok, "duration_seconds": round(t1 - t0, 1),
+            "synthetic_data_generated": run_dir is not None,
+            "data_quality_passed": True,
+            "duckdb_built": wh_ok,
+            "dbt_run_passed": wh_ok,
+            "dbt_test_passed": wh_ok,
+            "experiment_analysis_passed": exp_ok,
+            "duration_seconds": round(t1 - t0, 1),
         },
         "dashboard": dash_result,
         "analytics": {"phase4_acceptance": exp_ok, "bootstrap_iterations": 5000},
         "engineering": eng,
-        "portfolio": {"broken_link_count": links.get("broken_link_count", 0), "missing_asset_count": links.get("missing_asset_count", 0)},
-        "public_release": {"high_severity_findings": audit.get("high_severity_findings", 0),
-                           "tracked_database_files": audit.get("tracked_database_files", 0),
-                           "tracked_secret_files": audit.get("tracked_secret_files", 0)},
-        "git": {"commit": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=str(PROJECT)).stdout.strip()[:12]},
+        "portfolio": {
+            "broken_link_count": links.get("broken_link_count", 0),
+            "missing_asset_count": links.get("missing_asset_count", 0),
+        },
+        "public_release": {
+            "high_severity_findings": audit.get("high_severity_findings", 0),
+            "tracked_database_files": audit.get("tracked_database_files", 0),
+            "tracked_secret_files": audit.get("tracked_secret_files", 0),
+        },
+        "git": {
+            "commit": subprocess.run(
+                ["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=str(PROJECT)
+            ).stdout.strip()[:12]
+        },
     }
     report_str = _sanitize_paths(json.dumps(report, indent=2, default=str))
     with open(R / "core_release_acceptance.json", "w") as f:
         f.write(report_str)
     with open(R / "core_release_acceptance.md", "w") as f:
-        f.write(f"# Core Release Acceptance\nAccepted: {report['accepted']}\nBuild: {report['clean_build']['duration_seconds']:.0f}s\n"
-                f"pytest: {eng.get('passed',0)}/{eng.get('collected',0)} passed, {eng.get('failed',0)} failed\n")
+        f.write(
+            f"# Core Release Acceptance\nAccepted: {report['accepted']}\nBuild: {report['clean_build']['duration_seconds']:.0f}s\n"
+            f"pytest: {eng.get('passed',0)}/{eng.get('collected',0)} passed, {eng.get('failed',0)} failed\n"
+        )
 
     if report["accepted"]:
         print("CORE RELEASE ACCEPTANCE PASSED")

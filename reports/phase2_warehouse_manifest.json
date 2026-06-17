@@ -1,10 +1,10 @@
 {
   "input_run_id": "run_small_20260616_b0f5f391e3b8",
   "input_config_hash": "b0f5f391e3b8",
-  "database_path": "F:\\RAG\\fxfill-analytics-observability\\warehouse\\fxfill.duckdb",
-  "build_started_at": "2026-06-17T11:56:23.472669+00:00",
-  "build_finished_at": "2026-06-17T11:56:23.645569+00:00",
-  "build_duration_seconds": 0.1729,
+  "database_path": "C:\\Users\\PCR\\AppData\\Local\\Temp\\fxfill_core_ttui0hmt\\warehouse\\fxfill.duckdb",
+  "build_started_at": "2026-06-17T13:29:38.495253+00:00",
+  "build_finished_at": "2026-06-17T13:29:38.679854+00:00",
+  "build_duration_seconds": 0.184601,
   "raw_layer": {
     "tables": {
       "users.parquet": 2000,
@@ -71,5 +71,5 @@
     }
   },
   "dbt_status": "skipped",
-  "git_commit": "a17bb3cf626cbde955ea57f91a50bcc89199beed"
+  "git_commit": "9bc4e9d6b6d41ba8f48b3c85359734adfd75bc40"
 }

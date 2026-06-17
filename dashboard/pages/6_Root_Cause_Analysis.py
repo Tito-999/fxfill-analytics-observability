@@ -161,10 +161,14 @@ def kitagawa_decompose(dimension_name_str):
 
     # Kitagawa decomposition
     merged["rate_effect"] = (
-        0.5 * (merged["share_p"] + merged["share_c"]) * (merged["export_rate_c"] - merged["export_rate_p"])
+        0.5
+        * (merged["share_p"] + merged["share_c"])
+        * (merged["export_rate_c"] - merged["export_rate_p"])
     )
     merged["mix_effect"] = (
-        0.5 * (merged["export_rate_p"] + merged["export_rate_c"]) * (merged["share_c"] - merged["share_p"])
+        0.5
+        * (merged["export_rate_p"] + merged["export_rate_c"])
+        * (merged["share_c"] - merged["share_p"])
     )
     merged["total_effect"] = merged["rate_effect"] + merged["mix_effect"]
 
@@ -274,17 +278,30 @@ for dim in dimensions:
 
         # Detail table
         result_display = result[
-            ["segment", "share_p", "share_c", "export_rate_p", "export_rate_c",
-             "rate_effect", "mix_effect", "total_effect"]
+            [
+                "segment",
+                "share_p",
+                "share_c",
+                "export_rate_p",
+                "export_rate_c",
+                "rate_effect",
+                "mix_effect",
+                "total_effect",
+            ]
         ].copy()
         for c in ["share_p", "share_c", "export_rate_p", "export_rate_c"]:
             result_display[c] = result_display[c].apply(lambda v: f"{v:+.2%}")
         for c in ["rate_effect", "mix_effect", "total_effect"]:
             result_display[c] = result_display[c].apply(lambda v: f"{v:+.4f}")
         result_display.columns = [
-            "Segment", "Prior Share", "Current Share",
-            "Prior Rate", "Current Rate",
-            "Rate Effect", "Mix Effect", "Total Effect",
+            "Segment",
+            "Prior Share",
+            "Current Share",
+            "Prior Rate",
+            "Current Rate",
+            "Rate Effect",
+            "Mix Effect",
+            "Total Effect",
         ]
         st.dataframe(result_display, use_container_width=True, hide_index=True)
 

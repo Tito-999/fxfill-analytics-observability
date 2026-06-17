@@ -1,4 +1,5 @@
 """Verify README accuracy for public release."""
+
 from pathlib import Path
 
 PROJECT = Path(__file__).resolve().parent.parent.parent
@@ -43,7 +44,7 @@ def test_setup_script_checks():
     text = (PROJECT / "scripts/setup_portfolio.ps1").read_text(encoding="utf-8")
     assert "conda run" not in text, "Setup script should not use conda run"
     assert "PYTHONNOUSERSITE" in text
-    assert '$LASTEXITCODE -ne 0' in text, "Setup script should check exit codes"
+    assert "$LASTEXITCODE -ne 0" in text, "Setup script should check exit codes"
 
 
 def test_run_script_checks():

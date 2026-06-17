@@ -48,9 +48,7 @@ def get_user_metrics(
     ).df()
 
     contaminated_set: set[str] = (
-        set(contaminated_df["user_id"].tolist())
-        if not contaminated_df.empty
-        else set()
+        set(contaminated_df["user_id"].tolist()) if not contaminated_df.empty else set()
     )
     n_contaminated = len(contaminated_set)
 

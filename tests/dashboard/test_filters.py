@@ -1,4 +1,5 @@
 """Unit tests for date clamping in dashboard filters."""
+
 from datetime import date
 
 import pytest
@@ -81,6 +82,7 @@ class TestClampDateRangeEdgeCases:
 class TestClampDateRangeInvariants:
     def test_all_outputs_in_bounds(self):
         import itertools
+
         dates = [date(2026, 1, 1), date(2026, 6, 1), date(2026, 12, 31), None]
         min_d = date(2026, 2, 14)
         max_d = date(2026, 6, 13)

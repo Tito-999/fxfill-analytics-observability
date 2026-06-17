@@ -4,8 +4,6 @@ import os
 import sys
 from pathlib import Path
 
-import pytest
-
 PROJECT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT))
 # Use env var if set, otherwise default to project warehouse
@@ -68,7 +66,7 @@ def test_database_read_only():
     assert result[0] == 1
     try:
         conn.execute("CREATE TABLE test_write (x INT)")
-        assert False, "Should have raised on write"
+        raise AssertionError("Should have raised on write")
     except Exception:
         pass  # Expected: read-only connection rejects writes
     conn.close()

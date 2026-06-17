@@ -116,11 +116,9 @@ def srm_test(
     return {
         "chi2_stat": float(chi2_stat),
         "p_value": float(p_value),
-        "observed": dict(zip(groups, map(int, observed_counts))),
-        "expected": dict(zip(groups, map(float, expected_counts))),
+        "observed": dict(zip(groups, map(int, observed_counts), strict=False)),
+        "expected": dict(zip(groups, map(float, expected_counts), strict=False)),
         "passed": passed,
         "n_total": int(n_total),
         "srm_alpha": srm_alpha,
     }
-
-

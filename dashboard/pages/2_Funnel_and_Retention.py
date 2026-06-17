@@ -55,27 +55,34 @@ funnel_base = query_df(
 )
 
 step_names = [
-    "Upload", "OCR", "Anonymization",
-    "Risk Detection", "Autofill", "Review", "Export",
+    "Upload",
+    "OCR",
+    "Anonymization",
+    "Risk Detection",
+    "Autofill",
+    "Review",
+    "Export",
 ]
 step_cols = ["upload", "ocr", "anonymization", "risk_detection", "autofill", "review", "export"]
 
 funnel_rows = []
 first_val = None
 prev_val = None
-for i, (name, col) in enumerate(zip(step_names, step_cols)):
+for i, (name, col) in enumerate(zip(step_names, step_cols, strict=False)):
     val = int(funnel_base.iloc[0][col]) if not funnel_base.empty else 0
     if first_val is None:
         first_val = val
     pct_of_step1 = val / first_val if first_val and first_val > 0 else 0
     pct_of_prior = val / prev_val if i > 0 and prev_val and prev_val > 0 else 1.0 if i == 0 else 0
-    funnel_rows.append({
-        "step_order": i + 1,
-        "step_name": name,
-        "user_count": val,
-        "pct_of_step1": pct_of_step1,
-        "pct_of_prior_step": pct_of_prior,
-    })
+    funnel_rows.append(
+        {
+            "step_order": i + 1,
+            "step_name": name,
+            "user_count": val,
+            "pct_of_step1": pct_of_step1,
+            "pct_of_prior_step": pct_of_prior,
+        }
+    )
     prev_val = val
 
 funnel = pd.DataFrame(funnel_rows)
@@ -246,10 +253,7 @@ else:
     st.info("No retention data available for the selected filters.")
 
 # ── Filter Applicability Note ────────────────────────────────────────────────
-st.info(
-    "Device and complexity filters apply to the task funnel. "
-    "Retention is cohort-level."
-)
+st.info("Device and complexity filters apply to the task funnel. " "Retention is cohort-level.")
 
 # ── Footer ───────────────────────────────────────────────────────────────────
 st.markdown("---")

@@ -99,14 +99,11 @@ def make_decision(
         }
 
     # 3. Identify guardrail failures
-    guardrail_failures = [
-        g for g in guardrail_results if not g.get("non_inferiority_passed", True)
-    ]
+    guardrail_failures = [g for g in guardrail_results if not g.get("non_inferiority_passed", True)]
 
     # Check for severe degradation → STOP_FOR_HARM
     severe = [
-        g for g in guardrail_failures
-        if abs(g.get("diff_pct", 0.0)) >= _SEVERE_DEGRADATION_PCT
+        g for g in guardrail_failures if abs(g.get("diff_pct", 0.0)) >= _SEVERE_DEGRADATION_PCT
     ]
     if severe:
         names = [g.get("metric_name", f"#{i}") for i, g in enumerate(severe)]

@@ -1,4 +1,5 @@
 """Bootstrap determinism and accuracy tests."""
+
 import numpy as np
 from fxfill_analytics.experimentation.bootstrap import bootstrap_diff
 
