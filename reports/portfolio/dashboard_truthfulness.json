@@ -10,20 +10,26 @@
     "empty_traces_rendered": 0
   },
   "feature_adoption": {
+    "metrics_checked": 4,
+    "percent_metrics_valid": 4,
+    "database_ui_mismatch_count": 0,
     "kpi_percent_formatting": true
   },
   "agent": {
-    "all_sections_date_filtered": true,
+    "sections_checked": 4,
+    "sections_date_filtered": 4,
+    "date_filter_violation_count": 0,
     "visible_nan_count": 0,
     "visible_none_count": 0,
-    "explicit_kpi_formats": true
+    "kpi_format_violation_count": 0
   },
   "data_quality": {
     "provenance_matches": true,
     "raw_staging_mismatch_count": 0,
     "incomplete_reconciliation_rows": 0,
     "hardcoded_pass_count": 0,
-    "stale_artifact_count": 0
+    "stale_artifact_count": 0,
+    "strict_reconciliation_passed": true
   },
   "accepted": true,
   "failures": []

@@ -1,32 +1,51 @@
 {
   "schema_version": "1.0.0",
+  "git": {
+    "verified_code_commit": "2be32a5",
+    "report_generation_commit": "2be32a53f8cfc3de3346e9f24b8fb11f8e48a4ef"
+  },
   "provenance": {
-    "run_id": "run_small_20260617_5c2bf2c8f4e0",
+    "manifest_run_id": "run_small_20260617_5c2bf2c8f4e0",
+    "manifest_config_hash": "5c2bf2c8f4e0",
+    "warehouse_source_run_id": "run_small_20260617_5c2bf2c8f4e0",
+    "warehouse_source_config_hash": "5c2bf2c8f4e0",
+    "warehouse_run_ids_found": [
+      "run_small_20260617_5c2bf2c8f4e0"
+    ],
+    "warehouse_config_hashes_found": [
+      "5c2bf2c8f4e0"
+    ],
+    "warehouse_source_consistent": true,
+    "provenance_matches": true,
     "size_profile": "small",
     "seed": 20260617,
-    "config_hash": "5c2bf2c8f4e0",
-    "git_commit": "f74c3e8373eed8144a2b0f1bfe763d5564e64fa3",
     "database_path_relative": "warehouse/fxfill.duckdb",
     "database_fingerprint": "a4bf9808323ca113",
-    "generated_at_utc": "2026-06-17T14:33:25.996342+00:00",
-    "source_run_ids_in_warehouse": [
-      "run_small_20260617_5c2bf2c8f4e0"
-    ]
+    "generated_at_utc": "2026-06-17T14:33:25.996342+00:00"
   },
   "dbt": {
     "model_count": 41,
+    "model_execution_count": 41,
     "model_success_count": 41,
-    "generic_test_count": 0,
-    "singular_test_count": 44,
+    "model_fail_count": 0,
+    "model_skip_count": 0,
+    "generic_test_count": 21,
+    "singular_test_count": 23,
+    "test_definition_count": 44,
+    "test_execution_count": 44,
     "test_pass": 44,
     "test_fail": 0,
     "test_error": 0,
     "test_skip": 0,
-    "stale": false
+    "manifest_hash": "cdb1a0ad5ea3f5e5",
+    "model_results_hash": "c5d9f8947fec5e68",
+    "test_results_hash": "c5d9f8947fec5e68",
+    "stale": false,
+    "accepted": true
   },
   "pytest": {
-    "collected": 283,
-    "passed": 283,
+    "collected": 311,
+    "passed": 311,
     "failed": 0,
     "errors": 0,
     "skipped": 0,
@@ -69,12 +88,5 @@
       "delta": 0
     }
   },
-  "mart_row_counts": {
-    "mart_daily_product_kpis": 121,
-    "mart_retention_cohort": 531,
-    "mart_conversion_funnel": 7,
-    "mart_agent_daily_kpis": 121,
-    "mart_ab_test_summary": 2,
-    "mart_executive_daily_scorecard": 121
-  }
+  "accepted": true
 }
