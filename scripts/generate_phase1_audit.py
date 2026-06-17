@@ -16,7 +16,7 @@ import pandas as pd
 PROJECT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT / "src"))
 
-from fxfill_analytics.quality.phenomena_validation import (
+from fxfill_analytics.quality.phenomena_validation import (  # noqa: E402
     validate_all_phenomena,
     validate_p01_ocr_latency,
     validate_p02_complex_edit,
@@ -68,11 +68,11 @@ def main():
     print("Loading tables...")
     tables_enabled = load_tables("run1")
     tables_disabled = load_tables("disabled")
-    manifest = load_manifest("run1")
+    _manifest = load_manifest("run1")
 
     # ── P01-P10 Validation ──
     print("Running validators...")
-    results_enabled = validate_all_phenomena(tables_enabled)
+    _results_enabled = validate_all_phenomena(tables_enabled)
     results_disabled = validate_all_phenomena(tables_disabled)
 
     # Build a lookup for disabled results

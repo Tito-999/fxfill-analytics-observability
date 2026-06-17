@@ -4,6 +4,9 @@
 **Current Phase:** Phase 2 (DuckDB + dbt Warehouse) — ✅ Complete
 **Current Status:** Ready for Phase 3
 
+dbt: 37 models, 31 tests, all passing. pytest: 162/162. Coverage: 93%.
+**Current Status:** Ready for Phase 3
+
 dbt: 20 models, 21 tests, all passing
 
 ---

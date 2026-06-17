@@ -78,7 +78,9 @@ def create_raw_schema(
             FROM read_parquet('{escaped_path}')
         """
         )
-        row_count = conn.execute(f"SELECT COUNT(*) FROM raw.{view_name}").fetchone()[0]
+        result = conn.execute(f"SELECT COUNT(*) FROM raw.{view_name}").fetchone()  # type: ignore[index]
+        assert result is not None, f"COUNT query returned None for {view_name}"
+        row_count: int = result[0]
         row_counts[table_files[view_name]] = row_count
 
     return row_counts
@@ -110,14 +112,18 @@ def verify_raw_layer(conn: duckdb.DuckDBPyConnection, manifest: dict[str, Any]) 
     }
 
     for raw_name, manifest_name in raw_table_map.items():
-        raw_count = conn.execute(f"SELECT COUNT(*) FROM raw.{raw_name}").fetchone()[0]
+        raw_res = conn.execute(f"SELECT COUNT(*) FROM raw.{raw_name}").fetchone()
+        assert raw_res is not None
+        raw_count = raw_res[0]
         manifest_info = manifest_tables.get(manifest_name, {})
         expected = manifest_info.get("actual_rows", 0)
 
         pk_col = pk_map[raw_name]
-        pk_null = conn.execute(
+        pk_res = conn.execute(
             f'SELECT COUNT(*) FROM raw.{raw_name} WHERE "{pk_col}" IS NULL'
-        ).fetchone()[0]
+        ).fetchone()
+        assert pk_res is not None
+        pk_null = pk_res[0]
 
         table_ok = raw_count == expected and pk_null == 0
         results["tables"][raw_name] = {
