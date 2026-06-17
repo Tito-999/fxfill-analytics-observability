@@ -1,0 +1,58 @@
+Portfolio Release P2.8.3 — Machine-Verified Final Summary
+
+Code commit: a86c0b1
+Evidence commit: (from Core report)
+Tag: portfolio-v1.2.11
+Tag target: a86c0b1
+
+Core schema: 2.0.0
+Core verified commit: a86c0b109f26
+Core accepted: True
+Failed gates: []
+Warnings: []
+
+dbt model definitions/executions: 41/41
+dbt model success/fail/error/skip: 41/0/0/0
+dbt model artifact SHA: 80b05c29d5cb6258
+dbt test artifact SHA: 80b05c29d5cb6258
+Artifacts separated: False
+
+Generic/singular tests: 21/23
+Test definitions/executions: 44/44
+Test pass/fail/error/skip: 44/0/0/0
+
+pytest collected/passed/failed/errors/skipped: 324/324/0/0/0
+
+Feature measurement completed: True
+Feature metrics expected/found: 4/?
+Feature DB/UI mismatches: 0
+Feature visible NaN/None: 0/0
+
+Agent measurement completed: True
+Agent sections expected/measured/date-filtered: 4/?/4
+Agent date-filter violations: 0
+Agent visible NaN/None: 0/0
+Agent KPI format violations: 0
+
+Retention measurement completed: True
+Retention figures/traces/points examined: 3/?/?
+Retention unexpected points: ?
+Retention unmatured points: 0
+Retention empty traces: 0
+
+Reconciliation measurement completed: True
+Reconciliation row count: ?
+Provenance match: True
+Database fingerprint match: ?
+Stale artifacts: 0
+
+Business integrity: True
+Dashboard truthfulness: True
+Health/home: 200/200
+Public audit: clean
+Working tree: clean
+
+IMPLEMENTATION_STATUS = REVISION_REQUIRED
+
+  FAIL: dbt artifacts not separated
+  FAIL: model hash == test hash (artifacts not separated)

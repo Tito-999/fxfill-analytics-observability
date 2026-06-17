@@ -1,0 +1,16 @@
+{
+  "tag": "portfolio-v1.2.11",
+  "tag_target": "54f339ae882bcb1faf1bd7d28e8a66dddb344b25",
+  "expected_code_commit": "a86c0b1",
+  "expected_evidence_commit": "54f339a",
+  "core_in_tag": true,
+  "snapshot_in_tag": true,
+  "truthfulness_in_tag": true,
+  "summary_in_tag": false,
+  "accepted": false,
+  "failures": [
+    "tag portfolio-v1.2.11 points to 54f339ae882b, expected 54f339a",
+    "Tag Core verified_code_commit=, expected a86c0b1",
+    "Machine summary not found in tag"
+  ]
+}

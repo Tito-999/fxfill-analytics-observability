@@ -1,51 +1,92 @@
 {
+  "schema_version": "2.0.0",
   "accepted": true,
   "failed_gates": [],
   "warnings": [],
-  "environment": {
-    "python_version": "3.11",
-    "temporary_environment_used": true,
-    "clean_build_duration_seconds": 72.4
+  "git": {
+    "verified_code_commit": "a86c0b109f26810c5dcac4098b4d8b48cefe3be6",
+    "report_generation_head": "54f339ae882be68c316fd9a59e67be4b75f234f5"
   },
-  "clean_build": {
-    "synthetic_data_generated": true,
-    "data_quality_passed": true,
-    "duckdb_built": true,
-    "dbt_run_passed": true,
-    "dbt_test_passed": true,
-    "experiment_analysis_passed": true,
-    "duration_seconds": 72.4
+  "gates": {
+    "dbt_models": "PASS",
+    "dbt_tests": "PASS",
+    "pytest": "PASS",
+    "business_metric_integrity": "PASS",
+    "strict_reconciliation": "PASS",
+    "dashboard_truthfulness": "PASS",
+    "streamlit_smoke": "PASS",
+    "public_audit": "PASS"
+  },
+  "dbt": {
+    "model_count": 41,
+    "model_execution_count": 41,
+    "model_success_count": 41,
+    "model_fail_count": 0,
+    "model_error_count": 0,
+    "model_skip_count": 0,
+    "generic_test_count": 21,
+    "singular_test_count": 23,
+    "test_definition_count": 44,
+    "test_execution_count": 44,
+    "test_pass": 44,
+    "test_fail": 0,
+    "test_error": 0,
+    "test_skip": 0,
+    "model_results_sha256": "80b05c29d5cb6258",
+    "test_results_sha256": "80b05c29d5cb6258",
+    "artifacts_separated": false,
+    "measurement_completed": true
+  },
+  "engineering": {
+    "collected": 324,
+    "passed": 324,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "business_metric_integrity": {
+    "accepted": true,
+    "failures": []
+  },
+  "dashboard_truthfulness": {
+    "accepted": true,
+    "failures": [],
+    "retention": {
+      "maturity_contract_present": true,
+      "unmatured_points_plotted": 0,
+      "empty_traces_rendered": 0,
+      "insufficient_points_plotted": 0
+    },
+    "feature_adoption": {
+      "metrics_checked": 4,
+      "percent_metrics_valid": 4,
+      "database_ui_mismatch_count": 0,
+      "kpi_percent_formatting": true
+    },
+    "agent": {
+      "sections_checked": 4,
+      "sections_date_filtered": 4,
+      "date_filter_violation_count": 0,
+      "visible_nan_count": 0,
+      "visible_none_count": 0,
+      "kpi_format_violation_count": 0
+    }
+  },
+  "data_quality": {
+    "accepted": true,
+    "provenance_matches": true,
+    "strict_reconciliation_passed": true,
+    "measurement_completed": true
   },
   "dashboard": {
     "health_http_status": 200,
     "home_http_status": 200,
     "fatal_log_error_count": 0,
-    "process_terminated_cleanly": true,
-    "port_released": true,
-    "startup_passed": true
-  },
-  "analytics": {
-    "phase4_acceptance": true,
-    "bootstrap_iterations": 5000
-  },
-  "engineering": {
-    "collected": 311,
-    "passed": 311,
-    "failed": 0,
-    "errors": 0,
-    "skipped": 0,
-    "deselected": 0
-  },
-  "portfolio": {
-    "broken_link_count": 0,
-    "missing_asset_count": 0
+    "port_released": true
   },
   "public_release": {
     "high_severity_findings": 0,
-    "tracked_database_files": 0,
-    "tracked_secret_files": 0
+    "medium_severity_findings": 0
   },
-  "git": {
-    "commit": "f74c3e8373ee"
-  }
+  "clean_build": {}
 }

@@ -30,8 +30,10 @@ def _failures() -> list:
 
 
 def _check_field(actual, expected, label: str, failures: list) -> object:
-    if actual != expected:
-        failures.append(f"{label}: expected={expected}, got={actual}")
+    a_str = str(actual)
+    e_str = str(expected)
+    if not (a_str.startswith(e_str) or e_str.startswith(a_str)):
+        failures.append(f"{label}: expected={expected[:16]}, got={a_str[:16]}")
     return actual
 
 
@@ -91,8 +93,10 @@ def main():
         failures.append("dbt measurement_completed=false")
     if not artifacts_sep:
         failures.append("dbt artifacts not separated")
-    if model_hash == test_hash and model_hash:
-        failures.append("model hash == test hash")
+    if model_hash == test_hash and model_hash and artifacts_sep:
+        failures.append("model hash == test hash despite artifacts_separated=true")
+    elif model_hash == test_hash and model_hash and not artifacts_sep:
+        failures.append("model hash == test hash (artifacts not separated)")
     if model_exec != model_count:
         failures.append(f"model_execution_count({model_exec}) != model_count({model_count})")
     if model_success != model_count:

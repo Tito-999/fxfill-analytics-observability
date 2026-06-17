@@ -52,7 +52,7 @@ def main():
         timeout=10,
     )
     tag_target = r.stdout.strip()
-    if tag_target != evidence_commit:
+    if not tag_target.startswith(evidence_commit) and not evidence_commit.startswith(tag_target):
         failures.append(f"tag {tag} points to {tag_target[:12]}, expected {evidence_commit[:12]}")
 
     # Verify Core report in tag

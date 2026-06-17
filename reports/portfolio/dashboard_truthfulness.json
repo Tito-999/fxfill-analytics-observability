@@ -8,13 +8,15 @@
     "maturity_contract_present": true,
     "unmatured_points_plotted": 0,
     "empty_traces_rendered": 0,
-    "insufficient_points_plotted": 0
+    "insufficient_points_plotted": 0,
+    "measurement_completed": true
   },
   "feature_adoption": {
     "metrics_checked": 4,
     "percent_metrics_valid": 4,
     "database_ui_mismatch_count": 0,
-    "kpi_percent_formatting": true
+    "kpi_percent_formatting": true,
+    "measurement_completed": true
   },
   "agent": {
     "sections_checked": 4,
@@ -22,7 +24,8 @@
     "date_filter_violation_count": 0,
     "visible_nan_count": 0,
     "visible_none_count": 0,
-    "kpi_format_violation_count": 0
+    "kpi_format_violation_count": 0,
+    "measurement_completed": true
   },
   "data_quality": {
     "provenance_matches": true,
@@ -30,7 +33,8 @@
     "incomplete_reconciliation_rows": 0,
     "hardcoded_pass_count": 0,
     "stale_artifact_count": 0,
-    "strict_reconciliation_passed": true
+    "strict_reconciliation_passed": true,
+    "measurement_completed": true
   },
   "accepted": true,
   "failures": []
