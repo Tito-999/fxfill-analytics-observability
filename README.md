@@ -1,9 +1,9 @@
 # FxFill Analytics & AI Agent Observability Platform
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
-[![DuckDB](https://img.shields.io/badge/DuckDB-1.2-yellow.svg)](https://duckdb.org/)
-[![dbt](https://img.shields.io/badge/dbt-core-1.9-orange.svg)](https://docs.getdbt.com/)
-[![Streamlit](https://img.shields.io/badge/Streamlit-1.40-red.svg)](https://streamlit.io/)
+[![DuckDB](https://img.shields.io/badge/DuckDB-0.10-yellow.svg)](https://duckdb.org/)
+[![dbt](https://img.shields.io/badge/dbt-core-1.8-orange.svg)](https://docs.getdbt.com/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-1.31-red.svg)](https://streamlit.io/)
 [![226 Tests](https://img.shields.io/badge/Tests-226%20%2F%20226%20passed-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
 [![Synthetic Data](https://img.shields.io/badge/Data-Synthetic-lightgrey.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
 
@@ -122,7 +122,7 @@ The Phase 4 experiment decision was **SHIP**, indicating the feature demonstrate
 - **Streamlit health endpoint**: returns HTTP 200
 - **Streamlit home page**: returns HTTP 200
 - **Acceptance**: machine-verifiable core release script (`verify_core_release.py`)
-- **Audit**: public repository, clean CI status
+- **Audit**: public repository, 0 high-severity findings, 0 medium-severity findings
 
 ---
 
@@ -141,7 +141,7 @@ Three architecture diagrams are available in `docs/portfolio/`:
 ```
 fxfill-analytics-observability/
 ├── data/                    # Generated synthetic data (Parquet/CSV)
-├── dbt/                     # dbt models and configurations
+├── dbt_fxfill/              # dbt models and configurations
 │   ├── models/
 │   │   ├── staging/         # 7 staging models
 │   │   ├── intermediate/    # 12 intermediate models
@@ -151,7 +151,7 @@ fxfill-analytics-observability/
 │   └── portfolio/           # Architecture diagrams and screenshots
 ├── scripts/                 # Pipeline automation and verification scripts
 ├── sql/                     # 20 SQL analysis queries
-├── streamlit_app/           # 8-page Streamlit dashboard
+├── dashboard/               # 8-page Streamlit dashboard
 ├── tests/                   # pytest test suite (226 tests)
 ├── requirements.txt
 ├── requirements-dev.txt
@@ -172,13 +172,13 @@ fxfill-analytics-observability/
 
 ## Tags
 
-`phase-0-complete` `phase-1-complete` `phase-2-complete` `phase-3-complete` `phase-4-complete` `portfolio-v1` `portfolio-v1.1`
+`phase-0-complete` `phase-1-complete` `phase-2-complete` `phase-3-complete` `phase-4-complete` `portfolio-v1` `portfolio-v1.1` `portfolio-v1.2`
 
 ---
 
 ## Author
 
-Designed and built by [Your Name].
+Designed and built by Chengren Pang.
 
 Development workflow included automated verification.
 ---
