@@ -1,18 +1,18 @@
 {
-  "command": "C:\\Users\\PCR\\.conda\\envs\\fxfill_analytics\\python.exe -m streamlit run F:\\RAG\\fxfill-analytics-observability\\dashboard\\Home.py --server.headless=true --server.port=60453 --server.address=127.0.0.1 --browser.gatherUsageStats=false",
+  "command": "C:\\Users\\PCR\\.conda\\envs\\fxfill_analytics\\python.exe -m streamlit run F:\\RAG\\fxfill-analytics-observability\\dashboard\\Home.py --server.headless=true --server.port=58836 --server.address=127.0.0.1 --browser.gatherUsageStats=false",
   "working_directory": "F:\\RAG\\fxfill-analytics-observability",
   "python_executable": "C:\\Users\\PCR\\.conda\\envs\\fxfill_analytics\\python.exe",
   "duckdb_path": "F:\\RAG\\fxfill-analytics-observability\\warehouse\\fxfill.duckdb",
-  "selected_port": 60453,
+  "selected_port": 58836,
   "process_return_code": 1,
   "health_attempts": 1,
   "health_ok": true,
   "home_ok": true,
-  "timeout_duration": 1781678504.8770473,
+  "timeout_duration": 1781679055.2943943,
   "fatal_log_errors": [],
   "fatal_error_count": 0,
   "port_released": true,
   "process_terminated_cleanly": true,
   "startup_passed": true,
-  "startup_duration_seconds": 3.2
+  "startup_duration_seconds": 3.1
 }
