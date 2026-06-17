@@ -2,9 +2,9 @@
   "input_run_id": "run_medium_20260616_2b56dbc931f8",
   "input_config_hash": "2b56dbc931f8",
   "database_path": "F:\\RAG\\fxfill-analytics-observability\\warehouse\\fxfill.duckdb",
-  "build_started_at": "2026-06-17T06:47:43.391413+00:00",
-  "build_finished_at": "2026-06-17T06:47:43.571072+00:00",
-  "build_duration_seconds": 0.179659,
+  "build_started_at": "2026-06-17T06:55:40.568981+00:00",
+  "build_finished_at": "2026-06-17T06:55:40.733854+00:00",
+  "build_duration_seconds": 0.164873,
   "raw_layer": {
     "tables": {
       "users.parquet": 20000,
@@ -71,5 +71,5 @@
     }
   },
   "dbt_status": "skipped",
-  "git_commit": "f5441ac1205b2b059c060beade33a3931ede3948"
+  "git_commit": "7193227fff26c9dbf64ee068f71d28a699767aed"
 }
