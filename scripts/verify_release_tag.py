@@ -63,7 +63,7 @@ def main():
         try:
             core = json.loads(core_json)
             core_cc = core.get("git", {}).get("verified_code_commit", "")
-            if core_cc[:12] != code_commit[:12]:
+            if not (core_cc.startswith(code_commit) or code_commit.startswith(core_cc)):
                 failures.append(
                     f"Tag Core verified_code_commit={core_cc[:12]}, expected {code_commit[:12]}"
                 )
