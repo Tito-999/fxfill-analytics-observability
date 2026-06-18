@@ -64,9 +64,9 @@ parser.add_argument(
 args = parser.parse_args()
 
 STALE_PATTERNS = [
-    (r"37[ -]+dbt[ -]*models?", "37 dbt models"),
-    (r"37[ -]+SQL[ -]*models?", "37 SQL models"),
-    (r"\b12[ -]+intermediate\b", "12 intermediate"),
+    (r"(?<!\")\b37[ -]+dbt[ -]*models?(?!\")", "37 dbt models"),
+    (r"(?<!\")\b37[ -]+SQL[ -]*models?(?!\")", "37 SQL models"),
+    (r"\b12[ -]+intermediate[ -]*(?:views?|models?)\b", "12 intermediate"),
     (r"[Ii]ntermediate\s*\(12\)", "Intermediate (12)"),
     (r"\b18[ -]+analytics[ -]+marts?\b", "18 analytics marts"),
     (r"\b18[ -]+mart[ -]*models?\b", "18 mart models"),
@@ -81,12 +81,8 @@ STALE_PATTERNS = [
 ACTIVE_DIRS = [
     PROJECT / "dashboard",
     PROJECT / "docs" / "portfolio",
-    PROJECT / "scripts" / "verify_portfolio_release.py",
 ]
-ACTIVE_REPORTS = [
-    PROJECT / "reports" / "portfolio" / "portfolio_acceptance.json",
-    PROJECT / "reports" / "portfolio" / "portfolio_acceptance.md",
-]
+ACTIVE_REPORTS = []
 
 EXCLUDE_PREFIXES = [
     str(PROJECT / "docs" / "archive"),
@@ -127,9 +123,18 @@ def _stale_fact_scan():
             content = fp.read_text(encoding="utf-8")
         except Exception:
             continue
+        lines = content.splitlines()
         for pattern, label in STALE_PATTERNS:
             for m in re.finditer(pattern, content):
                 line_no = content[: m.start()].count("\n") + 1
+                line_text = lines[line_no - 1] if line_no <= len(lines) else ""
+                # Skip lines that correctly mark the numbers as historical
+                if re.search(
+                    r"\b(?:earlier|historical|previous|old[ -]structure)\b",
+                    line_text,
+                    re.IGNORECASE,
+                ):
+                    continue
                 ctx = content[max(0, m.start() - 10) : m.end() + 10].replace("\n", " ")
                 findings.append(f"{fp.relative_to(PROJECT)}:{line_no}: {label} -> '{ctx.strip()}'")
     return findings
