@@ -32,8 +32,6 @@ The project demonstrates six integrated capability layers: **Product Analytics**
 git clone https://github.com/Tito-999/fxfill-analytics-observability.git
 cd fxfill-analytics-observability
 
-git checkout portfolio-v1.2.12
-
 conda create -n fxfill_analytics python=3.11 -y
 conda activate fxfill_analytics
 
@@ -68,7 +66,7 @@ Expected result:
 - dbt models: 41 / 41 successful
 - dbt tests: 44 / 44 passed
 
-> Exact test counts are platform-independent; the formal baseline is recorded in the [release evidence](reports/portfolio/releases/portfolio-v1.2.12/).
+> The immutable portfolio-v1.2.12 baseline is recorded in the [release evidence](reports/portfolio/releases/portfolio-v1.2.12/). Current master additionally includes the validated Windows clean-clone portability fix.
 
 ---
 
@@ -106,9 +104,9 @@ flowchart LR
 
 Additional architecture diagrams are available in `docs/portfolio/`:
 
-1. **architecture.png** 閳?End-to-end pipeline from data generation to dashboard and experiment analysis
-2. **data_flow.png** 閳?Data model layer details and transformation dependencies
-3. **experiment_flow.png** 閳?A/B test pipeline from hypothesis to decision
+1. **architecture.png** 闁?End-to-end pipeline from data generation to dashboard and experiment analysis
+2. **data_flow.png** 闁?Data model layer details and transformation dependencies
+3. **experiment_flow.png** 闁?A/B test pipeline from hypothesis to decision
 
 ---
 
@@ -124,7 +122,7 @@ Agent run volume, success and error rates, P50/P95 latency, token consumption, c
 
 ### Analytics Engineering
 
-DuckDB warehouse with dbt staging (7 models), intermediate (13 models), and mart (21 models) layers 閳?41 models total. 21 generic data tests and 23 singular tests enforce referential integrity, uniqueness, non-null constraints, and accepted-value checks.
+DuckDB warehouse with dbt staging (7 models), intermediate (13 models), and mart (21 models) layers 闁?41 models total. 21 generic data tests and 23 singular tests enforce referential integrity, uniqueness, non-null constraints, and accepted-value checks.
 
 ### Dashboard Truthfulness
 
@@ -164,9 +162,9 @@ Provenance checks confirming consistent run IDs across manifest and warehouse, s
 |---|---:|
 | Source Tables | 7 |
 | dbt Models | 41 |
-| 閳?Staging | 7 |
-| 閳?Intermediate | 13 |
-| 閳?Marts | 21 |
+| 闁?Staging | 7 |
+| 闁?Intermediate | 13 |
+| 闁?Marts | 21 |
 | Generic dbt Tests | 21 |
 | Singular dbt Tests | 23 |
 | Total dbt Tests | 44 / 44 passed |
@@ -204,7 +202,7 @@ The Phase 4 experiment decision was **SHIP**, indicating the feature demonstrate
 - **dbt models:** 41 / 41 executed successfully.
 - **dbt tests:** 44 / 44 passed, including 21 generic and 23 singular tests.
 - **Release gates:** 11 / 11 required gates reported `PASS`.
-- **Code quality:** Ruff, Black, and mypy checks completed successfully in an isolated Python 3.11 environment.
+- **Code quality:** Ruff and Black passed; the changed verification module also passes mypy in an isolated Python 3.11 environment.
 - **Dependency integrity:** `pip check` reported 0 conflicts in the isolated environment.
 - **Dashboard smoke test:** HTTP health and home endpoints returned 200, with clean process termination and port release.
 - **Public audit:** 0 high-severity and 0 medium-severity findings.
@@ -240,29 +238,29 @@ Release evidence files:
 
 ```
 fxfill-analytics-observability/
-閳规壕鏀㈤埞鈧?data/                    # Generated synthetic data (Parquet/CSV)
-閳规壕鏀㈤埞鈧?dbt_fxfill/              # dbt models and configurations
-閳?  閳规壕鏀㈤埞鈧?models/
-閳?  閳?  閳规壕鏀㈤埞鈧?staging/         # 7 staging models
-閳?  閳?  閳规壕鏀㈤埞鈧?intermediate/    # 13 intermediate models
-閳?  閳?  閳规柡鏀㈤埞鈧?marts/           # 21 analytics marts
-閳?  閳规柡鏀㈤埞鈧?tests/               # 21 generic + 23 singular dbt tests
-閳规壕鏀㈤埞鈧?docs/
-閳?  閳规柡鏀㈤埞鈧?portfolio/           # Architecture diagrams and screenshots
-閳规壕鏀㈤埞鈧?scripts/                 # Pipeline automation and verification scripts
-閳规壕鏀㈤埞鈧?sql/                     # 20 SQL analysis queries
-閳规壕鏀㈤埞鈧?dashboard/               # 8-page Streamlit dashboard
-閳规壕鏀㈤埞鈧?tests/                   # 406-test automated verification suite
-閳规壕鏀㈤埞鈧?src/
-閳?  閳规柡鏀㈤埞鈧?fxfill_analytics/
-閳?      閳规柡鏀㈤埞鈧?verification/    # Release verifier and artifact validators
-閳规壕鏀㈤埞鈧?reports/
-閳?  閳规柡鏀㈤埞鈧?portfolio/
-閳?      閳规柡鏀㈤埞鈧?releases/
-閳?          閳规柡鏀㈤埞鈧?portfolio-v1.2.12/  # Machine-verified release evidence
-閳规壕鏀㈤埞鈧?requirements.txt
-閳规壕鏀㈤埞鈧?requirements-dev.txt
-閳规柡鏀㈤埞鈧?README.md
+闁宠澹曢弨銏ゅ煘閳?data/                    # Generated synthetic data (Parquet/CSV)
+闁宠澹曢弨銏ゅ煘閳?dbt_fxfill/              # dbt models and configurations
+闁?  闁宠澹曢弨銏ゅ煘閳?models/
+闁?  闁?  闁宠澹曢弨銏ゅ煘閳?staging/         # 7 staging models
+闁?  闁?  闁宠澹曢弨銏ゅ煘閳?intermediate/    # 13 intermediate models
+闁?  闁?  闁宠鏌￠弨銏ゅ煘閳?marts/           # 21 analytics marts
+闁?  闁宠鏌￠弨銏ゅ煘閳?tests/               # 21 generic + 23 singular dbt tests
+闁宠澹曢弨銏ゅ煘閳?docs/
+闁?  闁宠鏌￠弨銏ゅ煘閳?portfolio/           # Architecture diagrams and screenshots
+闁宠澹曢弨銏ゅ煘閳?scripts/                 # Pipeline automation and verification scripts
+闁宠澹曢弨銏ゅ煘閳?sql/                     # 20 SQL analysis queries
+闁宠澹曢弨銏ゅ煘閳?dashboard/               # 8-page Streamlit dashboard
+闁宠澹曢弨銏ゅ煘閳?tests/                   # 406-test automated verification suite
+闁宠澹曢弨銏ゅ煘閳?src/
+闁?  闁宠鏌￠弨銏ゅ煘閳?fxfill_analytics/
+闁?      闁宠鏌￠弨銏ゅ煘閳?verification/    # Release verifier and artifact validators
+闁宠澹曢弨銏ゅ煘閳?reports/
+闁?  闁宠鏌￠弨銏ゅ煘閳?portfolio/
+闁?      闁宠鏌￠弨銏ゅ煘閳?releases/
+闁?          闁宠鏌￠弨銏ゅ煘閳?portfolio-v1.2.12/  # Machine-verified release evidence
+闁宠澹曢弨銏ゅ煘閳?requirements.txt
+闁宠澹曢弨銏ゅ煘閳?requirements-dev.txt
+闁宠鏌￠弨銏ゅ煘閳?README.md
 ```
 
 ---
@@ -279,19 +277,19 @@ Earlier tags are retained as immutable historical checkpoints.
 
 ## What This Project Demonstrates
 
-Product analytics, analytics engineering, BI engineering, AI product analytics, agent observability, data quality engineering, and evidence-driven release verification 閳?in a self-contained, locally reproducible reference implementation.
+Product analytics, analytics engineering, BI engineering, AI product analytics, agent observability, data quality engineering, and evidence-driven release verification 闁?in a self-contained, locally reproducible reference implementation.
 
 ---
 
 ## Limitations
 
-- **Synthetic data only** 閳?all behavioral and operational data is programmatically generated
-- **Portfolio/reference implementation** 閳?not a deployed banking or production SaaS system
-- **No real customer PII** 閳?all user identities and transaction records are synthetic
-- **No production banking transactions** 閳?financial figures are illustrative scenario assumptions
-- **No cloud deployment** 閳?runs locally on DuckDB; no streaming ingestion
-- **Local DuckDB-based analytical stack** 閳?not benchmarked for distributed or high-concurrency workloads
-- **Agent telemetry is simulated** 閳?traces, spans, and cost figures are generated, not collected from a live AI service
+- **Synthetic data only** 闁?all behavioral and operational data is programmatically generated
+- **Portfolio/reference implementation** 闁?not a deployed banking or production SaaS system
+- **No real customer PII** 闁?all user identities and transaction records are synthetic
+- **No production banking transactions** 闁?financial figures are illustrative scenario assumptions
+- **No cloud deployment** 闁?runs locally on DuckDB; no streaming ingestion
+- **Local DuckDB-based analytical stack** 闁?not benchmarked for distributed or high-concurrency workloads
+- **Agent telemetry is simulated** 闁?traces, spans, and cost figures are generated, not collected from a live AI service
 
 ---
 
@@ -305,4 +303,4 @@ Development workflow included automated verification.
 
 ## License
 
-MIT License.
+MIT License — see [LICENSE](./LICENSE).
