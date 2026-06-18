@@ -10,7 +10,7 @@ An evidence-driven analytics engineering and AI agent observability platform bui
 [![DuckDB](https://img.shields.io/badge/DuckDB-0.10-yellow.svg)](https://duckdb.org/)
 [![dbt](https://img.shields.io/badge/dbt--core-1.8-orange.svg)](https://docs.getdbt.com/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.31-red.svg)](https://streamlit.io/)
-[![406 Tests](https://img.shields.io/badge/Tests-406%20%2F%20406%20passed-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
+[![Release Baseline Tests](https://img.shields.io/badge/v1.2.12%20Baseline%20Tests-406%20%2F%20406%20passed-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
 [![dbt Models](https://img.shields.io/badge/dbt%20Models-41%20%2F%2041-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
 [![dbt Tests](https://img.shields.io/badge/dbt%20Tests-44%20%2F%2044-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
 [![Release](https://img.shields.io/badge/Release-portfolio--v1.2.12-blue.svg)](https://github.com/Tito-999/fxfill-analytics-observability/releases/tag/portfolio-v1.2.12)
@@ -64,7 +64,7 @@ Expected result:
 
 - Core acceptance: `true`
 - Required release gates: 11 / 11 `PASS`
-- pytest: 406 / 406 passed
+- pytest (`portfolio-v1.2.12` release baseline): 406 / 406 passed
 - dbt models: 41 / 41 successful
 - dbt tests: 44 / 44 passed
 
@@ -134,8 +134,7 @@ Provenance checks confirming consistent run IDs across manifest and warehouse, s
 |------|-------------|
 | **Home** | Platform overview, key metrics, and navigation |
 | **Executive Overview** | Daily scorecard, weekly business review, high-level KPIs |
-| **Conversion Funnel** | User journey through registration, upload, autofill, and export |
-| **Retention & Cohorts** | Weekly retention cohorts and user lifecycle analysis |
+| **Funnel and Retention** | Conversion funnel, step-to-prior conversion, exact-day retention cohorts, maturity-aware weekly retention, and user lifecycle analysis |
 | **Feature Adoption** | Feature-level usage trends and adoption rates |
 | **Agent Observability** | Agent run traces, token usage, cost, error rates, and latency |
 | **A/B Test Analysis** | Experiment results with bootstrap confidence intervals and segment effects |
@@ -160,7 +159,7 @@ Provenance checks confirming consistent run IDs across manifest and warehouse, s
 | Streamlit Pages | 8 (1 Home + 7 Business) |
 | Charts | ~30 |
 | Bootstrap Iterations | 5,000 |
-| Automated pytest Tests | 406 / 406 passed |
+| `portfolio-v1.2.12` pytest baseline | 406 / 406 passed |
 | Required Release Gates | 11 / 11 PASS |
 | Latest Verified Release | `portfolio-v1.2.12` |
 
@@ -186,7 +185,7 @@ The Phase 4 experiment decision was **SHIP**, indicating the feature demonstrate
 
 ## Engineering Quality
 
-- **pytest:** 406 / 406 passed, with 0 failures, errors, or skips.
+- **`portfolio-v1.2.12` pytest baseline:** 406 / 406 passed, with 0 failures, errors, or skips.
 - **dbt models:** 41 / 41 executed successfully.
 - **dbt tests:** 44 / 44 passed, including 21 generic and 23 singular tests.
 - **Release gates:** 11 / 11 required gates reported `PASS`.
@@ -260,6 +259,8 @@ Latest verified release:
 - [`portfolio-v1.2.12`](https://github.com/Tito-999/fxfill-analytics-observability/releases/tag/portfolio-v1.2.12)
 
 Earlier tags are retained as immutable historical checkpoints.
+
+**Versioning:** `0.1.0` is the Python package/API version declared in `pyproject.toml`. `portfolio-v1.2.12` is the immutable portfolio and reproducibility artifact release tag. These identifiers serve different purposes and are not expected to match.
 
 ---
 
