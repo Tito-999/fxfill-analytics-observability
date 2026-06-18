@@ -274,11 +274,13 @@ def run_check():
                 "13 intermediate",
                 "21 mart",
                 "44 dbt tests",
-                "8 pg",
                 "7 raw",
             ]:
                 if expected not in svg_text:
                     errors.append(f"{stem}.svg missing: {expected}")
+            # Dashboard page count: check flexible forms
+            if not _re.search(r"8\s*(?:page|pg|Streamlit)", svg_text):
+                errors.append(f"{stem}.svg missing dashboard page count")
             if not svg_text.strip().startswith("<?xml") and "<svg" not in svg_text[:200]:
                 errors.append(f"{stem}.svg is not valid SVG")
         if png_path.exists():
