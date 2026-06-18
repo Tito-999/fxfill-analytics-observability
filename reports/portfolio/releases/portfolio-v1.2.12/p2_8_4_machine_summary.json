@@ -1,0 +1,54 @@
+{
+  "accepted": true,
+  "failures": [],
+  "code_commit": "e1d54a10d28e33c66efabc69f44b76cf57e32fa9",
+  "core_accepted": true,
+  "schema_checked": "2.0.0",
+  "dbt": {
+    "model_definitions": 41,
+    "model_executions": 41,
+    "model_success": 41,
+    "model_fail": 0,
+    "model_error": 0,
+    "model_skip": 0,
+    "artifacts_separated": true,
+    "generic_tests": 21,
+    "singular_tests": 23,
+    "test_definitions": 44,
+    "test_executions": 44,
+    "test_pass": 44,
+    "test_fail": 0,
+    "measurement_completed": true
+  },
+  "pytest": {
+    "collected": 406,
+    "passed": 406,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "retention": {
+    "measurement_completed": true,
+    "unmatured_points_plotted": 0,
+    "empty_traces": 0
+  },
+  "feature_adoption": {
+    "measurement_completed": true,
+    "db_ui_mismatch": 0
+  },
+  "agent": {
+    "measurement_completed": true,
+    "visible_nan": 0,
+    "date_filter_violations": 0
+  },
+  "reconciliation": {
+    "measurement_completed": true,
+    "provenance_match": true,
+    "strict_passed": true
+  },
+  "health_home": 200,
+  "public_audit": "clean",
+  "failed_gates": [],
+  "warnings": [],
+  "working_tree": "clean"
+}

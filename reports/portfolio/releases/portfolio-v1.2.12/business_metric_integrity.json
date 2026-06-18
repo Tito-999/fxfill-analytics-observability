@@ -1,0 +1,99 @@
+{
+  "agent_run_task_match_rate": 1.0,
+  "product_task_agent_coverage_rate": 1.0,
+  "ab_groups_checked": 2,
+  "ab_summary_null_counts": {
+    "avg_field_accuracy": 0,
+    "avg_latency_ms": 0,
+    "cost_per_task": 0
+  },
+  "ab_agent_metric_coverage_rate": 1.0,
+  "executive_duplicate_date_count": 0,
+  "executive_export_total": 2331,
+  "product_export_total": 2331,
+  "executive_export_total_delta": 0,
+  "export_and_abandon_conflict_count": 0,
+  "funnel_review_count": 2985,
+  "funnel_export_count": 2331,
+  "funnel_review_greater_than_export": true,
+  "retention_censoring_violation_count": 0,
+  "unmatured_non_null_rate_count": 0,
+  "dashboard_nan_display_count": 0,
+  "pages_checked": [
+    "Executive Overview",
+    "Funnel and Retention",
+    "A/B Test"
+  ],
+  "details": {
+    "task_linkage": {
+      "agent_task_count": 5000,
+      "product_task_count": 5000,
+      "matching_task_count": 5000,
+      "agent_run_task_match_rate": 1.0,
+      "product_task_agent_coverage_rate": 1.0,
+      "user_id_consistency_violations": 0,
+      "document_id_consistency_violations": 0
+    },
+    "ab_metrics": {
+      "ab_groups_checked": 2,
+      "ab_summary_null_counts": {
+        "avg_field_accuracy": 0,
+        "avg_latency_ms": 0,
+        "cost_per_task": 0
+      },
+      "ab_agent_metric_coverage_rate": 1.0,
+      "user_level_coverage_rate": 0.914948
+    },
+    "executive_grain": {
+      "executive_duplicate_date_count": 0,
+      "executive_export_total": 2331,
+      "product_export_total": 2331,
+      "executive_export_total_delta": 0
+    },
+    "export_abandon": {
+      "export_and_abandon_conflict_count": 0
+    },
+    "funnel_semantics": {
+      "funnel_steps": {
+        "uploaded": 5000,
+        "ocr_completed": 4411,
+        "anonymization_completed": 3891,
+        "risk_detection_completed": 3397,
+        "autofill_completed": 2985,
+        "review_started": 2985,
+        "exported": 2331
+      },
+      "funnel_review_count": 2985,
+      "funnel_export_count": 2331,
+      "funnel_review_greater_than_export": true
+    },
+    "retention_censoring": {
+      "has_maturity_columns": true,
+      "has_eligible_columns": true,
+      "max_event_date": "2026-06-13",
+      "retention_censoring_violation_count": 0,
+      "unmatured_non_null_rate_count": 0
+    },
+    "dashboard_nan": {
+      "dashboard_nan_display_count": 0,
+      "pages_checked": [
+        "Executive Overview",
+        "Funnel and Retention",
+        "A/B Test"
+      ],
+      "page_nan_guard_details": {
+        "Executive Overview": {
+          "has_nan_guard": true
+        },
+        "Funnel and Retention": {
+          "has_nan_guard": true
+        },
+        "A/B Test": {
+          "has_nan_guard": true
+        }
+      }
+    }
+  },
+  "accepted": true,
+  "failures": []
+}

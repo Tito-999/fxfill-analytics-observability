@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0.0",
+  "release": "portfolio-v1.2.12",
+  "code_commit_full_sha": "e1d54a10d28e33c66efabc69f44b76cf57e32fa9",
+  "generated_at_utc": "2026-06-18T02:26:00Z",
+  "files": [
+    {
+      "path": "reports\\portfolio\\releases\\portfolio-v1.2.12\\business_metric_integrity.json",
+      "size_bytes": 2860,
+      "sha256": "f46dc090a566e48cded3a04c28c8a1a9e968e414efd8bb5c333624a8361ddf30"
+    },
+    {
+      "path": "reports\\portfolio\\releases\\portfolio-v1.2.12\\core_release_acceptance.json",
+      "size_bytes": 4364,
+      "sha256": "6916029a4211bacec55caff0ae3d1c959cd32d372e2a637d2938f6929ff3d7fc"
+    },
+    {
+      "path": "reports\\portfolio\\releases\\portfolio-v1.2.12\\dashboard_truthfulness.json",
+      "size_bytes": 1683,
+      "sha256": "dfe5087d2abb2abadd34d3954d881977a38ecdbd46ebd77a01db1d11bf139c75"
+    },
+    {
+      "path": "reports\\portfolio\\releases\\portfolio-v1.2.12\\data_quality_snapshot.json",
+      "size_bytes": 2792,
+      "sha256": "2ed770176195f305445892e66ebf0014fe6292a5286d626375a5c42d784a8beb"
+    },
+    {
+      "path": "reports\\portfolio\\releases\\portfolio-v1.2.12\\p2_8_4_machine_summary.json",
+      "size_bytes": 1238,
+      "sha256": "e0b8278628047e92694a787eefb820fbb0f31500043a3535d99d595ed70a695c"
+    },
+    {
+      "path": "reports\\portfolio\\releases\\portfolio-v1.2.12\\p2_8_4_machine_summary.txt",
+      "size_bytes": 1745,
+      "sha256": "02ef3d54f1fd804fa571c4332817a92cc4d3e9bc99539da2622eb0f2508bb598"
+    }
+  ],
+  "core_accepted": true,
+  "machine_summary_accepted": true,
+  "artifacts_separated": true,
+  "model_test_hashes_distinct": true,
+  "required_null_field_count": 0,
+  "placeholder_match_count": 0,
+  "secret_finding_count": 0,
+  "absolute_local_path_count": 0,
+  "machine_result": true
+}

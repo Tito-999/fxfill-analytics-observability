@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0.0",
+  "git": {
+    "verified_code_commit": "e1d54a10d28e33c66efabc69f44b76cf57e32fa9",
+    "report_generation_commit": "e1d54a10d28e33c66efabc69f44b76cf57e32fa9"
+  },
+  "provenance": {
+    "manifest_run_id": "run_small_20260616_b0f5f391e3b8",
+    "manifest_config_hash": "b0f5f391e3b8",
+    "warehouse_source_run_id": "run_small_20260616_b0f5f391e3b8",
+    "warehouse_source_config_hash": "b0f5f391e3b8",
+    "warehouse_run_ids_found": [
+      "run_small_20260616_b0f5f391e3b8"
+    ],
+    "warehouse_config_hashes_found": [
+      "b0f5f391e3b8"
+    ],
+    "warehouse_source_consistent": true,
+    "provenance_matches": true,
+    "size_profile": "small",
+    "seed": 20260616,
+    "database_path_relative": "warehouse/fxfill.duckdb",
+    "database_fingerprint": "9f12299758bed08c",
+    "generated_at_utc": "2026-06-18T03:19:22.789945+00:00"
+  },
+  "dbt": {
+    "measurement_completed": true,
+    "model_count": 41,
+    "model_execution_count": 41,
+    "model_success_count": 41,
+    "model_fail_count": 0,
+    "model_error_count": 0,
+    "model_skip_count": 0,
+    "generic_test_count": 21,
+    "singular_test_count": 23,
+    "test_definition_count": 44,
+    "test_execution_count": 44,
+    "test_pass": 44,
+    "test_fail": 0,
+    "test_error": 0,
+    "test_skip": 0,
+    "model_results_sha256": "83ac102bddbbd8abc85ad3a6639f51f6bc00d7b38abc6cd414722c289f7ebfe0",
+    "test_results_sha256": "7c1069987da4643456c46464600cef618352db4fae5c3c33d2fae3a3b4c80aa9",
+    "artifacts_paths_distinct": true,
+    "artifacts_hashes_distinct": true,
+    "artifacts_semantically_distinct": true,
+    "artifacts_separated": true,
+    "distinct_model_statuses": [
+      "success"
+    ],
+    "distinct_test_statuses": [
+      "pass"
+    ],
+    "failures": [],
+    "accepted": true,
+    "stale": false
+  },
+  "pytest": {
+    "collected": 406,
+    "passed": 406,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "stale": false
+  },
+  "raw_staging_reconciliation": {
+    "users": {
+      "raw_rows": 2000,
+      "staging_rows": 2000,
+      "delta": 0
+    },
+    "documents": {
+      "raw_rows": 8000,
+      "staging_rows": 8000,
+      "delta": 0
+    },
+    "sessions": {
+      "raw_rows": 6000,
+      "staging_rows": 6000,
+      "delta": 0
+    },
+    "product_events": {
+      "raw_rows": 48721,
+      "staging_rows": 48721,
+      "delta": 0
+    },
+    "agent_runs": {
+      "raw_rows": 8000,
+      "staging_rows": 8000,
+      "delta": 0
+    },
+    "agent_spans": {
+      "raw_rows": 30000,
+      "staging_rows": 30000,
+      "delta": 0
+    },
+    "experiment_assignments": {
+      "raw_rows": 1236,
+      "staging_rows": 1236,
+      "delta": 0
+    }
+  },
+  "accepted": true
+}

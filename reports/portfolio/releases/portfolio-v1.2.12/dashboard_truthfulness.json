@@ -1,0 +1,59 @@
+{
+  "cross_page": {
+    "executive_exported_tasks": 2331,
+    "funnel_exported_tasks": 2331,
+    "delta": 0
+  },
+  "retention": {
+    "maturity_contract_present": true,
+    "unmatured_points_plotted": 0,
+    "empty_traces_rendered": 0,
+    "measurement_completed": true,
+    "figures_examined": 3,
+    "traces_examined": 12,
+    "plotted_points_examined": 136,
+    "unexpected_points": 0,
+    "insufficient_points_plotted": 0
+  },
+  "feature_adoption": {
+    "metrics_checked": 4,
+    "percent_metrics_valid": 4,
+    "database_ui_mismatch_count": 0,
+    "kpi_percent_formatting": true,
+    "measurement_completed": true,
+    "metrics_found": 4,
+    "metrics_expected": 4,
+    "visible_items_examined": 4,
+    "visible_nan_count": 0,
+    "visible_none_count": 0
+  },
+  "agent": {
+    "sections_checked": 4,
+    "sections_date_filtered": 4,
+    "date_filter_violation_count": 0,
+    "visible_nan_count": 0,
+    "visible_none_count": 0,
+    "kpi_format_violation_count": 0,
+    "measurement_completed": true,
+    "sections_measured": 4,
+    "sections_expected": 4,
+    "visible_items_examined": 4
+  },
+  "data_quality": {
+    "provenance_matches": true,
+    "raw_staging_mismatch_count": 0,
+    "incomplete_reconciliation_rows": 0,
+    "hardcoded_pass_count": 0,
+    "stale_artifact_count": 0,
+    "strict_reconciliation_passed": true,
+    "database_fingerprint_matches": true,
+    "measurement_completed": true,
+    "reconciliation_row_count": 7,
+    "rows_examined": 7,
+    "non_finite_reconciliation_rows": 0,
+    "incorrect_pass_flag_count": 0,
+    "failed_reconciliation_rows": 0
+  },
+  "accepted": true,
+  "failures": []
+}
