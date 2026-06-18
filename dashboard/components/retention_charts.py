@@ -7,6 +7,8 @@ Contract: retention_df MUST contain horizon-specific columns:
     observation_end_date
 """
 
+import math
+from collections.abc import Iterable
 from dataclasses import dataclass
 
 import pandas as pd
@@ -14,6 +16,46 @@ import plotly.express as px
 import plotly.graph_objects as go
 
 MIN_COHORT_SAMPLE = 20
+
+
+def _compute_retention_y_upper(
+    values: Iterable[float],
+    *,
+    minimum_upper: float = 0.10,
+    padding_factor: float = 1.25,
+    rounding_step: float = 0.05,
+) -> float:
+    """Return a readable retention-axis upper bound in [minimum_upper, 1.0].
+
+    Ignores None, NaN, and infinities.  All valid values are clipped to [0, 1].
+    When no valid value is present, returns *minimum_upper*.
+
+    The upper bound is computed as::
+
+        raw_upper = max(minimum_upper, max_rate * padding_factor)
+        rounded_upper = ceil(raw_upper / rounding_step) * rounding_step
+        return min(1.0, rounded_upper)
+    """
+    clean: list[float] = []
+    for v in values:
+        if v is None:
+            continue
+        if isinstance(v, int | float) and not math.isfinite(v):
+            continue
+        if isinstance(v, float) and math.isnan(v):
+            continue
+        clipped = max(0.0, min(1.0, float(v)))
+        clean.append(clipped)
+
+    if not clean:
+        return minimum_upper
+
+    max_rate = max(clean)
+    raw_upper = max(minimum_upper, max_rate * padding_factor)
+    rounded_upper = math.ceil(raw_upper / rounding_step) * rounding_step
+    # Defend against floating-point noise (e.g. 0.15000000000000002)
+    rounded_upper = round(rounded_upper, 10)
+    return max(minimum_upper, min(1.0, rounded_upper))
 
 
 @dataclass(frozen=True)
@@ -229,12 +271,28 @@ def build_retention_figure(
     if total_points == 0:
         return None, RetentionFigureAudit(horizon=horizon)
 
+    # ── Dynamic y-axis: floor 0, upper derived from actual data ────────────
+    valid_y_values: list[float] = []
+    for trace in fig.data:
+        if trace.y is None:
+            continue
+        for value in trace.y:
+            if value is None:
+                continue
+            try:
+                fv = float(value)
+                if pd.notna(fv):
+                    valid_y_values.append(fv)
+            except (TypeError, ValueError):
+                continue
+    y_upper = _compute_retention_y_upper(valid_y_values)
+
     fig.update_layout(
         title=f"{horizon.upper()} Retention by Channel",
         xaxis_title="Cohort Week",
         yaxis_title=f"{horizon.upper()} Retention Rate",
         yaxis_tickformat=".0%",
-        yaxis_range=[0, 1],
+        yaxis_range=[0, y_upper],
         height=450,
         margin={"t": 80, "b": 60, "l": 60, "r": 20},
         legend={
