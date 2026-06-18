@@ -1,6 +1,7 @@
 """Portfolio Release Acceptance Verifier — active facts, assets, and evidence."""
 
 import argparse
+import datetime as _dt
 import json
 import re
 import subprocess
@@ -382,11 +383,92 @@ if manifest_path.exists():
 else:
     warn("Screenshot manifest not found (screenshot_manifest_integrity skipped)")
 
+# ── Current core report validation (strict by default) ──
+current_core_path = PROJECT / "reports" / "portfolio" / "core_release_acceptance.json"
+if not current_core_path.exists():
+    if not _args_parsed.allow_missing_current_core_report:
+        fail(
+            "Current core release acceptance report missing (use --allow-missing-current-core-report to skip)"
+        )
+    else:
+        warn("Current core release acceptance report absent (allowed by flag)")
+else:
+    try:
+        with open(current_core_path) as f:
+            core = json.load(f)
+        core_errs = []
+        if not core.get("accepted"):
+            core_errs.append("accepted is not true")
+        if core.get("failed_gates"):
+            core_errs.append(f"failed_gates non-empty: {core.get('failed_gates')}")
+        if core.get("warnings"):
+            core_errs.append(f"warnings non-empty: {len(core.get('warnings', []))}")
+        eng = core.get("engineering", {})
+        if eng.get("failed", -1) != 0:
+            core_errs.append(f"engineering.failed={eng.get('failed')}, expected 0")
+        if eng.get("errors", -1) != 0:
+            core_errs.append(f"engineering.errors={eng.get('errors')}, expected 0")
+        dbt = core.get("dbt", {})
+        if dbt.get("model_count") != 41:
+            core_errs.append(f"dbt.model_count={dbt.get('model_count')}, expected 41")
+        if dbt.get("test_definition_count") != 44:
+            core_errs.append(
+                f"dbt.test_definition_count={dbt.get('test_definition_count')}, expected 44"
+            )
+        if dbt.get("test_pass") != 44:
+            core_errs.append(f"dbt.test_pass={dbt.get('test_pass')}, expected 44")
+        if dbt.get("test_fail", -1) != 0:
+            core_errs.append(f"dbt.test_fail={dbt.get('test_fail')}, expected 0")
+        if dbt.get("test_error", -1) != 0:
+            core_errs.append(f"dbt.test_error={dbt.get('test_error')}, expected 0")
+        dash = core.get("dashboard", {})
+        if dash.get("health_http_status") != 200:
+            core_errs.append(
+                f"dashboard.health_http_status={dash.get('health_http_status')}, expected 200"
+            )
+        if dash.get("home_http_status") != 200:
+            core_errs.append(
+                f"dashboard.home_http_status={dash.get('home_http_status')}, expected 200"
+            )
+        pub = core.get("public_release", {})
+        if pub.get("high_severity_findings", -1) != 0:
+            core_errs.append(
+                f"public_release.high_severity_findings={pub.get('high_severity_findings')}"
+            )
+        if pub.get("medium_severity_findings", -1) != 0:
+            core_errs.append(
+                f"public_release.medium_severity_findings={pub.get('medium_severity_findings')}"
+            )
+        git = core.get("git", {})
+        if not git.get("verified_code_commit"):
+            core_errs.append("git.verified_code_commit is empty")
+        # Add provenance
+        results["current_core_verified_code_commit"] = git.get("verified_code_commit")
+        if core_errs:
+            for e in core_errs:
+                fail(f"Core report: {e}")
+        else:
+            results["passed_gates"].append("current_core_report_valid")  # type: ignore[attr-defined]
+    except Exception as e:
+        fail(f"Core report read error: {e}")
+
 # ── Check consistency gate ──
 if consistency_ok:
     results["passed_gates"].append("fact_consistency")  # type: ignore[attr-defined]
 else:
     fail("Fact consistency gate failed")
+
+# ── Provenance ──
+results["generated_at_utc"] = _dt.datetime.now(_dt.UTC).isoformat()
+verified_head = subprocess.run(
+    ["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=str(PROJECT)
+).stdout.strip()
+results["verified_repository_head"] = verified_head
+results["active_fact_scan_count"] = len(results.get("stale_fact_findings", []))
+results["diagram_check_count"] = 2  # architecture + data_flow
+results["screenshot_check_count"] = (
+    len(json.loads(manifest_path.read_text(encoding="utf-8"))) if manifest_path.exists() else 0
+)
 
 with open(R / "portfolio_acceptance.json", "w") as f:  # type: ignore[assignment]  # pre-existing: TextIOWrapper vs str
     json.dump(results, f, indent=2, default=str)  # type: ignore[arg-type]  # pre-existing: str vs SupportsWrite
