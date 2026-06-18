@@ -223,31 +223,38 @@ Release evidence files:
 
 ## Repository Structure
 
-```
+```text
 fxfill-analytics-observability/
-data/                    # Generated synthetic data (Parquet/CSV)
-dbt_fxfill/              # dbt models and configurations
-models/
-staging/         # 7 staging models
-intermediate/    # 13 intermediate models
-marts/           # 21 analytics marts
-tests/               # 21 generic + 23 singular dbt tests
-docs/
-portfolio/           # Architecture diagrams and screenshots
-scripts/                 # Pipeline automation and verification scripts
-sql/                     # 20 SQL analysis queries
-dashboard/               # 8-page Streamlit dashboard
-tests/                   # 406-test automated verification suite
-src/
-fxfill_analytics/
-verification/    # Release verifier and artifact validators
-reports/
-portfolio/
-releases/
-portfolio-v1.2.12/  # Machine-verified release evidence
-requirements.txt
-requirements-dev.txt
-README.md
+├── data/
+│   ├── sample/                     # Small synthetic examples tracked in Git
+│   ├── raw/                        # Generated locally; contents ignored
+│   ├── generated/                  # Generated locally; contents ignored
+│   └── processed/                  # Generated locally; contents ignored
+├── dbt_fxfill/
+│   ├── models/
+│   │   ├── staging/                # 7 staging models
+│   │   ├── intermediate/           # 13 intermediate models
+│   │   └── marts/                  # 21 analytics marts
+│   └── tests/                      # 21 generic + 23 singular dbt tests
+├── dashboard/                      # 8-page Streamlit dashboard
+├── docs/
+│   ├── portfolio/                  # Architecture diagrams and screenshots
+│   └── archive/                    # Historical planning and progress documents
+├── reports/
+│   └── portfolio/
+│       └── releases/
+│           └── portfolio-v1.2.12/ # Versioned release evidence
+├── scripts/                        # Pipeline and verification entry points
+├── sql/                            # 20 analysis queries
+├── src/
+│   └── fxfill_analytics/           # Application and analytics implementation
+├── tests/                          # Automated verification suite
+├── LICENSE
+├── pyproject.toml
+├── requirements.txt
+├── requirements-dev.txt
+├── README.md
+└── README.zh-CN.md
 ```
 
 ---

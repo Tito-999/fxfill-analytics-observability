@@ -9,4 +9,4 @@ All data in this project is synthetically generated.
 """
 
 __version__ = "0.1.0"
-__author__ = "Data Analyst Portfolio"
+__author__ = "Chengren Pang"
