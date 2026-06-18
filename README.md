@@ -108,7 +108,7 @@ Agent run volume, success and error rates, P50/P95 latency, token consumption, c
 
 ### Analytics Engineering
 
-DuckDB warehouse with dbt staging (7 models), intermediate (13 models), and mart (21 models) layers 闁?41 models total. 21 generic data tests and 23 singular tests enforce referential integrity, uniqueness, non-null constraints, and accepted-value checks.
+DuckDB warehouse with dbt staging (7 models), intermediate (13 models), and mart (21 models) layers 41 models total. 21 generic data tests and 23 singular tests enforce referential integrity, uniqueness, non-null constraints, and accepted-value checks.
 
 ### Dashboard Truthfulness
 
@@ -148,9 +148,9 @@ Provenance checks confirming consistent run IDs across manifest and warehouse, s
 |---|---:|
 | Source Tables | 7 |
 | dbt Models | 41 |
-| 闁?Staging | 7 |
-| 闁?Intermediate | 13 |
-| 闁?Marts | 21 |
+| Staging | 7 |
+| Intermediate | 13 |
+| Marts | 21 |
 | Generic dbt Tests | 21 |
 | Singular dbt Tests | 23 |
 | Total dbt Tests | 44 / 44 passed |
@@ -224,29 +224,29 @@ Release evidence files:
 
 ```
 fxfill-analytics-observability/
-闁宠澹曢弨銏ゅ煘閳?data/                    # Generated synthetic data (Parquet/CSV)
-闁宠澹曢弨銏ゅ煘閳?dbt_fxfill/              # dbt models and configurations
-闁?  闁宠澹曢弨銏ゅ煘閳?models/
-闁?  闁?  闁宠澹曢弨銏ゅ煘閳?staging/         # 7 staging models
-闁?  闁?  闁宠澹曢弨銏ゅ煘閳?intermediate/    # 13 intermediate models
-闁?  闁?  闁宠鏌￠弨銏ゅ煘閳?marts/           # 21 analytics marts
-闁?  闁宠鏌￠弨銏ゅ煘閳?tests/               # 21 generic + 23 singular dbt tests
-闁宠澹曢弨銏ゅ煘閳?docs/
-闁?  闁宠鏌￠弨銏ゅ煘閳?portfolio/           # Architecture diagrams and screenshots
-闁宠澹曢弨銏ゅ煘閳?scripts/                 # Pipeline automation and verification scripts
-闁宠澹曢弨銏ゅ煘閳?sql/                     # 20 SQL analysis queries
-闁宠澹曢弨銏ゅ煘閳?dashboard/               # 8-page Streamlit dashboard
-闁宠澹曢弨銏ゅ煘閳?tests/                   # 406-test automated verification suite
-闁宠澹曢弨銏ゅ煘閳?src/
-闁?  闁宠鏌￠弨銏ゅ煘閳?fxfill_analytics/
-闁?      闁宠鏌￠弨銏ゅ煘閳?verification/    # Release verifier and artifact validators
-闁宠澹曢弨銏ゅ煘閳?reports/
-闁?  闁宠鏌￠弨銏ゅ煘閳?portfolio/
-闁?      闁宠鏌￠弨銏ゅ煘閳?releases/
-闁?          闁宠鏌￠弨銏ゅ煘閳?portfolio-v1.2.12/  # Machine-verified release evidence
-闁宠澹曢弨銏ゅ煘閳?requirements.txt
-闁宠澹曢弨銏ゅ煘閳?requirements-dev.txt
-闁宠鏌￠弨銏ゅ煘閳?README.md
+data/                    # Generated synthetic data (Parquet/CSV)
+dbt_fxfill/              # dbt models and configurations
+models/
+staging/         # 7 staging models
+intermediate/    # 13 intermediate models
+marts/           # 21 analytics marts
+tests/               # 21 generic + 23 singular dbt tests
+docs/
+portfolio/           # Architecture diagrams and screenshots
+scripts/                 # Pipeline automation and verification scripts
+sql/                     # 20 SQL analysis queries
+dashboard/               # 8-page Streamlit dashboard
+tests/                   # 406-test automated verification suite
+src/
+fxfill_analytics/
+verification/    # Release verifier and artifact validators
+reports/
+portfolio/
+releases/
+portfolio-v1.2.12/  # Machine-verified release evidence
+requirements.txt
+requirements-dev.txt
+README.md
 ```
 
 ---
@@ -263,7 +263,7 @@ Earlier tags are retained as immutable historical checkpoints.
 
 ## What This Project Demonstrates
 
-Product analytics, analytics engineering, BI engineering, AI product analytics, agent observability, data quality engineering, and evidence-driven release verification 闁?in a self-contained, locally reproducible reference implementation.
+Product analytics, analytics engineering, BI engineering, AI product analytics, agent observability, data quality engineering, and evidence-driven release verification in a self-contained, locally reproducible reference implementation.
 
 ---
 
