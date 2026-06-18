@@ -5,20 +5,54 @@ import shutil
 import tempfile
 from pathlib import Path
 
-ORIG_DIR = Path("reports/portfolio/artifacts/p2_8_4_phase_c2")
+
+def _make_model_run_results(num_models=10):
+    """Create a minimal valid dbt model run_results.json."""
+    return {
+        "metadata": {"dbt_schema_version": "v6", "dbt_version": "1.8.8"},
+        "results": [
+            {
+                "status": "success",
+                "unique_id": f"model.fxfill_analytics.model_{i:03d}",
+                "execution_time": 0.1,
+                "message": "OK",
+            }
+            for i in range(num_models)
+        ],
+        "elapsed_time": 1.0,
+    }
 
 
-def _copy_evidence(dst: Path):
-    for fp in ORIG_DIR.glob("*.json"):
-        shutil.copy2(str(fp), str(dst / fp.name))
+def _make_test_run_results(num_tests=10):
+    """Create a minimal valid dbt test run_results.json."""
+    return {
+        "metadata": {"dbt_schema_version": "v6", "dbt_version": "1.8.8"},
+        "results": [
+            {
+                "status": "pass",
+                "unique_id": f"test.fxfill_analytics.test_{i:03d}",
+                "execution_time": 0.05,
+                "message": "OK",
+            }
+            for i in range(num_tests)
+        ],
+        "elapsed_time": 0.5,
+    }
+
+
+def _write_evidence(dst: Path, num_models=8, num_tests=10):
+    """Write synthetic dbt run_results.json files into dst."""
+    model_results = _make_model_run_results(num_models)
+    test_results = _make_test_run_results(num_tests)
+    (dst / "model_run_results.json").write_text(json.dumps(model_results))
+    (dst / "test_run_results.json").write_text(json.dumps(test_results))
 
 
 class TestTamperResistance:
     def test_valid_evidence_passes(self):
         d = Path(tempfile.mkdtemp())
         try:
-            _copy_evidence(d)
-            # Run a simplified validation on the copies
+            _write_evidence(d)
             mr = json.loads((d / "model_run_results.json").read_text())
             tr = json.loads((d / "test_run_results.json").read_text())
             mr_m = sum(
@@ -41,7 +75,7 @@ class TestTamperResistance:
     def test_modified_artifact_detected(self):
         d = Path(tempfile.mkdtemp())
         try:
-            _copy_evidence(d)
+            _write_evidence(d)
             mr = json.loads((d / "model_run_results.json").read_text())
             mr["results"][0]["status"] = "error"
             (d / "model_run_results.json").write_text(json.dumps(mr))
@@ -59,7 +93,7 @@ class TestTamperResistance:
     def test_swapped_artifacts_detected(self):
         d = Path(tempfile.mkdtemp())
         try:
-            _copy_evidence(d)
+            _write_evidence(d)
             mr = json.loads((d / "model_run_results.json").read_text())
             tr = json.loads((d / "test_run_results.json").read_text())
             # Swap: model results now have test ids
@@ -73,7 +107,7 @@ class TestTamperResistance:
     def test_stored_gate_false_when_evidence_corrupted(self):
         d = Path(tempfile.mkdtemp())
         try:
-            _copy_evidence(d)
+            _write_evidence(d)
             mr = json.loads((d / "model_run_results.json").read_text())
             mr["results"][0]["status"] = "error"
             (d / "model_run_results.json").write_text(json.dumps(mr))
