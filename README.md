@@ -8,7 +8,7 @@ An evidence-driven analytics engineering and AI agent observability platform bui
 
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
 [![DuckDB](https://img.shields.io/badge/DuckDB-0.10-yellow.svg)](https://duckdb.org/)
-[![dbt](https://img.shields.io/badge/dbt-core-1.8-orange.svg)](https://docs.getdbt.com/)
+[![dbt](https://img.shields.io/badge/dbt--core-1.8-orange.svg)](https://docs.getdbt.com/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.31-red.svg)](https://streamlit.io/)
 [![406 Tests](https://img.shields.io/badge/Tests-406%20%2F%20406%20passed-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
 [![dbt Models](https://img.shields.io/badge/dbt%20Models-41%20%2F%2041-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
