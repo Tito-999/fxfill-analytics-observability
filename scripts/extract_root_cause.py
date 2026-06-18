@@ -11,7 +11,7 @@ R = PROJECT / "reports"
 R.mkdir(exist_ok=True)
 conn = duckdb.connect(DB, read_only=True)
 
-max_date = conn.execute(
+max_date = conn.execute(  # type: ignore[index]  # pre-existing: optional tuple indexing
     "SELECT MAX(event_date) FROM main_marts.mart_daily_product_kpis"
 ).fetchone()[0]
 

@@ -323,7 +323,7 @@ def _check_6_retention_censoring(conn) -> dict:
 
 def _check_7_dashboard_nan(project: Path) -> dict:
     """Scan dashboard page source for NaN-display vulnerabilities."""
-    failures = []
+    failures = []  # type: ignore[var-annotated]  # pre-existing: missing type annotation
     pages = {
         "Executive Overview": "dashboard/pages/1_Executive_Overview.py",
         "Funnel and Retention": "dashboard/pages/2_Funnel_and_Retention.py",
@@ -344,7 +344,7 @@ def _check_7_dashboard_nan(project: Path) -> dict:
             )
             results[name] = {"has_nan_guard": has_nan_guard}
         else:
-            results[name] = {"has_nan_guard": None, "error": "file not found"}
+            results[name] = {"has_nan_guard": None, "error": "file not found"}  # type: ignore[dict-item]  # pre-existing: None/bool variant
 
     pages_checked = list(pages.keys())
     result = {

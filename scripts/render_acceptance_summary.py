@@ -22,7 +22,7 @@ def _load(path: str) -> dict:
     if not p.exists():
         return {"_load_error": f"file not found: {path}"}
     with open(p, encoding="utf-8") as f:
-        return json.load(f)
+        return json.load(f)  # type: ignore[no-any-return]  # pre-existing: json.load returns Any
 
 
 def _failures() -> list:

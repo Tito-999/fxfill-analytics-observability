@@ -58,14 +58,14 @@ def bootstrap_diff(
     stat_func = np.mean if statistic == "mean" else np.median
 
     # Observed difference (B - A)
-    observed_diff = float(stat_func(b) - stat_func(a))
+    observed_diff = float(stat_func(b) - stat_func(a))  # type: ignore[operator]  # pre-existing: unknown function type
 
     # ── bootstrap distribution ───────────────────────────────────────
     boot_diffs = np.empty(iterations)
     for i in range(iterations):
         boot_a = a[rng.integers(0, n_a, size=n_a)]
         boot_b = b[rng.integers(0, n_b, size=n_b)]
-        boot_diffs[i] = stat_func(boot_b) - stat_func(boot_a)
+        boot_diffs[i] = stat_func(boot_b) - stat_func(boot_a)  # type: ignore[operator]  # pre-existing: unknown function type
 
     bootstrap_mean = float(np.mean(boot_diffs))
     bias = bootstrap_mean - observed_diff

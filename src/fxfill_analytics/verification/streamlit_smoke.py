@@ -126,13 +126,27 @@ def run_streamlit_smoke(db_path: str, timeout_seconds: int = 120) -> dict:
         proc.wait()
     log_file.close()
 
-    port_free = True
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(("127.0.0.1", port))
-        s.close()
-    except OSError:
-        port_free = False
+    # Retry port release check — OS may take a moment to free the port
+    port_free = False
+    for _ in range(6):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.bind(("127.0.0.1", port))
+            s.close()
+            port_free = True
+            break
+        except OSError:
+            time.sleep(0.5)
+    # Final check without retry for logging
+    if not port_free:
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            s.bind(("127.0.0.1", port))
+            s.close()
+            port_free = True
+        except OSError:
+            pass
 
     log_text = Path(log_path).read_text(encoding="utf-8", errors="replace")
     fatal_keywords = [

@@ -82,7 +82,7 @@ def run_streamlit_page(
 
 
 def _collect_metric_values(app) -> dict[str, str]:
-    metrics = {}
+    metrics = {}  # type: ignore[var-annotated]  # pre-existing: missing type annotation
     if hasattr(app, "root"):
         try:
             for el in app.root.children:
@@ -111,7 +111,7 @@ def _recurse_metrics(el, metrics: dict):
 
 
 def _collect_visible_strings(app) -> list[str]:
-    strings = []
+    strings = []  # type: ignore[var-annotated]  # pre-existing: missing type annotation
     element_types = ["Markdown", "Text", "Caption", "Title", "Info", "Warning", "Error", "Success"]
     try:
         if hasattr(app, "root"):
@@ -138,7 +138,7 @@ def _recurse_strings(el, element_types: list[str], strings: list):
 
 
 def _collect_dataframe_strings(app) -> list[str]:
-    strings = []
+    strings = []  # type: ignore[var-annotated]  # pre-existing: missing type annotation
     try:
         if hasattr(app, "root"):
             for el in app.root.children:
@@ -167,7 +167,7 @@ def _recurse_df(el, strings: list):
 
 def collect_all_visible_text(result: AppTestResult) -> str:
     """Combine all visible text from a page run into one string for pattern matching."""
-    parts = []
+    parts = []  # type: ignore[var-annotated]  # pre-existing: missing type annotation
     parts.extend(result.metric_values.values())
     parts.extend(result.visible_strings)
     parts.extend(result.dataframe_values)

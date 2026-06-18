@@ -56,7 +56,7 @@ def load_tables(run_dir: str) -> dict[str, pd.DataFrame]:
 def load_manifest(run_dir: str) -> dict:
     dirs = sorted(glob.glob(str(PROJECT / f"data/generated/{run_dir}/run_*")))
     with open(Path(dirs[0]) / "generation_manifest.json") as f:
-        return json.load(f)
+        return json.load(f)  # type: ignore[no-any-return]  # pre-existing: json.load returns Any
 
 
 def run_tests() -> dict:

@@ -95,7 +95,9 @@ def main():
     if not summary_json:
         failures.append("Machine summary not found in tag")
 
-    accepted = len(failures) == 0 and (tag_target.startswith(evidence_commit) or evidence_commit.startswith(tag_target))
+    accepted = len(failures) == 0 and (
+        tag_target.startswith(evidence_commit) or evidence_commit.startswith(tag_target)
+    )
 
     audit = {
         "tag": tag,

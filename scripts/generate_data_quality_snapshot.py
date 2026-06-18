@@ -103,114 +103,49 @@ def _get_provenance(run_dir: Path, db_path: str) -> dict:
     }
 
 
-def _get_dbt_stats(manifest_path: str, model_results_path: str, test_results_path: str) -> dict:
-    """Classify tests and count model/test results from separate artifacts."""
-    stats = {
-        "model_count": 0,
-        "model_execution_count": 0,
-        "model_success_count": 0,
-        "model_fail_count": 0,
-        "model_skip_count": 0,
-        "generic_test_count": 0,
-        "singular_test_count": 0,
-        "test_definition_count": 0,
-        "test_execution_count": 0,
-        "test_pass": 0,
-        "test_fail": 0,
-        "test_error": 0,
-        "test_skip": 0,
-        "manifest_hash": "",
-        "model_results_hash": "",
-        "test_results_hash": "",
+def _get_dbt_stats(
+    model_manifest: str,
+    model_results: str,
+    test_manifest: str,
+    test_results: str,
+) -> dict:
+    """Use the shared dbt artifact validator for consistent measurement."""
+    from fxfill_analytics.verification.dbt_artifacts import validate_dbt_artifacts
+
+    evidence = validate_dbt_artifacts(
+        model_manifest_path=Path(model_manifest) if model_manifest else Path("/nonexistent_mm"),
+        model_results_path=Path(model_results) if model_results else Path("/nonexistent_mr"),
+        test_manifest_path=Path(test_manifest) if test_manifest else Path("/nonexistent_tm"),
+        test_results_path=Path(test_results) if test_results else Path("/nonexistent_tr"),
+    )
+    return {
+        "measurement_completed": evidence["measurement_completed"],
+        "model_count": evidence["model_count"],
+        "model_execution_count": evidence["model_execution_count"],
+        "model_success_count": evidence["model_success_count"],
+        "model_fail_count": evidence["model_fail_count"],
+        "model_error_count": evidence["model_error_count"],
+        "model_skip_count": evidence["model_skip_count"],
+        "generic_test_count": evidence["generic_test_count"],
+        "singular_test_count": evidence["singular_test_count"],
+        "test_definition_count": evidence["test_definition_count"],
+        "test_execution_count": evidence["test_execution_count"],
+        "test_pass": evidence["test_pass"],
+        "test_fail": evidence["test_fail"],
+        "test_error": evidence["test_error"],
+        "test_skip": evidence["test_skip"],
+        "model_results_sha256": evidence["model_results_sha256"],
+        "test_results_sha256": evidence["test_results_sha256"],
+        "artifacts_paths_distinct": evidence["artifacts_paths_distinct"],
+        "artifacts_hashes_distinct": evidence["artifacts_hashes_distinct"],
+        "artifacts_semantically_distinct": evidence["artifacts_semantically_distinct"],
+        "artifacts_separated": evidence["artifacts_separated"],
+        "distinct_model_statuses": evidence["distinct_model_statuses"],
+        "distinct_test_statuses": evidence["distinct_test_statuses"],
+        "failures": evidence["failures"],
+        "accepted": evidence["accepted"],
         "stale": False,
-        "accepted": False,
     }
-
-    mp = Path(manifest_path)
-    mrp = Path(model_results_path)
-    trp = Path(test_results_path)
-
-    if not mp.exists() or not mrp.exists():
-        stats["stale"] = True
-        return stats
-
-    try:
-        with open(mp, encoding="utf-8") as f:
-            manifest = json.load(f)
-        stats["manifest_hash"] = _hash_file(mp)
-
-        nodes = manifest.get("nodes", {})
-        for _node_id, node in nodes.items():
-            resource_type = node.get("resource_type", "")
-            if resource_type == "model":
-                stats["model_count"] += 1
-            elif resource_type == "test":
-                stats["test_definition_count"] += 1
-                if node.get("test_metadata") is not None:
-                    stats["generic_test_count"] += 1
-                else:
-                    stats["singular_test_count"] += 1
-
-        # Model results
-        with open(mrp, encoding="utf-8") as f:
-            model_results = json.load(f)
-        stats["model_results_hash"] = _hash_file(mrp)
-
-        for result in model_results.get("results", []):
-            uid = result.get("unique_id", "")
-            status = result.get("status", "")
-            if uid.startswith("model."):
-                stats["model_execution_count"] += 1
-                if status in ("success", "pass"):
-                    stats["model_success_count"] += 1
-                elif status == "skip":
-                    stats["model_skip_count"] += 1
-                else:
-                    stats["model_fail_count"] += 1
-
-        # Fallback: if no model entries found (e.g. test results overwrote),
-        # infer model success from manifest (all defined models passed)
-        if stats["model_execution_count"] == 0 and stats["model_count"] > 0:
-            stats["model_execution_count"] = stats["model_count"]
-            stats["model_success_count"] = stats["model_count"]
-            stats["model_fail_count"] = 0
-            stats["model_skip_count"] = 0
-
-        # Test results (if available)
-        if trp.exists():
-            with open(trp, encoding="utf-8") as f:
-                test_results = json.load(f)
-            stats["test_results_hash"] = _hash_file(trp)
-
-            for result in test_results.get("results", []):
-                uid = result.get("unique_id", "")
-                status = result.get("status", "")
-                if "test" in uid or uid.startswith("test."):
-                    stats["test_execution_count"] += 1
-                    if status == "pass":
-                        stats["test_pass"] += 1
-                    elif status == "fail":
-                        stats["test_fail"] += 1
-                    elif status == "error":
-                        stats["test_error"] += 1
-                    elif status == "skip":
-                        stats["test_skip"] += 1
-
-        # Accepted criteria
-        stats["accepted"] = (
-            stats["model_success_count"] == stats["model_count"]
-            and stats["model_fail_count"] == 0
-            and stats["model_skip_count"] == 0
-            and stats["test_pass"] == stats["test_definition_count"]
-            and stats["test_fail"] == 0
-            and stats["test_error"] == 0
-            and stats["test_skip"] == 0
-            and not stats["stale"]
-        )
-    except Exception:
-        stats["stale"] = True
-
-    return stats
 
 
 def _get_pytest_stats(junit_path: str) -> dict:
@@ -267,8 +202,9 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--input-run", required=True)
     p.add_argument("--database", required=True)
-    p.add_argument("--dbt-manifest", default=None)
+    p.add_argument("--dbt-model-manifest", default=None)
     p.add_argument("--dbt-model-results", default=None)
+    p.add_argument("--dbt-test-manifest", default=None)
     p.add_argument("--dbt-test-results", default=None)
     p.add_argument("--pytest-junit", default=None)
     p.add_argument("--verified-code-commit", default=None)
@@ -298,9 +234,12 @@ def main():
     provenance = _get_provenance(run_dir, db_path)
 
     dbt_stats = {"stale": True, "accepted": False}
-    if args.dbt_manifest and args.dbt_model_results:
+    if args.dbt_model_manifest and args.dbt_model_results:
         dbt_stats = _get_dbt_stats(
-            args.dbt_manifest, args.dbt_model_results, args.dbt_test_results or ""
+            args.dbt_model_manifest,
+            args.dbt_model_results,
+            args.dbt_test_manifest or "",
+            args.dbt_test_results or "",
         )
 
     pytest_stats = {"stale": True}

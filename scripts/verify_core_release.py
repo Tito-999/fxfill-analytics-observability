@@ -14,7 +14,18 @@ PROJECT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT / "src"))  # Ensure fxfill_analytics is importable
 R = PROJECT / "reports" / "portfolio"
 R.mkdir(parents=True, exist_ok=True)
-results = {"accepted": True, "failed_gates": [], "warnings": [], "passed_gates": []}
+results = {"accepted": False, "failed_gates": [], "warnings": [], "passed_gates": []}
+
+from fxfill_analytics.verification.core_acceptance import (  # noqa: E402
+    REQUIRED_GATE_NAMES,
+    compute_core_acceptance,
+    derive_dbt_model_gate,
+    derive_dbt_test_gate,
+    validate_core_report_consistency,
+)
+
+# All gates initialized as NOT_RUN
+_gates: dict[str, str] = dict.fromkeys(REQUIRED_GATE_NAMES, "NOT_RUN")
 
 
 def fail(msg):
@@ -105,11 +116,19 @@ def _warehouse_check(run_dir: Path, db_path: Path):
         return False
 
     # Resolve dbt relative to the current Python interpreter (robust across envs)
-    dbt_exe = str(Path(sys.executable).parent / "Scripts" / "dbt.exe")
+    dbt_exe = str(Path(sys.executable).parent / "dbt.exe")  # venv: Scripts/dbt.exe
     if not Path(dbt_exe).exists():
-        dbt_exe = str(Path(sys.executable).parent / "dbt")
+        dbt_exe = str(Path(sys.executable).parent / "Scripts" / "dbt.exe")  # conda: Scripts/dbt.exe
+    if not Path(dbt_exe).exists():
+        dbt_exe = str(Path(sys.executable).parent / "dbt")  # unix venv: bin/dbt
     if not Path(dbt_exe).exists():
         dbt_exe = "dbt"
+
+    import tempfile as _tempfile
+
+    _artifact_dir = Path(_tempfile.mkdtemp(prefix="dbt_artifacts_"))
+    model_target = _artifact_dir / "dbt_model_target"
+    test_target = _artifact_dir / "dbt_test_target"
 
     db_env = {**os.environ, "FXFILL_DUCKDB_PATH": str(db_path)}
     r = subprocess.run(
@@ -120,6 +139,8 @@ def _warehouse_check(run_dir: Path, db_path: Path):
             str(PROJECT / "dbt_fxfill"),
             "--profiles-dir",
             str(PROJECT / "dbt_fxfill"),
+            "--target-path",
+            str(model_target),
         ],
         capture_output=True,
         text=True,
@@ -163,33 +184,21 @@ def _warehouse_check(run_dir: Path, db_path: Path):
         fail(f"dbt run failed: {r.stderr[:200]}")
         return False
 
-    # ── Save model run_results BEFORE dbt test overwrites them ──
-    model_rr_src = PROJECT / "dbt_fxfill" / "target" / "run_results.json"
-    manifest_src = PROJECT / "dbt_fxfill" / "target" / "manifest.json"
-    import tempfile as _tempfile
-
-    _artifact_dir = Path(_tempfile.mkdtemp(prefix="dbt_artifacts_"))
-    model_rr_dst = _artifact_dir / "dbt_model_run_results.json"
-    manifest_dst = _artifact_dir / "dbt_manifest.json"
-    if model_rr_src.exists():
-        shutil.copy(str(model_rr_src), str(model_rr_dst))
-    if manifest_src.exists():
-        shutil.copy(str(manifest_src), str(manifest_dst))
+    # Model artifacts from independent target
+    model_rr_src = model_target / "run_results.json"
 
     # Verify model results contain model.* entries
-    if model_rr_dst.exists():
-        with open(model_rr_dst, encoding="utf-8") as f:
+    if model_rr_src.exists():
+        with open(model_rr_src, encoding="utf-8") as f:
             _model_data = json.load(f)
         _model_entries = [
             r for r in _model_data.get("results", []) if r["unique_id"].startswith("model.")
         ]
         if not _model_entries:
             fail("dbt model run_results has no model.* execution entries")
-            _artifact_dir_name = str(_artifact_dir)
             return False
     else:
         fail("dbt model run_results artifact missing after dbt run")
-        _artifact_dir_name = str(_artifact_dir)
         return False
 
     r = subprocess.run(
@@ -200,6 +209,8 @@ def _warehouse_check(run_dir: Path, db_path: Path):
             str(PROJECT / "dbt_fxfill"),
             "--profiles-dir",
             str(PROJECT / "dbt_fxfill"),
+            "--target-path",
+            str(test_target),
         ],
         capture_output=True,
         text=True,
@@ -223,10 +234,7 @@ def _warehouse_check(run_dir: Path, db_path: Path):
     if not dbt_test_ok and "PASS=" in r.stdout:
         dbt_test_ok = True
 
-    # ── Save test run_results ──
-    test_rr_dst = _artifact_dir / "dbt_test_run_results.json"
-    if model_rr_src.exists():
-        shutil.copy(str(model_rr_src), str(test_rr_dst))
+    # Test artifacts from independent target (paths used by main() via artifact_dir)
 
     if dbt_test_ok:
         pass_gate(f"dbt test: {dbt_test_pass}/{dbt_test_count}")
@@ -422,12 +430,20 @@ def _run_check_script(args: list[str], label: str) -> tuple[bool, dict]:
         )
         success = r.returncode == 0
         parsed = {}
-        # Find output JSON file
-        for a in args:
-            if a.endswith(".json") and Path(a).exists():
-                with open(a, encoding="utf-8") as f:
-                    parsed = json.load(f)
+        # Find output JSON file: prefer --output flag, fall back to last .json arg
+        output_path = None
+        for i, a in enumerate(args):
+            if a == "--output" and i + 1 < len(args):
+                output_path = Path(args[i + 1])
                 break
+        if output_path is None:
+            for a in reversed(args):
+                if a.endswith(".json") and Path(a).exists():
+                    output_path = Path(a)
+                    break
+        if output_path and output_path.exists():
+            with open(output_path, encoding="utf-8") as f:
+                parsed = json.load(f)
         return success, parsed
     except Exception as e:
         fail(f"{label}: {e}")
@@ -449,6 +465,7 @@ def main():
     truth_result = {}
     snap_result = {}
     dbt_stats = {}
+    snap_out = truth_out = bi_out = ""
     t0 = time.perf_counter()
 
     code_commit = subprocess.run(
@@ -469,13 +486,15 @@ def main():
                     artifact_dir = Path(wh_result[1]) if wh_result[1] else None
                 # Use artifact_dir for separated model/test results
                 if artifact_dir and artifact_dir.exists():
-                    model_results_path = artifact_dir / "dbt_model_run_results.json"
-                    test_results_path = artifact_dir / "dbt_test_run_results.json"
-                    manifest_path = artifact_dir / "dbt_manifest.json"
+                    model_results_path = artifact_dir / "dbt_model_target" / "run_results.json"
+                    test_results_path = artifact_dir / "dbt_test_target" / "run_results.json"
+                    model_manifest_path = artifact_dir / "dbt_model_target" / "manifest.json"
+                    test_manifest_path = artifact_dir / "dbt_test_target" / "manifest.json"
                 else:
                     model_results_path = tmp / "dbt_model_run_results.json"
                     test_results_path = tmp / "dbt_test_run_results.json"
-                    manifest_path = tmp / "dbt_manifest.json"
+                    model_manifest_path = tmp / "dbt_manifest.json"
+                    test_manifest_path = tmp / "dbt_test_manifest.json"
 
                 exp_ok = _experiment_check(db_path)
 
@@ -508,10 +527,12 @@ def main():
                     str(run_dir),
                     "--database",
                     str(db_path),
-                    "--dbt-manifest",
-                    str(manifest_path),
+                    "--dbt-model-manifest",
+                    str(model_manifest_path),
                     "--dbt-model-results",
                     str(model_results_path),
+                    "--dbt-test-manifest",
+                    str(test_manifest_path),
                     "--dbt-test-results",
                     str(test_results_path),
                     "--pytest-junit",
@@ -549,6 +570,21 @@ def main():
                 dbt_stats = snap_result.get("dbt", {})
                 # Streamlit smoke
                 dash_result = _dashboard_check(db_path)
+
+                # Save generated reports to portfolio before tmp is cleaned up
+                import shutil as _shutil
+
+                for _src, _name in [
+                    (snap_out, "data_quality_snapshot.json"),
+                    (truth_out, "dashboard_truthfulness.json"),
+                    (bi_out, "business_metric_integrity.json"),
+                ]:
+                    try:
+                        _src_path = Path(_src)
+                        if _src_path.exists():
+                            _shutil.copy2(_src_path, R / _name)
+                    except Exception:
+                        pass
             t1 = time.perf_counter()
         else:
             t1 = time.perf_counter()
@@ -569,8 +605,38 @@ def main():
         and bi_result.get("accepted", False)
     )
 
-    accepted = results["accepted"] and len(results["failed_gates"]) == 0
+    # Derive dbt gates from evidence
     mdbt = dbt_stats
+    dbt_models_state, dbt_model_reasons = derive_dbt_model_gate(mdbt)
+    dbt_tests_state, dbt_test_reasons = derive_dbt_test_gate(mdbt)
+
+    # Set gates based on evidence
+    _gates["environment"] = "PASS"
+    _gates["data_generation"] = "PASS" if run_dir is not None else "FAIL"
+    _gates["warehouse"] = "PASS" if wh_ok else "FAIL"
+    _gates["dbt_models"] = dbt_models_state
+    _gates["dbt_tests"] = dbt_tests_state
+    _gates["pytest"] = (
+        "PASS" if (eng.get("failed", 0) == 0 and eng.get("errors", 0) == 0) else "FAIL"
+    )
+    _gates["business_metric_integrity"] = "PASS" if bi_result.get("accepted") else "FAIL"
+    _gates["strict_reconciliation"] = "PASS" if snap_result.get("accepted") else "FAIL"
+    _gates["dashboard_truthfulness"] = "PASS" if truth_result.get("accepted") else "FAIL"
+    _gates["streamlit_smoke"] = "PASS" if dash_result.get("health_http_status") == 200 else "FAIL"
+    _gates["public_audit"] = "PASS" if audit.get("high_severity_findings", 0) == 0 else "FAIL"
+
+    # Add gate reasons to failed_gates
+    for reason in dbt_model_reasons:
+        results["failed_gates"].append(reason)
+    for reason in dbt_test_reasons:
+        results["failed_gates"].append(reason)
+
+    acceptance = compute_core_acceptance(
+        gates=_gates,
+        failed_gates=list(results["failed_gates"]),
+        warnings=list(results["warnings"]),
+    )
+    accepted = acceptance["accepted"]
     me_model_count = mdbt.get("model_count", 0)
     me_model_exec = mdbt.get("model_execution_count", me_model_count)
     me_model_success = mdbt.get("model_success_count", 0)
@@ -585,14 +651,17 @@ def main():
     me_test_fail = mdbt.get("test_fail", 0)
     me_test_error = mdbt.get("test_error", 0)
     me_test_skip = mdbt.get("test_skip", 0)
-    me_model_hash = mdbt.get("model_results_hash", "")
-    me_test_hash = mdbt.get("test_results_hash", "")
+    me_model_hash = mdbt.get("model_results_sha256", "")
+    me_test_hash = mdbt.get("test_results_sha256", "")
     me_artifacts_sep = mdbt.get(
         "artifacts_separated", me_model_hash != me_test_hash if me_model_hash else False
     )
     me_dbt_measure = mdbt.get("accepted", False) and me_model_exec > 0 and me_test_exec > 0
 
     gates = {
+        "environment": "PASS",
+        "data_generation": "PASS" if run_dir is not None else "FAIL",
+        "warehouse": "PASS" if wh_ok else "FAIL",
         "dbt_models": (
             "PASS" if (me_model_success == me_model_count and me_model_fail == 0) else "FAIL"
         ),
@@ -632,7 +701,11 @@ def main():
             "test_skip": me_test_skip,
             "model_results_sha256": me_model_hash,
             "test_results_sha256": me_test_hash,
+            "artifacts_paths_distinct": mdbt.get("artifacts_paths_distinct", False),
+            "artifacts_hashes_distinct": mdbt.get("artifacts_hashes_distinct", False),
+            "artifacts_semantically_distinct": mdbt.get("artifacts_semantically_distinct", False),
             "artifacts_separated": me_artifacts_sep,
+            "failures": mdbt.get("failures", []),
             "measurement_completed": me_dbt_measure,
         },
         "engineering": eng,
@@ -682,7 +755,22 @@ def main():
             "experiment_analysis_passed": exp_ok,
             "duration_seconds": round(t1 - t0, 1),
         },
+        "gate_summary": {
+            "required_gate_count": acceptance.get("required_gate_count", 0),
+            "pass_gate_count": acceptance.get("pass_gate_count", 0),
+            "fail_gate_count": acceptance.get("fail_gate_count", 0),
+            "not_run_gate_count": acceptance.get("not_run_gate_count", 0),
+            "not_run_gates": acceptance.get("not_run_gates", []),
+            "failed_state_gates": acceptance.get("failed_state_gates", []),
+        },
     }
+
+    # Consistency check
+    consistency = validate_core_report_consistency(report)
+    report["consistency_validation"] = consistency
+    if consistency.get("accepted") is not True:
+        report["accepted"] = False
+        report["failed_gates"] = sorted(set(report["failed_gates"]) | {"core_report_consistency"})
 
     report_str = json.dumps(report, indent=2, default=str)
     with open(R / "core_release_acceptance.json", "w") as f:

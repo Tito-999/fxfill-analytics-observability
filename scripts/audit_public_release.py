@@ -24,11 +24,11 @@ MEDIUM_SEVERITY = [
     (r"F:\\RAG\\", "Project absolute drive path"),
     (r"/home/[^/]+/", "Linux home path"),
 ]
-ALLOWLIST_PATHS = set()
+ALLOWLIST_PATHS = set()  # type: ignore[var-annotated]  # pre-existing: missing type annotation
 ALLOWLIST_API = {"dbt_fxfill/models/intermediate/int_task_outcomes.sql", "tests/unit/test_smoke.py"}
 TRACKED_LARGE = [".duckdb", ".parquet"]
 
-findings = {"high_severity": [], "medium_severity": [], "tracked_large_files": []}
+findings = {"high_severity": [], "medium_severity": [], "tracked_large_files": []}  # type: ignore[var-annotated]  # pre-existing: missing type annotation
 
 SKIP_SELF = {"scripts/audit_public_release.py", "reports/portfolio/public_release_audit.json"}
 for f in files:
@@ -84,12 +84,12 @@ summary = {
     "passed": len(findings["high_severity"]) == 0 and len(findings["medium_severity"]) == 0,
     "findings": findings,
 }
-with open(R / "public_release_audit.json", "w") as f:
-    json.dump(summary, f, indent=2)
+with open(R / "public_release_audit.json", "w") as f:  # type: ignore[assignment]  # pre-existing: TextIOWrapper vs str
+    json.dump(summary, f, indent=2)  # type: ignore[arg-type]  # pre-existing: str vs SupportsWrite
 print(
     f"High severity: {summary['high_severity_findings']}, Medium: {summary['medium_severity_findings']}"
 )
-if summary["high_severity_findings"] > 0:
+if summary["high_severity_findings"] > 0:  # type: ignore[operator]  # pre-existing: int vs object
     print("PUBLIC RELEASE BLOCKED")
     sys.exit(1)
 print("Public release audit passed")

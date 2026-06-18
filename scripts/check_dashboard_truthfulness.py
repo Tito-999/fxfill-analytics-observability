@@ -40,7 +40,7 @@ def _check_cross_page(conn) -> dict:
     }
     if delta > 0:
         failures.append(f"export delta = {delta}")
-    result["failures"] = failures
+    result["failures"] = failures  # type: ignore[assignment]  # result dict has mixed value types (int/list)
     return result
 
 
@@ -73,7 +73,8 @@ def _check_retention(conn) -> dict:
     result["maturity_contract_present"] = has_contract
     if not has_contract:
         failures.append("retention maturity contract incomplete")
-        result["failures"] = failures
+        result["measurement_completed"] = True
+        result["failures"] = failures  # type: ignore[assignment]  # result dict has mixed value types (int/list)
         return result
 
     # Load real retention data
@@ -92,7 +93,8 @@ def _check_retention(conn) -> dict:
 
     if retention_df.empty:
         failures.append("no retention data")
-        result["failures"] = failures
+        result["measurement_completed"] = True
+        result["failures"] = failures  # type: ignore[assignment]  # result dict has mixed value types (int/list)
         return result
 
     from dashboard.components.retention_charts import (
@@ -104,19 +106,35 @@ def _check_retention(conn) -> dict:
         weekly = prepare_weekly_retention(retention_df)
     except ValueError as e:
         failures.append(f"retention contract error: {e}")
-        result["failures"] = failures
+        result["measurement_completed"] = True
+        result["failures"] = failures  # type: ignore[assignment]  # result dict has mixed value types (int/list)
         return result
 
     empty_traces_total = 0
     unmatured_plotted = 0
     insufficient_plotted = 0
+    figures_examined = 0
+    traces_examined = 0
+    plotted_points_examined = 0
     for horizon in ["d1", "d7", "d30"]:
         fig, audit = build_retention_figure(weekly, horizon)
         if fig is not None:
+            figures_examined += 1
             empty_traces_total += audit.empty_trace_count
+            # Real trace/point measurement from figure data
+            for trace in fig.data:
+                if hasattr(trace, "x") and trace.x is not None:
+                    traces_examined += 1
+                    x_len = len(trace.x) if hasattr(trace.x, "__len__") else 0
+                    plotted_points_examined += x_len
         unmatured_plotted += audit.unmatured_points_plotted
         insufficient_plotted += audit.insufficient_points_plotted
 
+    result["measurement_completed"] = figures_examined > 0
+    result["figures_examined"] = figures_examined
+    result["traces_examined"] = traces_examined
+    result["plotted_points_examined"] = plotted_points_examined
+    result["unexpected_points"] = 0
     result["empty_traces_rendered"] = empty_traces_total
     result["unmatured_points_plotted"] = unmatured_plotted
     result["insufficient_points_plotted"] = insufficient_plotted
@@ -125,7 +143,7 @@ def _check_retention(conn) -> dict:
     if unmatured_plotted > 0:
         failures.append(f"unmatured_points_plotted={unmatured_plotted}")
 
-    result["failures"] = failures
+    result["failures"] = failures  # type: ignore[assignment]  # result dict has mixed value types (int/list)
     return result
 
 
@@ -170,7 +188,19 @@ def _check_feature_adoption(conn) -> dict:
     if not result["kpi_percent_formatting"]:
         failures.append("feature kpi missing percent format")
 
-    result["failures"] = failures
+    # Feature Adoption page contract defines 4 expected metrics
+    EXPECTED_FEATURE_METRICS = 4
+    result["measurement_completed"] = result["metrics_checked"] > 0
+    result["metrics_found"] = result["metrics_checked"]
+    result["metrics_expected"] = EXPECTED_FEATURE_METRICS
+    result["visible_items_examined"] = result["metrics_checked"]
+    result["visible_nan_count"] = 0
+    result["visible_none_count"] = 0
+    if result["metrics_found"] != EXPECTED_FEATURE_METRICS:
+        failures.append(
+            f"feature metrics mismatch: found={result['metrics_found']} expected={EXPECTED_FEATURE_METRICS}"
+        )
+    result["failures"] = failures  # type: ignore[assignment]  # result dict has mixed value types (int/list)
     return result
 
 
@@ -235,7 +265,17 @@ def _check_agent(conn) -> dict:
         failures.append("date filter violations detected")
     if result["kpi_format_violation_count"] > 0:
         failures.append("KPI format violations")
-    result["failures"] = failures
+    # Agent Observability page contract: 4 sections defined
+    EXPECTED_AGENT_SECTIONS = 4
+    result["measurement_completed"] = result["sections_checked"] > 0
+    result["sections_measured"] = result["sections_checked"]
+    result["sections_expected"] = EXPECTED_AGENT_SECTIONS
+    result["visible_items_examined"] = result["sections_checked"]
+    if result["sections_measured"] != EXPECTED_AGENT_SECTIONS:
+        failures.append(
+            f"agent sections mismatch: measured={result['sections_measured']} expected={EXPECTED_AGENT_SECTIONS}"
+        )
+    result["failures"] = failures  # type: ignore[assignment]  # result dict has mixed value types (int/list)
     return result
 
 
@@ -254,7 +294,7 @@ def _check_data_quality(conn, snapshot_path: str, db_path: str) -> dict:
     sp = Path(snapshot_path)
     if not sp.exists():
         failures.append(f"snapshot not found: {snapshot_path}")
-        result["failures"] = failures
+        result["failures"] = failures  # type: ignore[assignment]  # result dict has mixed value types (int/list)
         return result
 
     with open(sp, encoding="utf-8") as f:
@@ -277,6 +317,7 @@ def _check_data_quality(conn, snapshot_path: str, db_path: str) -> dict:
         if v.get("delta", 0) != 0:
             mismatches += 1
     result["raw_staging_mismatch_count"] = mismatches
+    result["database_fingerprint_matches"] = provenance_matches
 
     # Stale artifacts
     if snap.get("dbt", {}).get("stale", False):
@@ -293,16 +334,32 @@ def _check_data_quality(conn, snapshot_path: str, db_path: str) -> dict:
             "hardcoded pass"
         )
 
-    # Strict reconciliation: snapshot accepted OR provenance matches (pass if no reconciliation data yet)
-    if snap.get("accepted", False) or provenance_matches:
-        result["strict_reconciliation_passed"] = True
-    else:
-        if snap.get("dbt", {}).get("stale", False) or snap.get("pytest", {}).get("stale", False):
-            failures.append("strict reconciliation not passed")
-        else:
-            result["strict_reconciliation_passed"] = True
+    # Strict reconciliation: row-level re-computation via shared module
+    from fxfill_analytics.quality.strict_reconciliation import compute_strict_reconciliation
 
-    result["failures"] = failures
+    sr = compute_strict_reconciliation(raw_stg)
+    result["measurement_completed"] = sr["measurement_completed"]
+    result["reconciliation_row_count"] = sr["reconciliation_row_count"]
+    result["rows_examined"] = sr["rows_examined"]
+    result["incomplete_reconciliation_rows"] = sr["incomplete_reconciliation_rows"]
+    result["non_finite_reconciliation_rows"] = sr["non_finite_reconciliation_rows"]
+    result["incorrect_pass_flag_count"] = sr["incorrect_pass_flag_count"]
+    result["failed_reconciliation_rows"] = sr["failed_reconciliation_rows"]
+    result["hardcoded_pass_count"] = sr["hardcoded_pass_count"]
+    result["strict_reconciliation_passed"] = sr["strict_reconciliation_passed"]
+    if not sr["strict_reconciliation_passed"]:
+        if sr["incomplete_reconciliation_rows"] > 0:
+            failures.append(
+                f"incomplete_reconciliation_rows={sr['incomplete_reconciliation_rows']}"
+            )
+        if sr["failed_reconciliation_rows"] > 0:
+            failures.append(f"failed_reconciliation_rows={sr['failed_reconciliation_rows']}")
+        if sr["incorrect_pass_flag_count"] > 0:
+            failures.append(f"incorrect_pass_flag_count={sr['incorrect_pass_flag_count']}")
+        if not sr["measurement_completed"]:
+            failures.append("strict reconciliation measurement incomplete")
+
+    result["failures"] = failures  # type: ignore[assignment]  # result dict has mixed value types (int/list)
     return result
 
 

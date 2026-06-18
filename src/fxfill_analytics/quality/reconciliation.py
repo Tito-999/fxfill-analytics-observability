@@ -69,7 +69,7 @@ def evaluate_reconciliation_row(row: dict | ReconciliationRow) -> dict:
     is_finite_row = all(_is_finite(v) for v in [sv, wv, tol] if v is not None)
 
     if is_complete:
-        abs_diff = abs(float(sv) - float(wv))
+        abs_diff = abs(float(sv) - float(wv))  # type: ignore[arg-type]  # pre-existing: float() on Any|None
         recomputed = abs_diff <= tol
     else:
         abs_diff = None
@@ -101,7 +101,7 @@ def validate_reconciliation_rows(rows: Sequence[Mapping[str, object] | dict]) ->
 
     Returns a dict with aggregate statistics and accepted flag.
     """
-    evaluated = [evaluate_reconciliation_row(r) for r in rows]
+    evaluated = [evaluate_reconciliation_row(r) for r in rows]  # type: ignore[arg-type]  # pre-existing: Mapping vs dict type variance
 
     row_count = len(evaluated)
     incomplete = sum(1 for r in evaluated if not r["is_complete"])

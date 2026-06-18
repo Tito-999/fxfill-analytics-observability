@@ -63,6 +63,18 @@ warn_unused_configs = true
 ignore_missing_imports = true
 exclude = ["dbt_fxfill/dbt_packages", "notebooks"]
 
+[[tool.mypy.overrides]]
+module = "dashboard.components.retention_charts"
+disable_error_code = ["no-any-return"]
+
+[[tool.mypy.overrides]]
+module = "dashboard.components.filters"
+disable_error_code = ["operator"]
+
+[[tool.mypy.overrides]]
+module = "scripts.check_remaining_dashboard_pages"
+disable_error_code = ["operator", "misc", "index", "attr-defined"]
+
 [tool.pytest.ini_options]
 minversion = "7.0"
 addopts = "-v --tb=short --strict-markers"

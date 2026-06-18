@@ -841,7 +841,6 @@ class TestDatesEdgeCases:
     """Validate date utility error handling."""
 
     def test_generate_timestamps_zero_count(self):
-
         from fxfill_analytics.utils.dates import generate_timestamps
 
         rng = np.random.default_rng(FIXED_SEED)
@@ -854,7 +853,6 @@ class TestDatesEdgeCases:
         assert result == []
 
     def test_generate_timestamps_end_before_start_raises(self):
-
         from fxfill_analytics.utils.dates import generate_timestamps
 
         rng = np.random.default_rng(FIXED_SEED)
