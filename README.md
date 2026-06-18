@@ -269,13 +269,13 @@ Product analytics, analytics engineering, BI engineering, AI product analytics, 
 
 ## Limitations
 
-- **Synthetic data only** 闁?all behavioral and operational data is programmatically generated
-- **Portfolio/reference implementation** 闁?not a deployed banking or production SaaS system
-- **No real customer PII** 闁?all user identities and transaction records are synthetic
-- **No production banking transactions** 闁?financial figures are illustrative scenario assumptions
-- **No cloud deployment** 闁?runs locally on DuckDB; no streaming ingestion
-- **Local DuckDB-based analytical stack** 闁?not benchmarked for distributed or high-concurrency workloads
-- **Agent telemetry is simulated** 闁?traces, spans, and cost figures are generated, not collected from a live AI service
+- **Synthetic data only** all behavioral and operational data is programmatically generated
+- **Portfolio/reference implementation** not a deployed banking or production SaaS system
+- **No real customer PII** all user identities and transaction records are synthetic
+- **No production banking transactions** financial figures are illustrative scenario assumptions
+- **No cloud deployment** runs locally on DuckDB; no streaming ingestion
+- **Local DuckDB-based analytical stack** not benchmarked for distributed or high-concurrency workloads
+- **Agent telemetry is simulated** traces, spans, and cost figures are generated, not collected from a live AI service
 
 ---
 
