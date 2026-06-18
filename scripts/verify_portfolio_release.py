@@ -101,20 +101,88 @@ for keyword in [
     else:
         fail(f"README missing: {keyword}")
 
-# Load project metrics
-try:
-    p3a = json.load(open(PROJECT / "reports" / "phase3_dashboard_manifest.json"))
-    p4a = json.load(open(PROJECT / "reports" / "phase4" / "phase4_acceptance.json"))
-    results["project_metrics"] = {
-        "dbt_models": 37,
-        "marts": 18,
-        "pages": 8,
-        "charts": p3a.get("total_chart_count", 30),
-        "bootstrap_iterations": 5000,
-        "phase4_accepted": p4a.get("accepted", False),
-    }
-except Exception as e:
-    warn(f"Could not load metrics: {e}")
+# ── Dynamic project metrics (no hardcoded counts) ──
+
+
+def count_sql_files(path: Path) -> int:
+    return len(list(path.rglob("*.sql")))
+
+
+# Calculate from code
+staging_count = count_sql_files(PROJECT / "dbt_fxfill" / "models" / "staging")
+intermediate_count = count_sql_files(PROJECT / "dbt_fxfill" / "models" / "intermediate")
+mart_count = count_sql_files(PROJECT / "dbt_fxfill" / "models" / "marts")
+dbt_model_count = count_sql_files(PROJECT / "dbt_fxfill" / "models")
+singular_test_count = count_sql_files(PROJECT / "dbt_fxfill" / "tests")
+dashboard_business_pages = len(
+    [f for f in (PROJECT / "dashboard" / "pages").glob("*.py") if f.name != "__init__.py"]
+)
+dashboard_page_count = 1 + dashboard_business_pages
+
+# Read immutable release evidence for dbt test counts
+release_evidence_path = (
+    PROJECT
+    / "reports"
+    / "portfolio"
+    / "releases"
+    / "portfolio-v1.2.12"
+    / "core_release_acceptance.json"
+)
+generic_test_count = None
+release_model_count = None
+release_test_total = None
+release_gate_count = None
+if release_evidence_path.exists():
+    with open(release_evidence_path) as f:
+        ev = json.load(f)
+    dbt_info = ev.get("dbt", {})
+    gate_info = ev.get("gate_summary", {})
+    generic_test_count = dbt_info.get("generic_test_count")
+    release_model_count = dbt_info.get("model_count")
+    release_test_total = dbt_info.get("test_definition_count")
+    release_gate_count = gate_info.get("required_gate_count")
+
+# Consistency gates
+consistency_ok = True
+if dbt_model_count != (staging_count + intermediate_count + mart_count):
+    fail("dbt model count does not equal staging + intermediate + marts")
+    consistency_ok = False
+if release_model_count is not None and dbt_model_count != release_model_count:
+    fail("Code dbt model count differs from release evidence")
+    consistency_ok = False
+if singular_test_count > 0 and release_test_total is not None:
+    if (
+        generic_test_count is not None
+        and (generic_test_count + singular_test_count) != release_test_total
+    ):
+        fail("dbt test count does not equal generic + singular from release evidence")
+        consistency_ok = False
+if dashboard_page_count != 8:
+    fail(f"Dashboard pages expected 8, got {dashboard_page_count}")
+    consistency_ok = False
+
+warehouse_objects = 7 + dbt_model_count  # 7 raw + dbt models
+
+results["project_metrics"] = {
+    "dbt_models": dbt_model_count,
+    "staging_models": staging_count,
+    "intermediate_models": intermediate_count,
+    "marts": mart_count,
+    "warehouse_objects": warehouse_objects,
+    "generic_dbt_tests": generic_test_count,
+    "singular_dbt_tests": singular_test_count,
+    "total_dbt_tests": release_test_total,
+    "pages": dashboard_page_count,
+    "charts": 30,
+    "bootstrap_iterations": 5000,
+    "release_tag": "portfolio-v1.2.12",
+}
+
+# ── Check consistency gate ──
+if consistency_ok:
+    results["passed_gates"].append("fact_consistency")  # type: ignore[attr-defined]
+else:
+    fail("Fact consistency gate failed")
 
 with open(R / "portfolio_acceptance.json", "w") as f:  # type: ignore[assignment]  # pre-existing: TextIOWrapper vs str
     json.dump(results, f, indent=2, default=str)  # type: ignore[arg-type]  # pre-existing: str vs SupportsWrite

@@ -63,9 +63,10 @@ with col2:
     st.subheader("Data Coverage")
     if min_d and max_d:
         st.write(f"📅 {min_d} → {max_d}")
-    st.write("📊 37 dbt models | 18 analytics marts")
-    st.write("🔬 11/11 reconciliation passed")
+    st.write("📊 41 dbt models | 21 analytics marts")
+    st.write("🧪 44 / 44 dbt tests in the verified release baseline")
+    st.write("🔬 11 / 11 required release gates passed")
     st.caption("Rebuild: `python scripts/build_warehouse.py --input-run <run> --full-refresh`")
 
 st.markdown("---")
-st.caption("Phase 3 · Streamlit Analytics Dashboard · All data synthetic")
+st.caption("FxFill Analytics Dashboard · All data synthetic · Local reference implementation")
