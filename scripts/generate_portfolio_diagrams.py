@@ -274,7 +274,7 @@ def run_check():
                 "13 intermediate",
                 "21 mart",
                 "44 dbt tests",
-                "8 page",
+                "8 pg",
                 "7 raw",
             ]:
                 if expected not in svg_text:
