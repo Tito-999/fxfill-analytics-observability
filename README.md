@@ -86,21 +86,7 @@ The data pipeline flows through these stages:
 &rarr; **Evidence-Derived Release Gates**
 &rarr; **Immutable Git Release**
 
-```mermaid
-flowchart LR
-    A[Synthetic Product & Agent Events]
-    B[Parquet Data]
-    C[DuckDB Warehouse]
-    D[dbt Models and Tests]
-    E[Analytics Marts]
-    F[Streamlit Dashboards]
-    G[Truthfulness and Reconciliation]
-    H[Release Verifier]
-    I[Machine-Readable Evidence]
-    J[Immutable Git Tag]
-
-    A --> B --> C --> D --> E --> F --> G --> H --> I --> J
-```
+![Stages Diagram](docs/portfolio/stages.png)
 
 Additional architecture diagrams are available in `docs/portfolio/`:
 
