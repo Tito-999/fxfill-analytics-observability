@@ -37,17 +37,22 @@
     "readme:A/B",
     "readme:root cause",
     "readme:pytest",
-    "readme:Limitations"
+    "readme:Limitations",
+    "fact_consistency"
   ],
-  "warnings": [
-    "Working tree has uncommitted changes"
-  ],
+  "warnings": [],
   "project_metrics": {
-    "dbt_models": 37,
-    "marts": 18,
+    "dbt_models": 41,
+    "staging_models": 7,
+    "intermediate_models": 13,
+    "marts": 21,
+    "warehouse_objects": 48,
+    "generic_dbt_tests": 21,
+    "singular_dbt_tests": 23,
+    "total_dbt_tests": 44,
     "pages": 8,
     "charts": 30,
     "bootstrap_iterations": 5000,
-    "phase4_accepted": true
+    "release_tag": "portfolio-v1.2.12"
   }
 }
