@@ -2,81 +2,81 @@
   {
     "filename": "home.png",
     "page_name": "Home",
-    "width": 1400,
-    "height": 900,
-    "file_size_bytes": 15065,
-    "sha256": "0885396de6bcad38",
+    "width": 2341,
+    "height": 1138,
+    "file_size_bytes": 157400,
+    "sha256": "33f8157cc478c888",
     "valid_png": true,
-    "contains_sensitive_content_reviewed": false
+    "contains_sensitive_content_reviewed": true
   },
   {
     "filename": "executive_overview.png",
     "page_name": "Executive Overview",
-    "width": 1400,
-    "height": 900,
-    "file_size_bytes": 15560,
-    "sha256": "30ebc2817988f38b",
+    "width": 2485,
+    "height": 1036,
+    "file_size_bytes": 190926,
+    "sha256": "73159d32074a38c2",
     "valid_png": true,
-    "contains_sensitive_content_reviewed": false
+    "contains_sensitive_content_reviewed": true
   },
   {
     "filename": "funnel_retention.png",
     "page_name": "Funnel Retention",
-    "width": 1400,
-    "height": 900,
-    "file_size_bytes": 14306,
-    "sha256": "7941659219b719b1",
+    "width": 2455,
+    "height": 780,
+    "file_size_bytes": 82180,
+    "sha256": "34d8141be5b6051c",
     "valid_png": true,
-    "contains_sensitive_content_reviewed": false
+    "contains_sensitive_content_reviewed": true
   },
   {
     "filename": "feature_adoption.png",
     "page_name": "Feature Adoption",
-    "width": 1400,
-    "height": 900,
-    "file_size_bytes": 13660,
-    "sha256": "36376e56f389bbeb",
+    "width": 2458,
+    "height": 868,
+    "file_size_bytes": 81588,
+    "sha256": "201f0dc4f2d3af8e",
     "valid_png": true,
-    "contains_sensitive_content_reviewed": false
+    "contains_sensitive_content_reviewed": true
   },
   {
     "filename": "agent_observability.png",
     "page_name": "Agent Observability",
-    "width": 1400,
-    "height": 900,
-    "file_size_bytes": 14968,
-    "sha256": "1c297e7945b6e9c1",
+    "width": 2451,
+    "height": 922,
+    "file_size_bytes": 191558,
+    "sha256": "c07ee9f533d32126",
     "valid_png": true,
-    "contains_sensitive_content_reviewed": false
+    "contains_sensitive_content_reviewed": true
   },
   {
     "filename": "ab_test.png",
-    "page_name": "Ab Test",
-    "width": 1400,
-    "height": 900,
-    "file_size_bytes": 16497,
-    "sha256": "979fdef595803a14",
+    "page_name": "AB Test",
+    "width": 2461,
+    "height": 865,
+    "file_size_bytes": 87884,
+    "sha256": "d4bbf96c49770447",
     "valid_png": true,
-    "contains_sensitive_content_reviewed": false
+    "contains_sensitive_content_reviewed": true
   },
   {
     "filename": "root_cause.png",
     "page_name": "Root Cause",
-    "width": 1400,
-    "height": 900,
-    "file_size_bytes": 15272,
-    "sha256": "c4bc56fedb104d24",
+    "width": 2461,
+    "height": 1122,
+    "file_size_bytes": 257353,
+    "sha256": "240e633bf3667f9c",
     "valid_png": true,
-    "contains_sensitive_content_reviewed": false
+    "contains_sensitive_content_reviewed": true
   },
   {
     "filename": "data_quality.png",
     "page_name": "Data Quality",
-    "width": 1400,
-    "height": 900,
-    "file_size_bytes": 14915,
-    "sha256": "d0ff5d56740bb111",
+    "width": 2459,
+    "height": 1145,
+    "file_size_bytes": 214199,
+    "sha256": "28de7c4c301b4279",
     "valid_png": true,
-    "contains_sensitive_content_reviewed": false
+    "contains_sensitive_content_reviewed": true
   }
 ]
