@@ -1,6 +1,9 @@
-"""Portfolio Release Acceptance Verifier — no video required."""
+"""Portfolio Release Acceptance Verifier — active facts, assets, and evidence."""
 
+import argparse
+import datetime as _dt
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -43,7 +46,105 @@ SCREENSHOTS = [
     "data_quality.png",
 ]
 
-results = {"accepted": True, "failed_gates": [], "passed_gates": [], "warnings": []}
+results = {
+    "accepted": True,
+    "failed_gates": [],
+    "passed_gates": [],
+    "warnings": [],
+    "stale_fact_findings": [],
+    "schema_version": "3.0.0",
+}
+
+# ── CLI ──
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--allow-missing-current-core-report",
+    action="store_true",
+    help="Do not fail when current core release acceptance report is absent.",
+)
+# Only parse args when run as script, not on import (for testability)
+_args_parsed = None
+if __name__ == "__main__":
+    _args_parsed = parser.parse_args()
+else:
+    # Dummy namespace for import-time defaults
+    _args_parsed = argparse.Namespace(allow_missing_current_core_report=False)
+
+STALE_PATTERNS = [
+    (r"(?<!\")\b37[ -]+dbt[ -]*models?(?!\")", "37 dbt models"),
+    (r"(?<!\")\b37[ -]+SQL[ -]*models?(?!\")", "37 SQL models"),
+    (r"\b12[ -]+intermediate[ -]*(?:views?|models?)\b", "12 intermediate"),
+    (r"[Ii]ntermediate\s*\(12\)", "Intermediate (12)"),
+    (r"\b18[ -]+analytics[ -]+marts?\b", "18 analytics marts"),
+    (r"\b18[ -]+mart[ -]*models?\b", "18 mart models"),
+    (r"[Mm]arts?\s*\(18\)", "Marts (18)"),
+    (r"226\+[ -]*(pytest|tests?)", "226+ pytest/tests"),
+    (r"34[ -]+Python[ -]+test[ -]*files?", "34 Python test files"),
+    (r"Phase\s+3[ ·-]*Streamlit", "Phase 3 Streamlit"),
+    (r"F:[/\\]RAG[/\\]", "local path F:/RAG/"),
+    (r"C:\\Users\\", "local path C:\\Users\\"),
+]
+
+ACTIVE_DIRS = [
+    PROJECT / "dashboard",
+    PROJECT / "docs" / "portfolio",
+]
+ACTIVE_REPORTS = []
+
+EXCLUDE_PREFIXES = [
+    str(PROJECT / "docs" / "archive"),
+    str(PROJECT / "reports" / "portfolio" / "archive"),
+    str(PROJECT / "reports" / "portfolio" / "releases"),
+    str(PROJECT / "reports" / "phase1"),
+    str(PROJECT / "reports" / "phase2"),
+    str(PROJECT / "reports" / "phase3"),
+    str(PROJECT / "reports" / "phase4"),
+]
+
+
+def _collect_text_files(roots, exts=None):
+    if exts is None:
+        exts = {".py", ".md", ".txt", ".mmd", ".svg"}
+    paths = []
+    for root in roots:
+        rp = PROJECT / root if isinstance(root, str) else root
+        if rp.is_file():
+            if rp.suffix in exts:
+                paths.append(rp)
+        elif rp.is_dir():
+            for f in rp.rglob("*"):
+                if f.suffix in exts and f.is_file():
+                    if not any(str(f).startswith(ep) for ep in EXCLUDE_PREFIXES):
+                        paths.append(f)
+    return list(set(paths))
+
+
+def _stale_fact_scan():
+    text_files = _collect_text_files(ACTIVE_DIRS)
+    for f in ACTIVE_REPORTS:
+        if f.exists():
+            text_files.append(f)
+    findings = []
+    for fp in sorted(set(text_files)):
+        try:
+            content = fp.read_text(encoding="utf-8")
+        except Exception:
+            continue
+        lines = content.splitlines()
+        for pattern, label in STALE_PATTERNS:
+            for m in re.finditer(pattern, content):
+                line_no = content[: m.start()].count("\n") + 1
+                line_text = lines[line_no - 1] if line_no <= len(lines) else ""
+                # Skip lines that correctly mark the numbers as historical
+                if re.search(
+                    r"\b(?:earlier|historical|previous|old[ -]structure)\b",
+                    line_text,
+                    re.IGNORECASE,
+                ):
+                    continue
+                ctx = content[max(0, m.start() - 10) : m.end() + 10].replace("\n", " ")
+                findings.append(f"{fp.relative_to(PROJECT)}:{line_no}: {label} -> '{ctx.strip()}'")
+    return findings
 
 
 def fail(msg):
@@ -178,11 +279,196 @@ results["project_metrics"] = {
     "release_tag": "portfolio-v1.2.12",
 }
 
+# ── Check explicit count expectations ──
+EXPECTED = {
+    "staging_count": (staging_count, 7),
+    "intermediate_count": (intermediate_count, 13),
+    "mart_count": (mart_count, 21),
+    "dbt_model_count": (dbt_model_count, 41),
+    "warehouse_objects": (warehouse_objects, 48),
+    "dashboard_pages": (dashboard_page_count, 8),
+    "singular_test_count": (singular_test_count, 23),
+    "release_generic_tests": (generic_test_count, 21),
+    "release_test_total": (release_test_total, 44),
+    "release_model_count": (release_model_count, 41),
+    "release_gate_count": (release_gate_count, 11),
+}
+for name, (actual, expected) in EXPECTED.items():
+    if actual is not None and actual != expected:
+        fail(f"{name}: expected {expected}, got {actual}")
+        consistency_ok = False
+
+# ── Stale-fact scan ──
+stale_findings = _stale_fact_scan()
+results["stale_fact_findings"] = stale_findings
+if stale_findings:
+    for sf in stale_findings:
+        fail(f"Stale fact: {sf}")
+    consistency_ok = False
+else:
+    results["passed_gates"].append("active_fact_scan")  # type: ignore[attr-defined]
+
+# ── Diagram integrity ──
+diagram_ok = True
+for stem in ["architecture", "data_flow"]:
+    svg = PROJECT / "docs" / "portfolio" / f"{stem}.svg"
+    png = PROJECT / "docs" / "portfolio" / f"{stem}.png"
+    if not svg.exists() or svg.stat().st_size == 0:
+        fail(f"Missing or empty: {svg.relative_to(PROJECT)}")
+        diagram_ok = False
+    if not png.exists() or png.stat().st_size == 0:
+        fail(f"Missing or empty: {png.relative_to(PROJECT)}")
+        diagram_ok = False
+    if svg.exists():
+        svg_text = svg.read_text(encoding="utf-8")
+        for pattern, label in STALE_PATTERNS:
+            if pattern.startswith("F:") or pattern.startswith("C:"):
+                continue
+            if re.search(pattern, svg_text):
+                fail(f"Diagram {stem}.svg contains stale: {label}")
+                diagram_ok = False
+if diagram_ok:
+    results["passed_gates"].append("diagram_fact_consistency")  # type: ignore[attr-defined]
+
+# ── Screenshot manifest integrity ──
+manifest_path = PROJECT / "docs" / "portfolio" / "screenshot_manifest.json"
+manifest_ok = True
+old_home_hash = "33f8157cc478c888"
+if manifest_path.exists():
+    import hashlib as _hl
+
+    from PIL import Image as _Img
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    if len(manifest) != 8:
+        fail(f"Screenshot manifest has {len(manifest)} entries, expected 8")
+        manifest_ok = False
+    for entry in manifest:
+        fn = entry.get("filename", "")
+        img_path = PROJECT / "docs" / "screenshots" / fn
+        if not img_path.exists():
+            fail(f"Screenshot missing: {fn}")
+            manifest_ok = False
+            continue
+        try:
+            img = _Img.open(img_path)
+            img.verify()
+            img = _Img.open(img_path)
+            w, h = img.size
+            fs = img_path.stat().st_size
+            actual_hash = _hl.sha256(img_path.read_bytes()).hexdigest()[:16]
+            if w != entry.get("width"):
+                fail(f"{fn}: width {w} != manifest {entry.get('width')}")
+                manifest_ok = False
+            if h != entry.get("height"):
+                fail(f"{fn}: height {h} != manifest {entry.get('height')}")
+                manifest_ok = False
+            if fs != entry.get("file_size_bytes"):
+                fail(f"{fn}: size {fs} != manifest {entry.get('file_size_bytes')}")
+                manifest_ok = False
+            if actual_hash != entry.get("sha256", ""):
+                fail(f"{fn}: hash {actual_hash} != manifest {entry.get('sha256')}")
+                manifest_ok = False
+            if not entry.get("valid_png"):
+                fail(f"{fn}: valid_png is false")
+                manifest_ok = False
+            if fn == "home.png" and entry.get("sha256") == old_home_hash:
+                fail(f"home.png still has old hash {old_home_hash}")
+                manifest_ok = False
+        except Exception as e:
+            fail(f"{fn}: invalid PNG: {e}")
+            manifest_ok = False
+    if manifest_ok:
+        results["passed_gates"].append("screenshot_manifest_integrity")  # type: ignore[attr-defined]
+else:
+    warn("Screenshot manifest not found (screenshot_manifest_integrity skipped)")
+
+# ── Current core report validation (strict by default) ──
+current_core_path = PROJECT / "reports" / "portfolio" / "core_release_acceptance.json"
+if not current_core_path.exists():
+    if not _args_parsed.allow_missing_current_core_report:
+        fail(
+            "Current core release acceptance report missing (use --allow-missing-current-core-report to skip)"
+        )
+    else:
+        warn("Current core release acceptance report absent (allowed by flag)")
+else:
+    try:
+        with open(current_core_path) as f:
+            core = json.load(f)
+        core_errs = []
+        if not core.get("accepted"):
+            core_errs.append("accepted is not true")
+        if core.get("failed_gates"):
+            core_errs.append(f"failed_gates non-empty: {core.get('failed_gates')}")
+        if core.get("warnings"):
+            core_errs.append(f"warnings non-empty: {len(core.get('warnings', []))}")
+        eng = core.get("engineering", {})
+        if eng.get("failed", -1) != 0:
+            core_errs.append(f"engineering.failed={eng.get('failed')}, expected 0")
+        if eng.get("errors", -1) != 0:
+            core_errs.append(f"engineering.errors={eng.get('errors')}, expected 0")
+        dbt = core.get("dbt", {})
+        if dbt.get("model_count") != 41:
+            core_errs.append(f"dbt.model_count={dbt.get('model_count')}, expected 41")
+        if dbt.get("test_definition_count") != 44:
+            core_errs.append(
+                f"dbt.test_definition_count={dbt.get('test_definition_count')}, expected 44"
+            )
+        if dbt.get("test_pass") != 44:
+            core_errs.append(f"dbt.test_pass={dbt.get('test_pass')}, expected 44")
+        if dbt.get("test_fail", -1) != 0:
+            core_errs.append(f"dbt.test_fail={dbt.get('test_fail')}, expected 0")
+        if dbt.get("test_error", -1) != 0:
+            core_errs.append(f"dbt.test_error={dbt.get('test_error')}, expected 0")
+        dash = core.get("dashboard", {})
+        if dash.get("health_http_status") != 200:
+            core_errs.append(
+                f"dashboard.health_http_status={dash.get('health_http_status')}, expected 200"
+            )
+        if dash.get("home_http_status") != 200:
+            core_errs.append(
+                f"dashboard.home_http_status={dash.get('home_http_status')}, expected 200"
+            )
+        pub = core.get("public_release", {})
+        if pub.get("high_severity_findings", -1) != 0:
+            core_errs.append(
+                f"public_release.high_severity_findings={pub.get('high_severity_findings')}"
+            )
+        if pub.get("medium_severity_findings", -1) != 0:
+            core_errs.append(
+                f"public_release.medium_severity_findings={pub.get('medium_severity_findings')}"
+            )
+        git = core.get("git", {})
+        if not git.get("verified_code_commit"):
+            core_errs.append("git.verified_code_commit is empty")
+        # Add provenance
+        results["current_core_verified_code_commit"] = git.get("verified_code_commit")
+        if core_errs:
+            for e in core_errs:
+                fail(f"Core report: {e}")
+        else:
+            results["passed_gates"].append("current_core_report_valid")  # type: ignore[attr-defined]
+    except Exception as e:
+        fail(f"Core report read error: {e}")
+
 # ── Check consistency gate ──
 if consistency_ok:
     results["passed_gates"].append("fact_consistency")  # type: ignore[attr-defined]
 else:
     fail("Fact consistency gate failed")
+
+# ── Provenance ──
+results["generated_at_utc"] = _dt.datetime.now(_dt.UTC).isoformat()
+verified_head = subprocess.run(
+    ["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=str(PROJECT)
+).stdout.strip()
+results["verified_repository_head"] = verified_head
+results["active_fact_scan_count"] = len(results.get("stale_fact_findings", []))
+results["diagram_check_count"] = 2  # architecture + data_flow
+results["screenshot_check_count"] = (
+    len(json.loads(manifest_path.read_text(encoding="utf-8"))) if manifest_path.exists() else 0
+)
 
 with open(R / "portfolio_acceptance.json", "w") as f:  # type: ignore[assignment]  # pre-existing: TextIOWrapper vs str
     json.dump(results, f, indent=2, default=str)  # type: ignore[arg-type]  # pre-existing: str vs SupportsWrite

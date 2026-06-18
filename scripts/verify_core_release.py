@@ -115,6 +115,21 @@ def _warehouse_check(run_dir: Path, db_path: Path):
         fail(f"Warehouse build failed: {r.stderr[:200]}")
         return False
 
+    # Ensure dbt profiles.yml exists (clean-clone bootstrap)
+    _profiles_path = PROJECT / "dbt_fxfill" / "profiles.yml"
+    if not _profiles_path.exists():
+        _profiles_path.write_text(
+            "fxfill_analytics:\n"
+            "  target: dev\n"
+            "  outputs:\n"
+            "    dev:\n"
+            "      type: duckdb\n"
+            "      path: \"{{ env_var('FXFILL_DUCKDB_PATH') }}\"\n"
+            "      schema: main\n"
+            "      threads: 4\n",
+            encoding="utf-8",
+        )
+
     # Resolve dbt relative to the current Python interpreter (robust across envs)
     dbt_exe = str(Path(sys.executable).parent / "dbt.exe")  # venv: Scripts/dbt.exe
     if not Path(dbt_exe).exists():
@@ -122,7 +137,8 @@ def _warehouse_check(run_dir: Path, db_path: Path):
     if not Path(dbt_exe).exists():
         dbt_exe = str(Path(sys.executable).parent / "dbt")  # unix venv: bin/dbt
     if not Path(dbt_exe).exists():
-        dbt_exe = "dbt"
+        fail(f"dbt executable not found at {Path(sys.executable).parent}")
+        return False
 
     import tempfile as _tempfile
 

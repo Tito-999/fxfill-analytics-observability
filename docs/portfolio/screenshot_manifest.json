@@ -2,10 +2,10 @@
   {
     "filename": "home.png",
     "page_name": "Home",
-    "width": 2341,
-    "height": 1138,
-    "file_size_bytes": 157400,
-    "sha256": "33f8157cc478c888",
+    "width": 2450,
+    "height": 1200,
+    "file_size_bytes": 139822,
+    "sha256": "9922af7c2327a0fd",
     "valid_png": true,
     "contains_sensitive_content_reviewed": true
   },

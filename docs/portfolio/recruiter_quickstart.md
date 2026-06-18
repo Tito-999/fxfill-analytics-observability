@@ -21,7 +21,7 @@ Most analytics portfolios show isolated skills: a dashboard here, a SQL query th
 
 ## What I Personally Built
 
-Every file in this repository was written by me as a single developer portfolio project. This includes:
+I designed, implemented, and validated this portfolio project as its sole human developer, using automated coding assistants as part of the development workflow. I remained responsible for the architecture, analytical definitions, implementation decisions, verification, and final repository contents. This includes:
 
 - **7 synthetic data generators** producing 20,000 users, 80,000 documents, 60,000 sessions, 491,000 product events, 80,000 agent runs, 300,000 agent spans, and 12,360 experiment assignments
 - **41 dbt models** across staging (7), intermediate (13), and mart (21) layers
