@@ -1,36 +1,74 @@
 # FxFill Analytics & AI Agent Observability Platform
 
+An evidence-driven analytics engineering and AI agent observability platform built with Python, DuckDB, dbt, Streamlit, and machine-verifiable data-quality gates.
+
+> **Portfolio scope:** All product, user, agent, and financial data in this repository is synthetic. The project is a local reference implementation and is not a deployed banking or production SaaS system.
+
 [![Python 3.11](https://img.shields.io/badge/Python-3.11-blue.svg)](https://www.python.org/)
 [![DuckDB](https://img.shields.io/badge/DuckDB-0.10-yellow.svg)](https://duckdb.org/)
 [![dbt](https://img.shields.io/badge/dbt-core-1.8-orange.svg)](https://docs.getdbt.com/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.31-red.svg)](https://streamlit.io/)
-[![226 Tests](https://img.shields.io/badge/Tests-226%20%2F%20226%20passed-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
+[![406 Tests](https://img.shields.io/badge/Tests-406%20%2F%20406%20passed-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
+[![dbt Models](https://img.shields.io/badge/dbt%20Models-41%20%2F%2041-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
+[![dbt Tests](https://img.shields.io/badge/dbt%20Tests-44%20%2F%2044-brightgreen.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
+[![Release](https://img.shields.io/badge/Release-portfolio--v1.2.12-blue.svg)](https://github.com/Tito-999/fxfill-analytics-observability/releases/tag/portfolio-v1.2.12)
 [![Synthetic Data](https://img.shields.io/badge/Data-Synthetic-lightgrey.svg)](https://github.com/Tito-999/fxfill-analytics-observability)
 
 ---
 
 ## Overview
 
-An end-to-end analytics engineering platform for AI agent products, demonstrating the full analytics pipeline from synthetic data generation through dimensional modeling, business intelligence dashboards, and experiment-driven decision-making. The platform models a simulated AI Agent product (FxFill) that assists users with cross-border remittance form filling, and provides complete observability into user behavior, agent performance, cost economics, and A/B experiments. **ALL DATA IS SYNTHETIC** -- this is a portfolio project, not a production system.
+FxFill Analytics is a complete analytics engineering reference that models a simulated AI agent product assisting users with cross-border remittance form filling. The platform covers the full pipeline from synthetic data generation through dimensional modeling, business intelligence dashboards, and experiment-driven decision-making.
+
+The project demonstrates six integrated capability layers: **Product Analytics** (conversion funnels, activation, retention cohorts, feature adoption), **Analytics Engineering** (DuckDB + dbt staging/intermediate/mart layers with 41 models and 44 data tests), **AI Agent Observability** (success rates, latency percentiles, token usage, cost, model distribution, and error categories), **Dashboard Truthfulness** (cross-layer UI-to-database metric reconciliation with NaN/None guards and Plotly trace inspection), **Data Quality** (provenance checks, strict row-level reconciliation, stored pass-flag recomputation, and stale-artifact detection), and **Evidence-Driven Release Verification** (11 required gates with PASS/FAIL/NOT_RUN semantics backed by SHA-256-hashed dbt artifacts and immutable Git tags).
 
 ---
 
 ## Quick Start
 
+**Windows PowerShell:**
+
 ```powershell
 git clone https://github.com/Tito-999/fxfill-analytics-observability.git
 cd fxfill-analytics-observability
+
+git checkout portfolio-v1.2.12
+
 conda create -n fxfill_analytics python=3.11 -y
 conda activate fxfill_analytics
+
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 python -m pip install -r requirements-dev.txt
+python -m pip install -e .
+
+# dbt profiles.yml is gitignored; create it before verification
+@'
+fxfill_analytics:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('FXFILL_DUCKDB_PATH', '../../warehouse/fxfill.duckdb') }}"
+      schema: main
+      threads: 4
+'@ | Out-File -Encoding utf8 dbt_fxfill/profiles.yml
+
 $env:PYTHONNOUSERSITE = "1"
 $env:NO_PROXY = "127.0.0.1,localhost"
+
 python scripts\verify_core_release.py
 ```
 
-Expected output: `CORE RELEASE ACCEPTANCE PASSED`, 226/226 tests passed, health 200.
+Expected result:
+
+- Core acceptance: `true`
+- Required release gates: 11 / 11 `PASS`
+- pytest: 406 / 406 passed
+- dbt models: 41 / 41 successful
+- dbt tests: 44 / 44 passed
+
+> Exact test counts are platform-independent; the formal baseline is recorded in the [release evidence](reports/portfolio/releases/portfolio-v1.2.12/).
 
 ---
 
@@ -40,13 +78,65 @@ Expected output: `CORE RELEASE ACCEPTANCE PASSED`, 226/226 tests passed, health 
 
 The data pipeline flows through these stages:
 
-**Synthetic Data** &rarr; **Parquet** &rarr; **DuckDB Raw** &rarr; **dbt Staging** &rarr; **dbt Intermediate** &rarr; **dbt Analytics Marts** &rarr; **Streamlit Dashboard** &rarr; **Experiment Analysis**
+**Synthetic Product Events**
+&rarr; **Parquet Data**
+&rarr; **DuckDB Warehouse**
+&rarr; **dbt Staging / Intermediate / Marts**
+&rarr; **Product Analytics & Agent Observability**
+&rarr; **Streamlit / Plotly Dashboards**
+&rarr; **Dashboard Truthfulness & Strict Reconciliation**
+&rarr; **Evidence-Derived Release Gates**
+&rarr; **Immutable Git Release**
 
-- **Synthetic Data Generators** produce raw event traces, agent spans, and user profiles
-- **DuckDB** serves as the local OLAP engine (no cloud infrastructure required)
-- **dbt** models transform data through staging, intermediate, and mart layers
-- **Streamlit** renders 8 pages of interactive BI dashboards with 30 charts
-- **Experiment Analysis** module performs A/B testing and root cause decomposition
+```mermaid
+flowchart LR
+    A[Synthetic Product & Agent Events]
+    B[Parquet Data]
+    C[DuckDB Warehouse]
+    D[dbt Models and Tests]
+    E[Analytics Marts]
+    F[Streamlit Dashboards]
+    G[Truthfulness and Reconciliation]
+    H[Release Verifier]
+    I[Machine-Readable Evidence]
+    J[Immutable Git Tag]
+
+    A --> B --> C --> D --> E --> F --> G --> H --> I --> J
+```
+
+Additional architecture diagrams are available in `docs/portfolio/`:
+
+1. **architecture.png** 閳?End-to-end pipeline from data generation to dashboard and experiment analysis
+2. **data_flow.png** 閳?Data model layer details and transformation dependencies
+3. **experiment_flow.png** 閳?A/B test pipeline from hypothesis to decision
+
+---
+
+## Key Capabilities
+
+### Product Analytics
+
+Conversion funnel analysis, activation tracking, weekly retention cohorts, feature adoption trends, export and abandonment metrics, A/B experiment evaluation with bootstrap confidence intervals, and Kitagawa root-cause decomposition.
+
+### AI Agent Observability
+
+Agent run volume, success and error rates, P50/P95 latency, token consumption, cost per task, model distribution, error category breakdowns, and date-filtered operational views across four monitored dashboard sections.
+
+### Analytics Engineering
+
+DuckDB warehouse with dbt staging (7 models), intermediate (13 models), and mart (21 models) layers 閳?41 models total. 21 generic data tests and 23 singular tests enforce referential integrity, uniqueness, non-null constraints, and accepted-value checks.
+
+### Dashboard Truthfulness
+
+Automated database-to-UI metric reconciliation across pages, date-filter validation with zero violations, NaN/None rendering checks, retention maturity contract verification, and actual Plotly trace and point inspection (136 plotted points examined across 12 traces in 3 figures).
+
+### Data Quality
+
+Provenance checks confirming consistent run IDs across manifest and warehouse, strict row-level raw-to-staging reconciliation (7 tables, zero delta), finite-value checks, stored pass-flag recomputation, and stale-artifact detection.
+
+### Release Verification
+
+11 required release gates with PASS/FAIL/NOT_RUN semantics, dbt model and test artifacts confirmed separated with distinct hash paths, SHA-256 evidence chains, Git-tree candidate audit, and an annotated immutable release tag.
 
 ---
 
@@ -64,35 +154,29 @@ The data pipeline flows through these stages:
 | **Agent Observability** | Agent run traces, token usage, cost, error rates, and latency |
 | **A/B Test Analysis** | Experiment results with bootstrap confidence intervals and segment effects |
 | **Root Cause Analysis** | Export rate decomposition with Kitagawa method |
-
-### Individual Screenshots
-
-| Page | Preview |
-|------|---------|
-| Executive Overview | ![Executive Overview](docs/portfolio/screenshots/executive_overview.png) |
-| Agent Observability | ![Agent Observability](docs/portfolio/screenshots/agent_observability.png) |
-| A/B Test | ![A/B Test](docs/portfolio/screenshots/ab_test.png) |
-| Root Cause Analysis | ![Root Cause Analysis](docs/portfolio/screenshots/root_cause_analysis.png) |
+| **Data Quality** | Reconciliation, provenance, and data-quality guard results |
 
 ---
 
 ## Project Scale
 
 | Metric | Count |
-|--------|-------|
+|---|---:|
 | Source Tables | 7 |
-| dbt Models (Total) | 37 |
-| -- Staging | 7 |
-| -- Intermediate | 12 |
-| -- Marts | 18 |
-| Warehouse Objects | 44 |
+| dbt Models | 41 |
+| 閳?Staging | 7 |
+| 閳?Intermediate | 13 |
+| 閳?Marts | 21 |
+| Generic dbt Tests | 21 |
+| Singular dbt Tests | 23 |
+| Total dbt Tests | 44 / 44 passed |
 | SQL Analysis Queries | 20 |
 | Streamlit Pages | 8 (1 Home + 7 Business) |
-| Charts | 30 |
+| Charts | ~30 |
 | Bootstrap Iterations | 5,000 |
-| Tests (pytest) | 226 / 226 passed (0 failed, 0 skipped) |
-| dbt Tests | 31 / 31 passed |
-| Experiment Decision (Phase 4) | SHIP |
+| Automated pytest Tests | 406 / 406 passed |
+| Required Release Gates | 11 / 11 PASS |
+| Latest Verified Release | `portfolio-v1.2.12` |
 
 ---
 
@@ -116,23 +200,39 @@ The Phase 4 experiment decision was **SHIP**, indicating the feature demonstrate
 
 ## Engineering Quality
 
-- **pytest**: 226 / 226 tests passed (0 failed, 0 skipped)
-- **dbt**: 37 / 37 models built successfully, 31 / 31 tests passed
-- **Code quality**: ruff linting, black formatting, mypy type checking
-- **Streamlit health endpoint**: returns HTTP 200
-- **Streamlit home page**: returns HTTP 200
-- **Acceptance**: machine-verifiable core release script (`verify_core_release.py`)
-- **Audit**: public repository, 0 high-severity findings, 0 medium-severity findings
+- **pytest:** 406 / 406 passed, with 0 failures, errors, or skips.
+- **dbt models:** 41 / 41 executed successfully.
+- **dbt tests:** 44 / 44 passed, including 21 generic and 23 singular tests.
+- **Release gates:** 11 / 11 required gates reported `PASS`.
+- **Code quality:** Ruff, Black, and mypy checks completed successfully in an isolated Python 3.11 environment.
+- **Dependency integrity:** `pip check` reported 0 conflicts in the isolated environment.
+- **Dashboard smoke test:** HTTP health and home endpoints returned 200, with clean process termination and port release.
+- **Public audit:** 0 high-severity and 0 medium-severity findings.
+
+The release verifier derives acceptance from measured evidence. Missing checks remain `NOT_RUN`; warnings, failed gates, incomplete measurements, or inconsistent stored/recomputed results prevent acceptance.
 
 ---
 
-## Architecture Diagrams
+## Verified Release Evidence
 
-Three architecture diagrams are available in `docs/portfolio/`:
+The latest verified release is [`portfolio-v1.2.12`](https://github.com/Tito-999/fxfill-analytics-observability/releases/tag/portfolio-v1.2.12).
 
-1. **architecture.png** -- End-to-end pipeline from data generation to dashboard and experiment analysis
-2. **data_flow.png** -- Data model layer details and transformation dependencies
-3. **experiment_flow.png** -- A/B test pipeline from hypothesis to decision
+- Code commit: `e1d54a10d28e33c66efabc69f44b76cf57e32fa9`
+- Evidence/master commit: `839a910cf6b69f3f130ef2d3478da9d3bd745428`
+- Core acceptance: `true`
+- Required gates: 11 / 11 `PASS`
+- pytest: 406 / 406 passed
+- dbt models: 41 / 41 successful
+- dbt tests: 44 / 44 passed
+
+Release evidence files:
+
+- [Core release acceptance](reports/portfolio/releases/portfolio-v1.2.12/core_release_acceptance.json)
+- [Data quality snapshot](reports/portfolio/releases/portfolio-v1.2.12/data_quality_snapshot.json)
+- [Dashboard truthfulness](reports/portfolio/releases/portfolio-v1.2.12/dashboard_truthfulness.json)
+- [Business metric integrity](reports/portfolio/releases/portfolio-v1.2.12/business_metric_integrity.json)
+- [Machine summary](reports/portfolio/releases/portfolio-v1.2.12/p2_8_4_machine_summary.json)
+- [Release bundle manifest](reports/portfolio/releases/portfolio-v1.2.12/release_bundle_manifest.json)
 
 ---
 
@@ -140,39 +240,58 @@ Three architecture diagrams are available in `docs/portfolio/`:
 
 ```
 fxfill-analytics-observability/
-├── data/                    # Generated synthetic data (Parquet/CSV)
-├── dbt_fxfill/              # dbt models and configurations
-│   ├── models/
-│   │   ├── staging/         # 7 staging models
-│   │   ├── intermediate/    # 12 intermediate models
-│   │   └── marts/           # 18 analytics marts
-│   └── tests/               # dbt data tests
-├── docs/
-│   └── portfolio/           # Architecture diagrams and screenshots
-├── scripts/                 # Pipeline automation and verification scripts
-├── sql/                     # 20 SQL analysis queries
-├── dashboard/               # 8-page Streamlit dashboard
-├── tests/                   # pytest test suite (226 tests)
-├── requirements.txt
-├── requirements-dev.txt
-└── README.md
+閳规壕鏀㈤埞鈧?data/                    # Generated synthetic data (Parquet/CSV)
+閳规壕鏀㈤埞鈧?dbt_fxfill/              # dbt models and configurations
+閳?  閳规壕鏀㈤埞鈧?models/
+閳?  閳?  閳规壕鏀㈤埞鈧?staging/         # 7 staging models
+閳?  閳?  閳规壕鏀㈤埞鈧?intermediate/    # 13 intermediate models
+閳?  閳?  閳规柡鏀㈤埞鈧?marts/           # 21 analytics marts
+閳?  閳规柡鏀㈤埞鈧?tests/               # 21 generic + 23 singular dbt tests
+閳规壕鏀㈤埞鈧?docs/
+閳?  閳规柡鏀㈤埞鈧?portfolio/           # Architecture diagrams and screenshots
+閳规壕鏀㈤埞鈧?scripts/                 # Pipeline automation and verification scripts
+閳规壕鏀㈤埞鈧?sql/                     # 20 SQL analysis queries
+閳规壕鏀㈤埞鈧?dashboard/               # 8-page Streamlit dashboard
+閳规壕鏀㈤埞鈧?tests/                   # 406-test automated verification suite
+閳规壕鏀㈤埞鈧?src/
+閳?  閳规柡鏀㈤埞鈧?fxfill_analytics/
+閳?      閳规柡鏀㈤埞鈧?verification/    # Release verifier and artifact validators
+閳规壕鏀㈤埞鈧?reports/
+閳?  閳规柡鏀㈤埞鈧?portfolio/
+閳?      閳规柡鏀㈤埞鈧?releases/
+閳?          閳规柡鏀㈤埞鈧?portfolio-v1.2.12/  # Machine-verified release evidence
+閳规壕鏀㈤埞鈧?requirements.txt
+閳规壕鏀㈤埞鈧?requirements-dev.txt
+閳规柡鏀㈤埞鈧?README.md
 ```
+
+---
+
+## Releases
+
+Latest verified release:
+
+- [`portfolio-v1.2.12`](https://github.com/Tito-999/fxfill-analytics-observability/releases/tag/portfolio-v1.2.12)
+
+Earlier tags are retained as immutable historical checkpoints.
+
+---
+
+## What This Project Demonstrates
+
+Product analytics, analytics engineering, BI engineering, AI product analytics, agent observability, data quality engineering, and evidence-driven release verification 閳?in a self-contained, locally reproducible reference implementation.
 
 ---
 
 ## Limitations
 
-- **Synthetic data only** -- all behavioral and operational data is programmatically generated
-- **Not a real banking or production system** -- this is a portfolio project demonstrating analytics engineering capabilities
-- **No real customer PII** -- all user identities are synthetic
-- **No cloud deployment** -- runs locally on DuckDB; no streaming ingestion
-- **Business impact values are scenario assumptions** -- financial figures are illustrative, not real
-
----
-
-## Tags
-
-`phase-0-complete` `phase-1-complete` `phase-2-complete` `phase-3-complete` `phase-4-complete` `portfolio-v1` `portfolio-v1.1` `portfolio-v1.2`
+- **Synthetic data only** 閳?all behavioral and operational data is programmatically generated
+- **Portfolio/reference implementation** 閳?not a deployed banking or production SaaS system
+- **No real customer PII** 閳?all user identities and transaction records are synthetic
+- **No production banking transactions** 閳?financial figures are illustrative scenario assumptions
+- **No cloud deployment** 閳?runs locally on DuckDB; no streaming ingestion
+- **Local DuckDB-based analytical stack** 閳?not benchmarked for distributed or high-concurrency workloads
+- **Agent telemetry is simulated** 閳?traces, spans, and cost figures are generated, not collected from a live AI service
 
 ---
 
@@ -181,8 +300,9 @@ fxfill-analytics-observability/
 Designed and built by Chengren Pang.
 
 Development workflow included automated verification.
+
 ---
 
 ## License
 
-MIT License -- see [LICENSE](./LICENSE).
+MIT License.
