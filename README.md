@@ -1,3 +1,5 @@
+**English** | [简体中文](./README.zh-CN.md) <!-- sync:language -->
+
 # FxFill Analytics & AI Agent Observability Platform
 
 An evidence-driven analytics engineering and AI agent observability platform built with Python, DuckDB, dbt, Streamlit, and machine-verifiable data-quality gates.

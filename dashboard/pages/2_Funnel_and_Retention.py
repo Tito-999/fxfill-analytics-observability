@@ -18,6 +18,13 @@ st.set_page_config(page_title="Funnel & Retention", layout="wide")
 st.title("Funnel & Retention")
 st.markdown("Task conversion funnel and cohort retention analysis")
 
+# ── Custom funnel colorscale: low rate → light blue, high rate → dark blue ─
+FUNNEL_RATE_COLORSCALE = [
+    [0.0, "#D8E8F8"],
+    [0.5, "#5B9BD5"],
+    [1.0, "#0B3C78"],
+]
+
 filters = render_filters(page_name="funnel")
 ds = filters["date_start"]
 de = filters["date_end"]
@@ -164,12 +171,15 @@ if not funnel.empty:
             orientation="h",
             marker={
                 "color": funnel["pct_of_prior_step"],
-                "colorscale": "Blues",
-                "reversescale": True,
+                "colorscale": FUNNEL_RATE_COLORSCALE,
+                "cmin": 0.0,
+                "cmax": 1.0,
+                "reversescale": False,
                 "colorbar": {"title": "Step-to-Prior Rate", "tickformat": ".0%"},
+                "line": {"color": "#35516F", "width": 0.6},
             },
             text=funnel["task_count"].apply(lambda v: f"{v:,}"),
-            textposition="inside",
+            textposition="auto",
             hovertemplate=(
                 "<b>%{y}</b><br>"
                 "Tasks: %{x:,}<br>"
@@ -201,6 +211,11 @@ else:
 
 # ── Retention Charts (tab-separated D1/D7/D30) ──────────────────────────────────
 st.subheader("Retention Cohorts")
+st.caption(
+    "Exact-day retention; mature cohorts only. "
+    "Weekly channel cohorts require at least 20 eligible users. "
+    "The y-axis is dynamically scaled for readability and always starts at 0%."
+)
 
 if not retention.empty:
     try:
