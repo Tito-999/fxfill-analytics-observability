@@ -1,6 +1,9 @@
 # Implementation Plan — FxFill Product Analytics & AI Agent Observability
 
+> **Historical document:** This planning document is retained for provenance only. Its pending checkboxes describe the original implementation plan and do not represent the current repository status. Refer to `README.md`, `ROADMAP.md` when present, and the versioned release evidence for the current project state.
+
 **Generated:** 2026-06-16
+**Archived:** 2026-06-18
 **Based on:** `FxFill_Analytics_Engineering_Plan_for_Claude_Code.md`
 
 ---
