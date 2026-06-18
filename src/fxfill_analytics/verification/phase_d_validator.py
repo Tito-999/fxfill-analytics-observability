@@ -13,6 +13,7 @@ import sys
 import xml.etree.ElementTree as ET
 from copy import deepcopy
 from pathlib import Path
+from typing import Any
 
 SHA64 = re.compile(r"^[0-9a-f]{64}$")
 
@@ -21,7 +22,7 @@ def sha256(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
-def load(p: Path) -> dict:
+def load(p: Path) -> Any:
     return json.loads(p.read_text(encoding="utf-8"))
 
 
@@ -57,7 +58,7 @@ def run_validator(root: str, evidence_rel: str, output_rel: str) -> tuple[int, d
         if fp.exists():
             rec["size_bytes"] = fp.stat().st_size
             rec["recomputed_sha256"] = sha256(fp)
-            rec["sha256_format_valid"] = bool(SHA64.fullmatch(rec["recomputed_sha256"]))
+            rec["sha256_format_valid"] = bool(SHA64.fullmatch(str(rec["recomputed_sha256"])))
         else:
             rec["size_bytes"] = None
             rec["recomputed_sha256"] = None
@@ -68,13 +69,13 @@ def run_validator(root: str, evidence_rel: str, output_rel: str) -> tuple[int, d
     all_sha_ok = all(r["sha256_format_valid"] for r in file_records)
 
     if not all_exist:
-        result = {
+        early_result: dict[str, Any] = {
             "measurement_completed": False,
             "machine_result": None,
             "failure_count": len(failures),
             "failures": failures,
         }
-        out_path.write_text(json.dumps(result, indent=2))
+        out_path.write_text(json.dumps(early_result, indent=2))
         return 2, {"mr": None, "failures": failures}
 
     # Load evidence
@@ -109,9 +110,9 @@ def run_validator(root: str, evidence_rel: str, output_rel: str) -> tuple[int, d
     # AST wiring
     vr_text = (root_path / "scripts/verify_core_release.py").read_text(encoding="utf-8")
     vr_ast = ast.parse(vr_text)
-    imports = set()
-    calls = set()
-    call_locs = {}
+    imports: set[str] = set()
+    calls: set[str] = set()
+    call_locs: dict[str, list[dict[str, int]]] = {}
     for node in ast.walk(vr_ast):
         if isinstance(node, ast.ImportFrom):
             if node.module and "core_acceptance" in node.module:
@@ -169,10 +170,10 @@ def run_validator(root: str, evidence_rel: str, output_rel: str) -> tuple[int, d
     # Positive
     dm_pos, _ = derive_dbt_model_gate(real_dbt)
     dt_pos, _ = derive_dbt_test_gate(real_dbt)
-    gates_pos = dict.fromkeys(REQUIRED_GATE_NAMES, "PASS")
+    gates_pos: dict[str, Any] = dict.fromkeys(REQUIRED_GATE_NAMES, "PASS")
     gates_pos["dbt_models"] = dm_pos
     gates_pos["dbt_tests"] = dt_pos
-    acc_pos = compute_core_acceptance(gates=gates_pos, failed_gates=[], warnings=[])
+    acc_pos = compute_core_acceptance(gates=gates_pos, failed_gates=[], warnings=[])  # type: ignore[arg-type]
     rpt_pos = {
         "accepted": acc_pos["accepted"],
         "gates": acc_pos["gates"],
@@ -198,10 +199,10 @@ def run_validator(root: str, evidence_rel: str, output_rel: str) -> tuple[int, d
     neg_dbt["test_results_sha256"] = neg_dbt["model_results_sha256"]
     dm_neg, _ = derive_dbt_model_gate(neg_dbt)
     dt_neg, _ = derive_dbt_test_gate(neg_dbt)
-    gates_neg = dict.fromkeys(REQUIRED_GATE_NAMES, "PASS")
+    gates_neg: dict[str, Any] = dict.fromkeys(REQUIRED_GATE_NAMES, "PASS")
     gates_neg["dbt_models"] = dm_neg
     gates_neg["dbt_tests"] = dt_neg
-    acc_neg = compute_core_acceptance(gates=gates_neg, failed_gates=[], warnings=[])
+    acc_neg = compute_core_acceptance(gates=gates_neg, failed_gates=[], warnings=[])  # type: ignore[arg-type]
     rpt_neg = {
         "accepted": acc_neg["accepted"],
         "gates": acc_neg["gates"],
@@ -231,15 +232,15 @@ def run_validator(root: str, evidence_rel: str, output_rel: str) -> tuple[int, d
     invariants["accepted_true_with_equal_hashes_possible"] = (
         derive_dbt_model_gate(d_eq)[0] == "PASS"
     )
-    gnr = dict.fromkeys(list(REQUIRED_GATE_NAMES)[:10], "PASS")
+    gnr: dict[str, Any] = dict.fromkeys(list(REQUIRED_GATE_NAMES)[:10], "PASS")
     invariants["accepted_true_with_not_run_gate_possible"] = compute_core_acceptance(
-        gates=gnr, failed_gates=[], warnings=[]
+        gates=gnr, failed_gates=[], warnings=[]  # type: ignore[arg-type]
     )["accepted"]
     invariants["accepted_true_with_warning_possible"] = compute_core_acceptance(
-        gates=gates_neg, failed_gates=[], warnings=["injected"]
+        gates=gates_neg, failed_gates=[], warnings=["injected"]  # type: ignore[arg-type]
     )["accepted"]
     invariants["accepted_true_with_failed_gates_possible"] = compute_core_acceptance(
-        gates=gates_neg, failed_gates=["injected"], warnings=[]
+        gates=gates_neg, failed_gates=["injected"], warnings=[]  # type: ignore[arg-type]
     )["accepted"]
 
     # Gate re-computation
@@ -298,7 +299,7 @@ def run_validator(root: str, evidence_rel: str, output_rel: str) -> tuple[int, d
 
     stored_match = stored_gate is not None and stored_gate == recomputed
 
-    result = {
+    result: dict[str, Any] = {
         "schema_version": "1.0.0",
         "measurement_completed": all_exist,
         "source_evidence_path": str(ev_path.relative_to(root_path)),
