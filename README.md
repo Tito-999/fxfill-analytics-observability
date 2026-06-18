@@ -104,9 +104,9 @@ flowchart LR
 
 Additional architecture diagrams are available in `docs/portfolio/`:
 
-1. **architecture.png** 闁?End-to-end pipeline from data generation to dashboard and experiment analysis
-2. **data_flow.png** 闁?Data model layer details and transformation dependencies
-3. **experiment_flow.png** 闁?A/B test pipeline from hypothesis to decision
+1. **architecture.png** End-to-end pipeline from data generation to dashboard and experiment analysis
+2. **data_flow.png** Data model layer details and transformation dependencies
+3. **experiment_flow.png** A/B test pipeline from hypothesis to decision
 
 ---
 
