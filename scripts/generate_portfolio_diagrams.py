@@ -5,7 +5,6 @@ Produces: docs/portfolio/architecture.{svg,png}, docs/portfolio/data_flow.{svg,p
 Depends on: matplotlib (in requirements.txt).  No other heavy dependencies.
 """
 
-import hashlib
 from pathlib import Path
 
 import matplotlib
@@ -53,20 +52,33 @@ def _box(ax, x, y, w, h, text, color="#D6EAF8", fontsize=9, bold=False):
 
     weight = "bold" if bold else "normal"
     rect = FancyBboxPatch(
-        (x, y), w, h, boxstyle="round,pad=0.15", edgecolor="#2C3E50",
-        facecolor=color, linewidth=1.0,
+        (x, y),
+        w,
+        h,
+        boxstyle="round,pad=0.15",
+        edgecolor="#2C3E50",
+        facecolor=color,
+        linewidth=1.0,
     )
     ax.add_patch(rect)
     ax.text(
-        x + w / 2, y + h / 2, text, ha="center", va="center",
-        fontsize=fontsize, fontweight=weight, color="#2C3E50",
+        x + w / 2,
+        y + h / 2,
+        text,
+        ha="center",
+        va="center",
+        fontsize=fontsize,
+        fontweight=weight,
+        color="#2C3E50",
     )
 
 
 def _arrow(ax, x1, y1, x2, y2):
     ax.annotate(
-        "", xy=(x2, y2), xytext=(x1, y1),
-        arrowprops=dict(arrowstyle="->", color="#5D6D7E", lw=1.5),
+        "",
+        xy=(x2, y2),
+        xytext=(x1, y1),
+        arrowprops={"arrowstyle": "->", "color": "#5D6D7E", "lw": 1.5},
     )
 
 
@@ -82,7 +94,9 @@ def draw_architecture():
     ax.axis("off")
     ax.set_title(
         "FxFill Analytics — End-to-End Architecture",
-        fontweight="bold", fontsize=13, pad=12,
+        fontweight="bold",
+        fontsize=13,
+        pad=12,
     )
 
     # ── Row 1: Sources ──
@@ -117,9 +131,12 @@ def draw_architecture():
 
     # ── Footer ──
     fig.text(
-        0.5, 0.02,
+        0.5,
+        0.02,
         f"All data synthetic  |  {DBT_MODELS} dbt models ({STAGING} staging + {INTERMEDIATE} intermediate + {MARTS} marts)  |  {DBT_TESTS} dbt tests  |  CPU-only, self-contained",
-        ha="center", fontsize=7, color="#7F8C8D",
+        ha="center",
+        fontsize=7,
+        color="#7F8C8D",
     )
 
     out_svg = PROJECT / "docs" / "portfolio" / "architecture.svg"
@@ -143,7 +160,9 @@ def draw_data_flow():
     ax.axis("off")
     ax.set_title(
         "FxFill Analytics — Data Flow & Model Layers",
-        fontweight="bold", fontsize=13, pad=12,
+        fontweight="bold",
+        fontsize=13,
+        pad=12,
     )
 
     # ── LEFT column: sources ──
@@ -162,7 +181,9 @@ def draw_data_flow():
 
     _box(ax, 3.9, y_top - 0.3, 2.5, 1.4, f"Staging\n{STAGING} views", "#D6EAF8", bold=True)
     _arrow(ax, 6.5, 5.2, 7.7, 5.2)
-    _box(ax, 7.8, y_top - 0.3, 2.5, 1.4, f"Intermediate\n{INTERMEDIATE} views", "#AED6F1", bold=True)
+    _box(
+        ax, 7.8, y_top - 0.3, 2.5, 1.4, f"Intermediate\n{INTERMEDIATE} views", "#AED6F1", bold=True
+    )
     _arrow(ax, 10.4, 5.2, 11.5, 5.2)
 
     # Staging details
@@ -181,7 +202,14 @@ def draw_data_flow():
     _box(ax, 7.8, y_marts - 1.0, 3.8, 0.8, f"agent marts ({5})", "#85C1E9")
     _box(ax, 7.8, y_marts - 2.0, 3.8, 0.8, f"experiments marts ({4})", "#85C1E9")
     _box(ax, 7.8, y_marts - 3.0, 3.8, 0.8, f"executive marts ({3})", "#85C1E9")
-    ax.text(9.7, y_marts + 1.0, f"Analytics Marts\n{MARTS} tables total", ha="center", fontsize=9, fontweight="bold")
+    ax.text(
+        9.7,
+        y_marts + 1.0,
+        f"Analytics Marts\n{MARTS} tables total",
+        ha="center",
+        fontsize=9,
+        fontweight="bold",
+    )
 
     # ── BOTTOM: outputs ──
     y_out = y_marts - 3.8
@@ -196,9 +224,12 @@ def draw_data_flow():
 
     # ── Footer ──
     fig.text(
-        0.5, 0.02,
+        0.5,
+        0.02,
         f"{7} raw  |  {STAGING} staging  |  {INTERMEDIATE} intermediate  |  {MARTS} marts  |  {DBT_MODELS} dbt models  |  {DBT_TESTS} dbt tests  |  All data synthetic",
-        ha="center", fontsize=7, color="#7F8C8D",
+        ha="center",
+        fontsize=7,
+        color="#7F8C8D",
     )
 
     out_svg = PROJECT / "docs" / "portfolio" / "data_flow.svg"
@@ -214,10 +245,89 @@ def draw_data_flow():
 # Main
 # ═══════════════════════════════════════════════════════════════════════════════
 
+
+def run_check():
+    """Read-only validation of tracked diagram assets."""
+
+    errors = []
+    for stem in ["architecture", "data_flow"]:
+        svg_path = PROJECT / "docs" / "portfolio" / f"{stem}.svg"
+        png_path = PROJECT / "docs" / "portfolio" / f"{stem}.png"
+        if not svg_path.exists() or svg_path.stat().st_size == 0:
+            errors.append(f"Missing/empty: {stem}.svg")
+        if not png_path.exists() or png_path.stat().st_size == 0:
+            errors.append(f"Missing/empty: {stem}.png")
+        if svg_path.exists():
+            svg_text = svg_path.read_text(encoding="utf-8")
+            for old in [
+                "37 dbt",
+                "12 intermediate",
+                "18 mart",
+                "226+",
+                "34 Python",
+                "Phase 3",
+            ]:
+                if old in svg_text:
+                    errors.append(f"{stem}.svg contains stale: {old}")
+            for expected in [
+                "41 dbt",
+                "13 intermediate",
+                "21 mart",
+                "44 dbt tests",
+                "8 Streamlit",
+                "7 raw",
+            ]:
+                if expected not in svg_text:
+                    errors.append(f"{stem}.svg missing: {expected}")
+            if not svg_text.strip().startswith("<?xml") and "<svg" not in svg_text[:200]:
+                errors.append(f"{stem}.svg is not valid SVG")
+        if png_path.exists():
+            from PIL import Image
+
+            try:
+                im = Image.open(png_path)
+                im.verify()
+            except Exception as exc:
+                errors.append(f"{stem}.png invalid: {exc}")
+    # Count checks
+    exp = {
+        "staging": (STAGING, 7),
+        "intermediate": (INTERMEDIATE, 13),
+        "marts": (MARTS, 21),
+        "models": (DBT_MODELS, 41),
+        "tests": (DBT_TESTS, 44),
+        "pages": (DASHBOARD_PAGES, 8),
+    }
+    for name, (actual, want) in exp.items():
+        if actual != want:
+            errors.append(f"{name}={actual}, expected {want}")
+    if errors:
+        print("DIAGRAM CHECK FAILED:")
+        for e in errors:
+            print(f"  {e}")
+        return 1
+    print("DIAGRAM CHECK PASSED")
+    print(
+        f"  staging={STAGING} intermediate={INTERMEDIATE} marts={MARTS} models={DBT_MODELS} tests={DBT_TESTS} pages={DASHBOARD_PAGES}"
+    )
+    return 0
+
+
 if __name__ == "__main__":
-    print(f"Facts: staging={STAGING}, intermediate={INTERMEDIATE}, marts={MARTS}, "
-          f"models={DBT_MODELS}, singular_tests={SINGULAR_TESTS}, dbt_tests={DBT_TESTS}, "
-          f"pages={DASHBOARD_PAGES}")
+    import sys as _sys
+
+    if "--check" in _sys.argv:
+        _sys.exit(run_check())
+
+    # Set deterministic hash salt
+    import matplotlib as _mpl
+
+    _mpl.rcParams["svg.hashsalt"] = "fxfill-analytics-2026"
+    print(
+        f"Facts: staging={STAGING}, intermediate={INTERMEDIATE}, marts={MARTS}, "
+        f"models={DBT_MODELS}, singular_tests={SINGULAR_TESTS}, dbt_tests={DBT_TESTS}, "
+        f"pages={DASHBOARD_PAGES}"
+    )
     print()
     print("Architecture diagram:")
     draw_architecture()

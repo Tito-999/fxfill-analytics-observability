@@ -61,7 +61,13 @@ parser.add_argument(
     action="store_true",
     help="Do not fail when current core release acceptance report is absent.",
 )
-args = parser.parse_args()
+# Only parse args when run as script, not on import (for testability)
+_args_parsed = None
+if __name__ == "__main__":
+    _args_parsed = parser.parse_args()
+else:
+    # Dummy namespace for import-time defaults
+    _args_parsed = argparse.Namespace(allow_missing_current_core_report=False)
 
 STALE_PATTERNS = [
     (r"(?<!\")\b37[ -]+dbt[ -]*models?(?!\")", "37 dbt models"),
@@ -73,7 +79,7 @@ STALE_PATTERNS = [
     (r"[Mm]arts?\s*\(18\)", "Marts (18)"),
     (r"226\+[ -]*(pytest|tests?)", "226+ pytest/tests"),
     (r"34[ -]+Python[ -]+test[ -]*files?", "34 Python test files"),
-    (r"Phase\s+3[ -]*·[ -]*Streamlit", "Phase 3 Streamlit"),
+    (r"Phase\s+3[ ·-]*Streamlit", "Phase 3 Streamlit"),
     (r"F:[/\\]RAG[/\\]", "local path F:/RAG/"),
     (r"C:\\Users\\", "local path C:\\Users\\"),
 ]
