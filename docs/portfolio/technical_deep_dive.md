@@ -82,8 +82,8 @@ A 4-layer architecture (raw, staging, intermediate, marts) in DuckDB, accessed t
 
 - **Raw (7 tables):** Direct mirror of Parquet files with column type enforcement and primary key constraints. `raw_product_events` holds 491K rows of timestamped event data.
 - **Staging (7 views):** Light column renaming, type casting, and not-null filtering. One view per raw table.
-- **Intermediate (12 views):** Business logic transforms -- funnel flags, cohort assignments, user activity rollups, trace rollups, experiment contamination detection.
-- **Marts (18 tables):** Analytics-ready aggregates -- product KPIs (6), agent observability (5), experiment results (4), executive scorecard (3).
+- **Intermediate (13 views):** Business logic transforms -- funnel flags, cohort assignments, user activity rollups, trace rollups, experiment contamination detection.
+- **Marts (21 tables):** Analytics-ready aggregates -- product KPIs (6), agent observability (5), experiment results (4), executive scorecard (3).
 
 ### Implementation
 - `dbt_fxfill/models/sources.yml` defines source freshness and column-level tests (not_null, unique, accepted_values) on raw tables.
@@ -97,8 +97,8 @@ A 4-layer architecture (raw, staging, intermediate, marts) in DuckDB, accessed t
 - The materialized mart layer is refreshed on each build; incremental materialization is not used since the full dataset is regenerated each time.
 
 ### Verification
-- `dbt run` completes without errors; `dbt test` passes all 30+ schema tests.
-- The `phase2_model_inventory.json` confirms all 44 objects (7 raw + 7 staging + 12 intermediate + 18 marts) exist with correct row counts and column counts.
+- `dbt run` completes without errors; `dbt test` passes all 44 tests (21 generic, 23 singular).
+- The `phase2_model_inventory.json` (historical phase audit) confirms all 48 warehouse objects (7 raw + 7 staging + 13 intermediate + 21 marts = 7 raw + 41 dbt models) exist with correct row counts and column counts. Current structure is verified by `reports/portfolio/releases/portfolio-v1.2.12/core_release_acceptance.json`.
 - The `phase2_reconciliation.json` cross-validates P01-P10 metrics computed via dbt SQL against the same metrics from the Python quality module. All pass within configured tolerance.
 - No raw-scan queries leak from the dashboard (verified by `test_no_raw_scans.py`).
 
@@ -231,6 +231,6 @@ The acceptance gate (`phase4_acceptance.json`) checks: all 15 required files exi
 
 ---
 
-**Project:** FxFill Analytics -- `F:/RAG/fxfill-analytics-observability/`
-**Latest commit:** e236578
+**Project:** FxFill Analytics
+**Latest verified release:** `portfolio-v1.2.12`
 **All data is synthetic.** No real user data, financial records, or production information is included.

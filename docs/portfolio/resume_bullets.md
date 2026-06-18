@@ -14,7 +14,7 @@
 
 ## Analytics Engineer Version
 
-1. Architected a 4-layer dimensional warehouse (7 raw, 7 staging, 12 intermediate, 18 mart models) using dbt-core on DuckDB, with 30+ automated schema tests and cross-layer phenomena reconciliation verified to within 1e-10 tolerance.
+1. Architected a 4-layer dimensional warehouse (7 raw, 7 staging, 13 intermediate, 21 mart models) using dbt-core on DuckDB, with 44 dbt tests (21 generic, 23 singular) and cross-layer phenomena reconciliation verified to within 1e-10 tolerance.
 
 2. Engineered a deterministic synthetic data pipeline using `SeedSequence.spawn(9)` for independent per-module RNG streams and SHA-256 canonical hashing, achieving 22.3x speedup and byte-identical reproducibility across independent runs.
 

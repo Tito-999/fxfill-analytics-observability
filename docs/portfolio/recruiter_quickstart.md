@@ -24,13 +24,13 @@ Most analytics portfolios show isolated skills: a dashboard here, a SQL query th
 Every file in this repository was written by me as a single developer portfolio project. This includes:
 
 - **7 synthetic data generators** producing 20,000 users, 80,000 documents, 60,000 sessions, 491,000 product events, 80,000 agent runs, 300,000 agent spans, and 12,360 experiment assignments
-- **37 dbt models** across staging (7), intermediate (12), and mart (18) layers
+- **41 dbt models** across staging (7), intermediate (13), and mart (21) layers
 - **20 SQL interview queries** covering DAU/WAU/MAU, conversion funnels by device and channel, cohort retention, feature adoption, lifecycle segmentation, agent latency percentiles, token/cost trends, model comparisons, error Pareto, and experiment inputs
 - **8 Streamlit dashboard pages** with reusable component architecture
 - **Full statistical experimentation module** covering SRM testing, bootstrap CIs, Cohen's d, Benjamini-Hochberg correction, guardrail non-inferiority, CUPED, power analysis, and A/A calibration
 - **Root cause decomposition** implementing Kitagawa's symmetric decomposition with exact numerical reconciliation (residual < 1e-10)
 - **Machine-verifiable acceptance framework** with structured JSON audit evidence
-- **34 Python test files** with 226+ passing tests
+- **Automated pytest verification suite** — the immutable `portfolio-v1.2.12` release baseline records 406 / 406 pytest passed
 - **One-click PowerShell scripts** for setup, data generation, warehouse build, dashboard launch, and testing
 
 ---
@@ -42,9 +42,9 @@ Synthetic Generators --> Raw Parquet/CSV --> DuckDB Raw Layer
                                               |
                                          dbt Staging (7 models)
                                               |
-                                       dbt Intermediate (12 models)
+                                       dbt Intermediate (13 models)
                                               |
-                                        dbt Analytics Marts (18)
+                                        dbt Analytics Marts (21)
                                               |
              +----------------+---------------+----------------+
              |                |               |                |
@@ -127,7 +127,7 @@ cd fxfill-analytics-observability
 .\.venv\Scripts\Activate.ps1
 python scripts/generate_data.py --size medium --seed 20260616
 python scripts/build_warehouse.py
-pytest tests/ -v
+python -m pytest -q
 .\scripts\run_dashboard.ps1
 # Open http://localhost:8501
 ```
@@ -140,11 +140,11 @@ Hardware requirements: any laptop with Python 3.11, 8-16 GB RAM, ~500 MB disk. N
 
 | What | Where |
 |------|-------|
-| Python tests (pytest) | `tests/` -- 34 files across unit, integration, data quality, dashboard, experimentation |
-| dbt models | `dbt_fxfill/models/` -- 37 SQL models in staging/intermediate/marts layers |
+| Python tests (pytest) | `tests/` — automated verification suite; `portfolio-v1.2.12` baseline: 406 / 406 passed |
+| dbt models | `dbt_fxfill/models/` -- 41 SQL models in staging/intermediate/marts layers |
 | SQL queries | `sql/interview_queries/` -- 20 documented business queries |
 | Phase audit evidence | `reports/` -- JSON + Markdown for phases 1-4 |
-| Acceptance verification | `reports/phase4/phase4_acceptance.json` -- machine-verified gate results |
+| Acceptance verification | `reports/portfolio/releases/portfolio-v1.2.12/core_release_acceptance.json` — machine-verified gate results |
 | Dashboard pages | `dashboard/pages/` -- 7 business pages + Home |
 
 ---
