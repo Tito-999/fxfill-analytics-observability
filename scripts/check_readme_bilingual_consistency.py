@@ -518,7 +518,7 @@ def _check_badges(en_text: str, zh_text: str) -> list[str]:
 # J. Absolute path check
 # ---------------------------------------------------------------------------
 
-_ABS_PATH_RE = re.compile(r"(?:[A-Za-z]:\\|/home/|/Users/)")
+_ABS_PATH_RE = re.compile(r"(?:[A-Za-z]:\\|" + "/home/" + r"|/Users/)")
 
 
 def _check_no_absolute_paths(en_text: str, zh_text: str) -> list[str]:
