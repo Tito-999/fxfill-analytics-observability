@@ -76,25 +76,27 @@ Expected result:
 
 ![Architecture Diagram](docs/portfolio/architecture.svg)
 
-The data pipeline flows through these stages:
+The data platform progresses through nine verified stages:
 
-**Synthetic Product Events**
-&rarr; **Parquet Data**
+**Synthetic Multi-Domain Data**
+&rarr; **Versioned Parquet / CSV Assets**
 &rarr; **DuckDB Warehouse**
-&rarr; **dbt Staging / Intermediate / Marts**
-&rarr; **Product Analytics & Agent Observability**
-&rarr; **Streamlit / Plotly Dashboards**
-&rarr; **Dashboard Truthfulness & Strict Reconciliation**
-&rarr; **Evidence-Derived Release Gates**
-&rarr; **Immutable Git Release**
+&rarr; **dbt Transformation (7 staging, 13 intermediate, and 21 mart models)**
+&rarr; **Analytics & AI Agent Observability**
+&rarr; **Streamlit / Plotly Experience**
+&rarr; **Data Quality & Dashboard Truthfulness**
+&rarr; **11-Gate Release Verification**
+&rarr; **Acceptance Evidence & Immutable Git Release**
 
 ![Stages Diagram](docs/portfolio/stages.svg)
 
-Additional architecture diagrams are available in `docs/portfolio/`:
+Additional architecture diagrams are available in docs/portfolio/:
 
-1. **architecture.png** End-to-end pipeline from data generation to dashboard and experiment analysis
-2. **data_flow.png** Data model layer details and transformation dependencies
-3. **experiment_flow.png** A/B test pipeline from hypothesis to decision
+1. **architecture.svg** Layered end-to-end architecture covering data generation,
+   transformation, analytics, verification, and release evidence.
+2. **stages.svg** Nine-stage project lifecycle from synthetic data generation to immutable release evidence.
+3. **data_flow.png** Warehouse model layers, transformation dependencies, and analytics data flow.
+4. **experiment_flow.svg** A/B experiment workflow from hypothesis and assignment through evaluation and decision.
 
 ---
 
