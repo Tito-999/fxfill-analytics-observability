@@ -76,25 +76,26 @@ python scripts\verify_core_release.py
 
 ![架构图](docs/portfolio/architecture.png)
 
-数据管道经历以下阶段：
+数据平台按照九个经过验证的阶段逐步运行：
 
-**合成产品事件**
-&rarr; **Parquet 数据**
+**多域合成数据**
+&rarr; **版本化 Parquet / CSV 数据资产**
 &rarr; **DuckDB 数据仓库**
-&rarr; **dbt Staging / Intermediate / Marts**
-&rarr; **产品分析与 Agent 可观测性**
-&rarr; **Streamlit / Plotly 仪表板**
-&rarr; **仪表板真实性与严格核对**
-&rarr; **基于证据的发布门禁**
-&rarr; **不可变 Git 发布**
+&rarr; **dbt 转换层（7 个 staging、13 个 intermediate 和 21 个 mart 模型）**
+&rarr; **数据分析与 AI Agent 可观测性**
+&rarr; **Streamlit / Plotly 交互体验**
+&rarr; **数据质量与仪表盘真实性验证**
+&rarr; **11 项发布门禁验证**
+&rarr; **验收证据与不可变 Git 发布**
 
 ![阶段图](docs/portfolio/stages.png)
 
-更多架构图可在 `docs/portfolio/` 中查看：
+更多架构图位于 docs/portfolio/：
 
-1. **architecture.png** 从数据生成到仪表板和实验分析的端到端管道
-2. **data_flow.png** 数据模型层详情与转换依赖关系
-3. **experiment_flow.png** 从假设到决策的 A/B 测试流程
+1. **architecture.svg** 覆盖数据生成、转换、分析、验证和发布证据的分层端到端架构
+2. **stages.svg** 从合成数据生成到不可变发布证据的九阶段项目生命周期
+3. **data_flow.png** 数据仓库模型分层、转换依赖和分析数据流
+4. **experiment_flow.svg** 从实验假设、分组到评估和决策的 A/B 测试流程
 
 ---
 
