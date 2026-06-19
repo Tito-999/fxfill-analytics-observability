@@ -1,0 +1,322 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="full" height="1000" version="1.1" viewBox="0 0 1800 1000" width="1800">
+  <defs/>
+  <rect fill="#F8FAFC" height="1000" width="1800" x="0" y="0"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="36" font-weight="bold" text-anchor="middle" x="900.0" y="56">
+    <tspan dy="0" x="900.0">FxFill Analytics &amp; AI Agent Observability Platform</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" text-anchor="middle" x="900.0" y="91">
+    <tspan dy="0" x="900.0">Layered analytics pipeline with explicit verification and release evidence</tspan>
+  </text>
+  <rect fill="#ECFDF3" height="145" rx="22" ry="22" stroke="#9BD8B2" stroke-width="2" width="1732" x="34" y="112"/>
+  <circle cx="90" cy="184.5" fill="#168A45" opacity="0.12" r="33"/>
+  <circle cx="90" cy="184.5" fill="#168A45" r="24"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" text-anchor="middle" x="90" y="191.5">
+    <tspan dy="0" x="90">1</tspan>
+  </text>
+  <text fill="#168A45" font-family="Arial, Helvetica, sans-serif" font-size="20" font-weight="bold" text-anchor="start" x="132" y="157">
+    <tspan dy="0" x="132">Data Generation</tspan>
+    <tspan dy="20.8" x="132">&amp; Ingestion</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="start" x="132" y="216.6">
+    <tspan dy="0" x="132">Create, validate, and persist</tspan>
+    <tspan dy="13.799999999999999" x="132">fully synthetic product, user,</tspan>
+    <tspan dy="13.799999999999999" x="132">agent, and financial data.</tspan>
+  </text>
+  <rect fill="#EFF6FF" height="158" rx="22" ry="22" stroke="#AFC6F9" stroke-width="2" width="1732" x="34" y="278"/>
+  <circle cx="90" cy="357.0" fill="#2F63C7" opacity="0.12" r="33"/>
+  <circle cx="90" cy="357.0" fill="#2F63C7" r="24"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" text-anchor="middle" x="90" y="364.0">
+    <tspan dy="0" x="90">2</tspan>
+  </text>
+  <text fill="#2F63C7" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="bold" text-anchor="start" x="132" y="323">
+    <tspan dy="0" x="132">Warehouse &amp;</tspan>
+    <tspan dy="21.84" x="132">Transformation</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="start" x="132" y="384.68">
+    <tspan dy="0" x="132">Model and curate data through</tspan>
+    <tspan dy="13.799999999999999" x="132">DuckDB and dbt into trusted</tspan>
+    <tspan dy="13.799999999999999" x="132">analytics-ready marts.</tspan>
+  </text>
+  <rect fill="#F5F3FF" height="160" rx="22" ry="22" stroke="#C9BDF5" stroke-width="2" width="1732" x="34" y="458"/>
+  <circle cx="90" cy="538.0" fill="#6B4AC9" opacity="0.12" r="33"/>
+  <circle cx="90" cy="538.0" fill="#6B4AC9" r="24"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" text-anchor="middle" x="90" y="545.0">
+    <tspan dy="0" x="90">3</tspan>
+  </text>
+  <text fill="#6B4AC9" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="bold" text-anchor="start" x="132" y="503">
+    <tspan dy="0" x="132">Analytics &amp;</tspan>
+    <tspan dy="21.84" x="132">Observability</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="start" x="132" y="564.68">
+    <tspan dy="0" x="132">Deliver product analytics,</tspan>
+    <tspan dy="13.799999999999999" x="132">agent observability,</tspan>
+    <tspan dy="13.799999999999999" x="132">experiments, and root-cause</tspan>
+    <tspan dy="13.799999999999999" x="132">insights.</tspan>
+  </text>
+  <rect fill="#FFF4EE" height="205" rx="22" ry="22" stroke="#F4C2B3" stroke-width="2" width="1732" x="34" y="640"/>
+  <circle cx="90" cy="742.5" fill="#E85C3A" opacity="0.12" r="33"/>
+  <circle cx="90" cy="742.5" fill="#E85C3A" r="24"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" text-anchor="middle" x="90" y="749.5">
+    <tspan dy="0" x="90">4</tspan>
+  </text>
+  <text fill="#E85C3A" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" text-anchor="start" x="132" y="685">
+    <tspan dy="0" x="132">Verification &amp;</tspan>
+    <tspan dy="19.76" x="132">Release Evidence</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="start" x="132" y="742.52">
+    <tspan dy="0" x="132">Reconcile metrics, verify UI</tspan>
+    <tspan dy="13.799999999999999" x="132">truthfulness, enforce release</tspan>
+    <tspan dy="13.799999999999999" x="132">gates, and publish auditable</tspan>
+    <tspan dy="13.799999999999999" x="132">evidence.</tspan>
+  </text>
+  <rect fill="#FFFFFF" height="96" rx="18" ry="18" stroke="#9BD8B2" stroke-width="2" width="340" x="370" y="135"/>
+  <ellipse cx="411" cy="173.88" fill="none" rx="15.2" ry="5.32" stroke="#168A45" stroke-width="2.2800000000000002"/>
+  <ellipse cx="411" cy="183.0" fill="none" rx="15.2" ry="5.32" stroke="#168A45" stroke-width="2.2800000000000002"/>
+  <ellipse cx="411" cy="192.12" fill="none" rx="15.2" ry="5.32" stroke="#168A45" stroke-width="2.2800000000000002"/>
+  <line stroke="#168A45" stroke-width="2.2800000000000002" x1="395.8" x2="395.8" y1="173.88" y2="192.12"/>
+  <line stroke="#168A45" stroke-width="2.2800000000000002" x1="426.2" x2="426.2" y1="173.88" y2="192.12"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="start" x="452" y="167.19">
+    <tspan dy="0" x="452">Synthetic Data</tspan>
+    <tspan dy="19.8" x="452">Generators</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="452" y="215.79">
+    <tspan dy="0" x="452">Product, user, agent, and financial data</tspan>
+  </text>
+  <rect fill="#FFFFFF" height="96" rx="18" ry="18" stroke="#9BD8B2" stroke-width="2" width="315" x="750" y="135"/>
+  <polygon fill="none" points="791,164.76 807.72,173.88 803.92,192.88 791,203.52 778.08,192.88 774.28,173.88" stroke="#168A45" stroke-width="2.2800000000000002"/>
+  <polyline fill="none" points="783.4,183.76 789.48,190.6 800.88,176.92" stroke="#168A45" stroke-width="2.2800000000000002"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="start" x="832" y="160.92">
+    <tspan dy="0" x="832">Generation</tspan>
+    <tspan dy="19.8" x="832">Validation</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="832" y="209.51999999999998">
+    <tspan dy="0" x="832">Schemas, constraints, and quality</tspan>
+    <tspan dy="12.54" x="832">checks</tspan>
+  </text>
+  <rect fill="#FFFFFF" height="96" rx="18" ry="18" stroke="#9BD8B2" stroke-width="2" width="420" x="1105" y="135"/>
+  <rect fill="none" height="36.480000000000004" stroke="#168A45" stroke-width="2.2800000000000002" width="25.84" x="1133.08" y="164.76"/>
+  <line stroke="#168A45" stroke-width="1.8240000000000003" x1="1138.4" x2="1153.6" y1="176.92" y2="176.92"/>
+  <line stroke="#168A45" stroke-width="1.8240000000000003" x1="1138.4" x2="1153.6" y1="184.51999999999998" y2="184.51999999999998"/>
+  <line stroke="#168A45" stroke-width="1.8240000000000003" x1="1138.4" x2="1153.6" y1="192.11999999999998" y2="192.11999999999998"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="start" x="1187" y="166.62">
+    <tspan dy="0" x="1187">Versioned Parquet / CSV</tspan>
+    <tspan dy="19.8" x="1187">Assets</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="start" x="1187" y="215.22">
+    <tspan dy="0" x="1187">Seven source domains for reproducible ingestion</tspan>
+  </text>
+  <polyline fill="none" points="710,183 748,183" stroke="#168A45" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#168A45" points="748,183 737.8680648939758,189.42992153974797 737.8680648939758,176.57007846025203" stroke="#168A45"/>
+  <polyline fill="none" points="1065,183 1103,183" stroke="#168A45" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#168A45" points="1103,183 1092.8680648939758,189.42992153974797 1092.8680648939758,176.57007846025203" stroke="#168A45"/>
+  <polyline fill="none" points="1315,231 1315,266 475,266 475,306" stroke="#168A45" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#168A45" points="475,306 468.57007846025203,295.8680648939758 481.42992153974797,295.8680648939758" stroke="#168A45"/>
+  <rect fill="#FFFFFF" height="104" rx="18" ry="18" stroke="#AFC6F9" stroke-width="2" width="255" x="370" y="310"/>
+  <ellipse cx="411" cy="352.88" fill="none" rx="15.2" ry="5.32" stroke="#2F63C7" stroke-width="2.2800000000000002"/>
+  <ellipse cx="411" cy="362.0" fill="none" rx="15.2" ry="5.32" stroke="#2F63C7" stroke-width="2.2800000000000002"/>
+  <ellipse cx="411" cy="371.12" fill="none" rx="15.2" ry="5.32" stroke="#2F63C7" stroke-width="2.2800000000000002"/>
+  <line stroke="#2F63C7" stroke-width="2.2800000000000002" x1="395.8" x2="395.8" y1="352.88" y2="371.12"/>
+  <line stroke="#2F63C7" stroke-width="2.2800000000000002" x1="426.2" x2="426.2" y1="352.88" y2="371.12"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="start" x="452" y="338.78">
+    <tspan dy="0" x="452">DuckDB</tspan>
+    <tspan dy="19.8" x="452">Warehouse</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="start" x="452" y="387.38">
+    <tspan dy="0" x="452">7 raw tables</tspan>
+    <tspan dy="13.68" x="452">local analytical storage</tspan>
+  </text>
+  <rect fill="#FFFFFF" height="104" rx="18" ry="18" stroke="#AFC6F9" stroke-width="2" width="230" x="655" y="310"/>
+  <rect fill="none" height="10.64" stroke="#2F63C7" stroke-width="2.2800000000000002" width="10.64" x="683.08" y="349.08000000000004"/>
+  <rect fill="none" height="10.64" stroke="#2F63C7" stroke-width="2.2800000000000002" width="10.64" x="683.08" y="364.28000000000003"/>
+  <rect fill="none" height="10.64" stroke="#2F63C7" stroke-width="2.2800000000000002" width="10.64" x="698.2800000000001" y="349.08000000000004"/>
+  <rect fill="none" height="10.64" stroke="#2F63C7" stroke-width="2.2800000000000002" width="10.64" x="698.2800000000001" y="364.28000000000003"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="19" font-weight="bold" text-anchor="start" x="737" y="340.78">
+    <tspan dy="0" x="737">dbt</tspan>
+    <tspan dy="20.900000000000002" x="737">Staging</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="normal" text-anchor="start" x="737" y="391.58">
+    <tspan dy="0" x="737">7 models</tspan>
+    <tspan dy="11.399999999999999" x="737">clean and standardized</tspan>
+  </text>
+  <rect fill="#FFFFFF" height="104" rx="18" ry="18" stroke="#C9BDF5" stroke-width="2" width="275" x="915" y="310"/>
+  <polygon fill="none" points="956,342.23999999999995 974.24,354.4 956,366.56 937.76,354.4" stroke="#6B4AC9" stroke-width="2.2800000000000002"/>
+  <polygon fill="none" points="956,349.84 974.24,362.0 956,374.16 937.76,362.0" stroke="#6B4AC9" stroke-width="2.2800000000000002"/>
+  <polygon fill="none" points="956,357.44 974.24,369.6 956,381.76000000000005 937.76,369.6" stroke="#6B4AC9" stroke-width="2.2800000000000002"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="start" x="997" y="339.91999999999996">
+    <tspan dy="0" x="997">dbt</tspan>
+    <tspan dy="19.8" x="997">Intermediate</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="997" y="388.52">
+    <tspan dy="0" x="997">13 models</tspan>
+    <tspan dy="12.54" x="997">business logic and enrichment</tspan>
+  </text>
+  <rect fill="#FFFFFF" height="124" rx="18" ry="18" stroke="#C9BDF5" stroke-width="2" width="500" x="1220" y="300"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="21" font-weight="bold" text-anchor="middle" x="1470" y="331">
+    <tspan dy="0" x="1470">Analytics Marts</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" x="1470" y="357">
+    <tspan dy="0" x="1470">21 models • curated subject-oriented outputs</tspan>
+  </text>
+  <rect fill="#F5F3FF" height="35" rx="8" ry="8" stroke="#C9BDF5" stroke-width="1.2" width="100" x="1245" y="374"/>
+  <text fill="#6B4AC9" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" x="1295" y="390">
+    <tspan dy="0" x="1295">Product</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="normal" text-anchor="middle" x="1295" y="404">
+    <tspan dy="0" x="1295">9 marts</tspan>
+  </text>
+  <rect fill="#F5F3FF" height="35" rx="8" ry="8" stroke="#C9BDF5" stroke-width="1.2" width="100" x="1360" y="374"/>
+  <text fill="#6B4AC9" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" x="1410" y="390">
+    <tspan dy="0" x="1410">Agent</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="normal" text-anchor="middle" x="1410" y="404">
+    <tspan dy="0" x="1410">5 marts</tspan>
+  </text>
+  <rect fill="#F5F3FF" height="35" rx="8" ry="8" stroke="#C9BDF5" stroke-width="1.2" width="100" x="1475" y="374"/>
+  <text fill="#6B4AC9" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" x="1525" y="390">
+    <tspan dy="0" x="1525">Experiment</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="normal" text-anchor="middle" x="1525" y="404">
+    <tspan dy="0" x="1525">4 marts</tspan>
+  </text>
+  <rect fill="#F5F3FF" height="35" rx="8" ry="8" stroke="#C9BDF5" stroke-width="1.2" width="100" x="1590" y="374"/>
+  <text fill="#6B4AC9" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" text-anchor="middle" x="1640" y="390">
+    <tspan dy="0" x="1640">Executive</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="8" font-weight="normal" text-anchor="middle" x="1640" y="404">
+    <tspan dy="0" x="1640">3 marts</tspan>
+  </text>
+  <polyline fill="none" points="625,362 653,362" stroke="#2F63C7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#2F63C7" points="653,362 642.8680648939758,368.42992153974797 642.8680648939758,355.57007846025203" stroke="#2F63C7"/>
+  <polyline fill="none" points="885,362 913,362" stroke="#2F63C7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#2F63C7" points="913,362 902.8680648939758,368.42992153974797 902.8680648939758,355.57007846025203" stroke="#2F63C7"/>
+  <polyline fill="none" points="1190,362 1218,362" stroke="#6B4AC9" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#6B4AC9" points="1218,362 1207.8680648939758,368.42992153974797 1207.8680648939758,355.57007846025203" stroke="#6B4AC9"/>
+  <rect fill="#FFF4EE" height="104" rx="18" ry="18" stroke="#F4C2B3" stroke-width="2" width="285" x="370" y="492"/>
+  <rect fill="none" height="23.56" stroke="#E85C3A" stroke-width="2.2800000000000002" width="36.480000000000004" x="392.76" y="531.08"/>
+  <line stroke="#E85C3A" stroke-width="2.2800000000000002" x1="411" x2="411" y1="554.64" y2="561.48"/>
+  <line stroke="#E85C3A" stroke-width="2.2800000000000002" x1="403.4" x2="418.6" y1="561.48" y2="561.48"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="bold" text-anchor="start" x="452" y="522.2">
+    <tspan dy="0" x="452">Streamlit</tspan>
+    <tspan dy="18.700000000000003" x="452">Dashboard</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="452" y="568.6">
+    <tspan dy="0" x="452">8 pages</tspan>
+    <tspan dy="12.54" x="452">product and executive analytics</tspan>
+  </text>
+  <rect fill="#ECFEFF" height="104" rx="18" ry="18" stroke="#A5D9D6" stroke-width="2" width="285" x="680" y="492"/>
+  <rect fill="none" height="24.32" rx="5.32" ry="5.32" stroke="#0D7F7A" stroke-width="2.2800000000000002" width="36.480000000000004" x="702.76" y="531.84"/>
+  <circle cx="714.16" cy="544.0" fill="#0D7F7A" r="2.2800000000000002"/>
+  <circle cx="727.84" cy="544.0" fill="#0D7F7A" r="2.2800000000000002"/>
+  <line stroke="#0D7F7A" stroke-width="2.2800000000000002" x1="721" x2="721" y1="531.84" y2="524.24"/>
+  <circle cx="721" cy="521.96" fill="#0D7F7A" r="2.2800000000000002"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="bold" text-anchor="start" x="762" y="522.2">
+    <tspan dy="0" x="762">AI Agent</tspan>
+    <tspan dy="18.700000000000003" x="762">Observability</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="762" y="568.6">
+    <tspan dy="0" x="762">Success, latency, tokens, cost,</tspan>
+    <tspan dy="12.54" x="762">models, and errors</tspan>
+  </text>
+  <rect fill="#FFFBEB" height="104" rx="18" ry="18" stroke="#E8D69A" stroke-width="2" width="285" x="990" y="492"/>
+  <polyline fill="none" points="1025.68,525.76 1025.68,542.48 1015.04,562.24 1046.96,562.24 1036.32,542.48 1036.32,525.76" stroke="#C78608" stroke-width="2.2800000000000002"/>
+  <line stroke="#C78608" stroke-width="2.2800000000000002" x1="1022.64" x2="1039.36" y1="525.76" y2="525.76"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="bold" text-anchor="start" x="1072" y="522.2">
+    <tspan dy="0" x="1072">Experimentation</tspan>
+    <tspan dy="18.700000000000003" x="1072">Engine</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="1072" y="568.6">
+    <tspan dy="0" x="1072">A/B evaluation</tspan>
+    <tspan dy="12.54" x="1072">5,000 bootstrap iterations</tspan>
+  </text>
+  <rect fill="#F5F3FF" height="104" rx="18" ry="18" stroke="#C9BDF5" stroke-width="2" width="285" x="1300" y="492"/>
+  <line stroke="#6B4AC9" stroke-width="2.2800000000000002" x1="1341" x2="1341" y1="525.76" y2="562.24"/>
+  <line stroke="#6B4AC9" stroke-width="2.2800000000000002" x1="1341" x2="1354.68" y1="540.2" y2="528.8"/>
+  <line stroke="#6B4AC9" stroke-width="2.2800000000000002" x1="1341" x2="1327.32" y1="547.8" y2="559.2"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="bold" text-anchor="start" x="1382" y="522.2">
+    <tspan dy="0" x="1382">Root-Cause</tspan>
+    <tspan dy="18.700000000000003" x="1382">Analytics</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="1382" y="568.6">
+    <tspan dy="0" x="1382">Kitagawa decomposition and</tspan>
+    <tspan dy="12.54" x="1382">business insights</tspan>
+  </text>
+  <polyline fill="none" points="1470,424 1470,462 512,462 512,490" stroke="#6B4AC9" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#6B4AC9" points="512,490 505.57007846025203,479.8680648939758 518.429921539748,479.8680648939758" stroke="#6B4AC9"/>
+  <polyline fill="none" points="822,462 822,490" stroke="#6B4AC9" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#6B4AC9" points="822,490 815.570078460252,479.8680648939758 828.429921539748,479.8680648939758" stroke="#6B4AC9"/>
+  <polyline fill="none" points="1132,462 1132,490" stroke="#6B4AC9" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#6B4AC9" points="1132,490 1125.570078460252,479.8680648939758 1138.429921539748,479.8680648939758" stroke="#6B4AC9"/>
+  <polyline fill="none" points="1442,462 1442,490" stroke="#6B4AC9" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#6B4AC9" points="1442,490 1435.570078460252,479.8680648939758 1448.429921539748,479.8680648939758" stroke="#6B4AC9"/>
+  <rect fill="#FFFFFF" height="122" rx="18" ry="18" stroke="#F4C2B3" stroke-width="2" width="340" x="370" y="680"/>
+  <rect fill="none" height="34.96" stroke="#E85C3A" stroke-width="2.2800000000000002" width="28.88" x="396.56" y="723.52"/>
+  <rect fill="#FFFFFF" height="6.84" rx="2.2800000000000002" ry="2.2800000000000002" stroke="#E85C3A" stroke-width="2.2800000000000002" width="12.16" x="404.92" y="719.72"/>
+  <line stroke="#E85C3A" stroke-width="1.8240000000000003" x1="402.64" x2="419.36" y1="735.68" y2="735.68"/>
+  <line stroke="#E85C3A" stroke-width="1.8240000000000003" x1="402.64" x2="419.36" y1="743.28" y2="743.28"/>
+  <line stroke="#E85C3A" stroke-width="1.8240000000000003" x1="402.64" x2="419.36" y1="750.88" y2="750.88"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="bold" text-anchor="start" x="452" y="719.2">
+    <tspan dy="0" x="452">Data Quality,</tspan>
+    <tspan dy="18.700000000000003" x="452">Reconciliation &amp; Audit</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="452" y="765.6">
+    <tspan dy="0" x="452">Provenance • raw-to-staging checks</tspan>
+    <tspan dy="12.54" x="452">stale-artifact detection • audit reports</tspan>
+  </text>
+  <rect fill="#FFFFFF" height="122" rx="18" ry="18" stroke="#A5D9D6" stroke-width="2" width="300" x="740" y="680"/>
+  <polygon fill="none" points="781,722.76 797.72,731.88 793.92,750.88 781,761.52 768.08,750.88 764.28,731.88" stroke="#0D7F7A" stroke-width="2.2800000000000002"/>
+  <polyline fill="none" points="773.4,741.76 779.48,748.6 790.88,734.92" stroke="#0D7F7A" stroke-width="2.2800000000000002"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="bold" text-anchor="start" x="822" y="719.2">
+    <tspan dy="0" x="822">Dashboard</tspan>
+    <tspan dy="18.700000000000003" x="822">Truthfulness</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="822" y="765.6">
+    <tspan dy="0" x="822">Database-to-UI reconciliation</tspan>
+    <tspan dy="12.54" x="822">NaN/None and trace inspection</tspan>
+  </text>
+  <rect fill="#FFFFFF" height="122" rx="18" ry="18" stroke="#CBD5E1" stroke-width="2" width="250" x="1070" y="680"/>
+  <circle cx="1111" cy="741.0" fill="none" r="17.48" stroke="#334155" stroke-width="2.2800000000000002"/>
+  <polyline fill="none" points="1101.88,741.76 1108.72,749.36 1121.64,733.4" stroke="#334155" stroke-width="2.2800000000000002"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="bold" text-anchor="start" x="1152" y="719.2">
+    <tspan dy="0" x="1152">Release</tspan>
+    <tspan dy="18.700000000000003" x="1152">Verifier</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="1152" y="765.6">
+    <tspan dy="0" x="1152">11 required gates</tspan>
+    <tspan dy="12.54" x="1152">PASS / FAIL / NOT_RUN</tspan>
+  </text>
+  <rect fill="#FFFFFF" height="122" rx="18" ry="18" stroke="#A5D9D6" stroke-width="2" width="370" x="1350" y="680"/>
+  <circle cx="1391" cy="741.0" fill="none" r="17.48" stroke="#0D7F7A" stroke-width="2.2800000000000002"/>
+  <polyline fill="none" points="1381.88,741.76 1388.72,749.36 1401.64,733.4" stroke="#0D7F7A" stroke-width="2.2800000000000002"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="start" x="1432" y="719.48">
+    <tspan dy="0" x="1432">Acceptance Evidence &amp;</tspan>
+    <tspan dy="17.6" x="1432">Immutable Release</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="start" x="1432" y="763.6800000000001">
+    <tspan dy="0" x="1432">Core and portfolio reports</tspan>
+    <tspan dy="12.54" x="1432">hashed artifacts and Git tag</tspan>
+  </text>
+  <polyline fill="none" points="710,741 738,741" stroke="#E85C3A" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#E85C3A" points="738,741 727.8680648939758,747.429921539748 727.8680648939758,734.570078460252" stroke="#E85C3A"/>
+  <polyline fill="none" points="1040,741 1068,741" stroke="#334155" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#334155" points="1068,741 1057.8680648939758,747.429921539748 1057.8680648939758,734.570078460252" stroke="#334155"/>
+  <polyline fill="none" points="1320,741 1348,741" stroke="#0D7F7A" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"/>
+  <polygon fill="#0D7F7A" points="1348,741 1337.8680648939758,747.429921539748 1337.8680648939758,734.570078460252" stroke="#0D7F7A"/>
+  <polyline fill="none" points="512,596 512,640" stroke="#334155" stroke-dasharray="7,6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <polygon fill="#334155" points="512,640 505.57007846025203,629.8680648939758 518.429921539748,629.8680648939758" stroke="#334155"/>
+  <polyline fill="none" points="822,596 822,640" stroke="#334155" stroke-dasharray="7,6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <polygon fill="#334155" points="822,640 815.570078460252,629.8680648939758 828.429921539748,629.8680648939758" stroke="#334155"/>
+  <polyline fill="none" points="1132,596 1132,640" stroke="#334155" stroke-dasharray="7,6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <polygon fill="#334155" points="1132,640 1125.570078460252,629.8680648939758 1138.429921539748,629.8680648939758" stroke="#334155"/>
+  <polyline fill="none" points="1442,596 1442,640" stroke="#334155" stroke-dasharray="7,6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <polygon fill="#334155" points="1442,640 1435.570078460252,629.8680648939758 1448.429921539748,629.8680648939758" stroke="#334155"/>
+  <polyline fill="none" points="1442,640 540,640 540,678" stroke="#334155" stroke-dasharray="7,6" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"/>
+  <polygon fill="#334155" points="540,678 533.570078460252,667.8680648939758 546.429921539748,667.8680648939758" stroke="#334155"/>
+  <rect fill="#F1F5F9" height="38" rx="9" ry="9" stroke="#CBD5E1" stroke-width="1.2" width="1140" x="330" y="890"/>
+  <text fill="#334155" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="bold" text-anchor="middle" x="900.0" y="915">
+    <tspan dy="0" x="900.0">Verified master snapshot: 485 / 485 pytest  •  41 / 41 dbt models  •  44 / 44 dbt tests  •  11 / 11 gates  •  dashboard HTTP 200 / 200</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="11" font-weight="normal" text-anchor="middle" x="900.0" y="964">
+    <tspan dy="0" x="900.0">Fully synthetic portfolio project • analytics engineering • product analytics • AI agent observability • machine-verifiable evidence</tspan>
+  </text>
+</svg>
