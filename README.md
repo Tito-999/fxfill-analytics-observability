@@ -74,7 +74,7 @@ Expected result:
 
 ## Architecture
 
-![Architecture Diagram](docs/portfolio/architecture.png)
+![Architecture Diagram](docs/portfolio/architecture.svg)
 
 The data pipeline flows through these stages:
 
