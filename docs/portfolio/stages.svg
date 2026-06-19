@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xlink="http://www.w3.org/1999/xlink" baseProfile="full" height="760" version="1.1" viewBox="0 0 1800 760" width="1800">
+  <defs/>
+  <rect fill="#FBFCFE" height="760" width="1800" x="0" y="0"/>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="bold" text-anchor="middle" x="900.0" y="64">
+    <tspan dy="0" x="900.0">Project Stages</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="normal" text-anchor="middle" x="900.0" y="100">
+    <tspan dy="0" x="900.0">End-to-end analytics, observability, verification, and release-evidence pipeline</tspan>
+  </text>
+  <rect fill="#FFFFFF" height="420" rx="20" ry="20" stroke="#2563EB" stroke-width="2" width="170" x="50" y="180"/>
+  <circle cx="135.0" cy="262" fill="#EFF6FF" r="54"/>
+  <line stroke="#2563EB" stroke-width="2.8499999999999996" x1="117.9" x2="150.2" y1="279.1" y2="246.8"/>
+  <line stroke="#2563EB" stroke-width="2.28" x1="106.5" x2="117.9" y1="252.5" y2="252.5"/>
+  <line stroke="#2563EB" stroke-width="2.28" x1="112.2" x2="112.2" y1="246.8" y2="258.2"/>
+  <line stroke="#2563EB" stroke-width="2.28" x1="150.2" x2="161.6" y1="243.0" y2="243.0"/>
+  <line stroke="#2563EB" stroke-width="2.28" x1="155.9" x2="155.9" y1="237.3" y2="248.7"/>
+  <line stroke="#2563EB" stroke-width="2.28" x1="152.1" x2="163.5" y1="271.5" y2="271.5"/>
+  <line stroke="#2563EB" stroke-width="2.28" x1="157.8" x2="157.8" y1="265.8" y2="277.2"/>
+  <circle cx="135.0" cy="340" fill="#2563EB" r="20"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="135.0" y="347">
+    <tspan dy="0" x="135.0">1</tspan>
+  </text>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" x="135.0" y="400">
+    <tspan dy="0" x="135.0">Synthetic</tspan>
+    <tspan dy="20.7" x="135.0">Multi-Domain</tspan>
+    <tspan dy="20.7" x="135.0">Data</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" x="135.0" y="486.1">
+    <tspan dy="0" x="135.0">Product • user •</tspan>
+    <tspan dy="15.34" x="135.0">agent • finance</tspan>
+  </text>
+  <line stroke="#334155" stroke-linecap="round" stroke-width="3" x1="223" x2="240" y1="390.0" y2="390.0"/>
+  <polygon fill="#334155" points="240,390.0 229.86806489397583,396.42992153974797 229.86806489397583,383.57007846025203" stroke="#334155"/>
+  <rect fill="#FFFFFF" height="420" rx="20" ry="20" stroke="#0EA5A8" stroke-width="2" width="170" x="243" y="180"/>
+  <circle cx="328.0" cy="262" fill="#ECFEFF" r="54"/>
+  <rect fill="none" height="47.5" stroke="#0EA5A8" stroke-width="2.8499999999999996" width="34.199999999999996" x="310.9" y="238.25"/>
+  <line stroke="#0EA5A8" stroke-width="2.28" x1="317.55" x2="338.45" y1="254.4" y2="254.4"/>
+  <line stroke="#0EA5A8" stroke-width="2.28" x1="317.55" x2="338.45" y1="263.9" y2="263.9"/>
+  <line stroke="#0EA5A8" stroke-width="2.28" x1="317.55" x2="338.45" y1="273.4" y2="273.4"/>
+  <circle cx="328.0" cy="340" fill="#0EA5A8" r="20"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="328.0" y="347">
+    <tspan dy="0" x="328.0">2</tspan>
+  </text>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" x="328.0" y="400">
+    <tspan dy="0" x="328.0">Versioned</tspan>
+    <tspan dy="20.7" x="328.0">Parquet / CSV</tspan>
+    <tspan dy="20.7" x="328.0">Assets</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" x="328.0" y="486.1">
+    <tspan dy="0" x="328.0">Seven reproducible</tspan>
+    <tspan dy="15.34" x="328.0">source domains</tspan>
+  </text>
+  <line stroke="#334155" stroke-linecap="round" stroke-width="3" x1="416" x2="433" y1="390.0" y2="390.0"/>
+  <polygon fill="#334155" points="433,390.0 422.8680648939758,396.42992153974797 422.8680648939758,383.57007846025203" stroke="#334155"/>
+  <rect fill="#FFFFFF" height="420" rx="20" ry="20" stroke="#10A36A" stroke-width="2" width="170" x="436" y="180"/>
+  <circle cx="521.0" cy="262" fill="#ECFDF5" r="54"/>
+  <ellipse cx="521.0" cy="249.65" fill="none" rx="20.9" ry="6.6499999999999995" stroke="#10A36A" stroke-width="2.8499999999999996"/>
+  <ellipse cx="521.0" cy="262.0" fill="none" rx="20.9" ry="6.6499999999999995" stroke="#10A36A" stroke-width="2.8499999999999996"/>
+  <ellipse cx="521.0" cy="274.35" fill="none" rx="20.9" ry="6.6499999999999995" stroke="#10A36A" stroke-width="2.8499999999999996"/>
+  <line stroke="#10A36A" stroke-width="2.8499999999999996" x1="500.1" x2="500.1" y1="249.65" y2="274.35"/>
+  <line stroke="#10A36A" stroke-width="2.8499999999999996" x1="541.9" x2="541.9" y1="249.65" y2="274.35"/>
+  <circle cx="521.0" cy="340" fill="#10A36A" r="20"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="521.0" y="347">
+    <tspan dy="0" x="521.0">3</tspan>
+  </text>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" x="521.0" y="400">
+    <tspan dy="0" x="521.0">DuckDB</tspan>
+    <tspan dy="20.7" x="521.0">Warehouse</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" x="521.0" y="465.4">
+    <tspan dy="0" x="521.0">7 raw tables</tspan>
+  </text>
+  <line stroke="#334155" stroke-linecap="round" stroke-width="3" x1="609" x2="626" y1="390.0" y2="390.0"/>
+  <polygon fill="#334155" points="626,390.0 615.8680648939758,396.42992153974797 615.8680648939758,383.57007846025203" stroke="#334155"/>
+  <rect fill="#FFFFFF" height="420" rx="20" ry="20" stroke="#7C3AED" stroke-width="2" width="170" x="629" y="180"/>
+  <circle cx="714.0" cy="262" fill="#F5F3FF" r="54"/>
+  <polygon fill="none" points="714.0,236.35 737.75,252.5 714.0,268.65 690.25,252.5" stroke="#7C3AED" stroke-width="2.8499999999999996"/>
+  <polygon fill="none" points="714.0,245.85 737.75,262.0 714.0,278.15 690.25,262.0" stroke="#7C3AED" stroke-width="2.8499999999999996"/>
+  <polygon fill="none" points="714.0,255.35 737.75,271.5 714.0,287.65 690.25,271.5" stroke="#7C3AED" stroke-width="2.8499999999999996"/>
+  <circle cx="714.0" cy="340" fill="#7C3AED" r="20"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="714.0" y="347">
+    <tspan dy="0" x="714.0">4</tspan>
+  </text>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="714.0" y="400">
+    <tspan dy="0" x="714.0">dbt</tspan>
+    <tspan dy="18.4" x="714.0">Transformation</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" x="714.0" y="460.8">
+    <tspan dy="0" x="714.0">7 staging • 13</tspan>
+    <tspan dy="15.34" x="714.0">intermediate • 21</tspan>
+    <tspan dy="15.34" x="714.0">marts</tspan>
+  </text>
+  <line stroke="#334155" stroke-linecap="round" stroke-width="3" x1="802" x2="819" y1="390.0" y2="390.0"/>
+  <polygon fill="#334155" points="819,390.0 808.8680648939758,396.42992153974797 808.8680648939758,383.57007846025203" stroke="#334155"/>
+  <rect fill="#FFFFFF" height="420" rx="20" ry="20" stroke="#7C3AED" stroke-width="2" width="170" x="822" y="180"/>
+  <circle cx="907.0" cy="262" fill="#F5F3FF" r="54"/>
+  <rect fill="#7C3AED" height="19.0" stroke="none" width="9.5" x="886.1" y="265.8"/>
+  <rect fill="#7C3AED" height="32.3" stroke="none" width="9.5" x="903.2" y="252.5"/>
+  <rect fill="#7C3AED" height="45.599999999999994" stroke="none" width="9.5" x="920.3000000000001" y="239.20000000000002"/>
+  <circle cx="930.75" cy="276.25" fill="#7C3AED" opacity="0.8" r="7.6"/>
+  <circle cx="907.0" cy="340" fill="#7C3AED" r="20"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="907.0" y="347">
+    <tspan dy="0" x="907.0">5</tspan>
+  </text>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" x="907.0" y="400">
+    <tspan dy="0" x="907.0">Analytics &amp; AI</tspan>
+    <tspan dy="20.7" x="907.0">Agent</tspan>
+    <tspan dy="20.7" x="907.0">Observability</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" x="907.0" y="486.1">
+    <tspan dy="0" x="907.0">Product • agent •</tspan>
+    <tspan dy="15.34" x="907.0">experiment •</tspan>
+    <tspan dy="15.34" x="907.0">executive</tspan>
+  </text>
+  <line stroke="#334155" stroke-linecap="round" stroke-width="3" x1="995" x2="1012" y1="390.0" y2="390.0"/>
+  <polygon fill="#334155" points="1012,390.0 1001.8680648939758,396.42992153974797 1001.8680648939758,383.57007846025203" stroke="#334155"/>
+  <rect fill="#FFFFFF" height="420" rx="20" ry="20" stroke="#F05A28" stroke-width="2" width="170" x="1015" y="180"/>
+  <circle cx="1100.0" cy="262" fill="#FFF4EE" r="54"/>
+  <rect fill="none" height="32.3" stroke="#F05A28" stroke-width="2.8499999999999996" width="49.4" x="1075.3" y="244.9"/>
+  <line stroke="#F05A28" stroke-width="2.8499999999999996" x1="1100.0" x2="1100.0" y1="277.2" y2="285.75"/>
+  <line stroke="#F05A28" stroke-width="2.8499999999999996" x1="1089.55" x2="1110.45" y1="285.75" y2="285.75"/>
+  <circle cx="1100.0" cy="340" fill="#F05A28" r="20"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="1100.0" y="347">
+    <tspan dy="0" x="1100.0">6</tspan>
+  </text>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" x="1100.0" y="400">
+    <tspan dy="0" x="1100.0">Streamlit /</tspan>
+    <tspan dy="20.7" x="1100.0">Plotly</tspan>
+    <tspan dy="20.7" x="1100.0">Experience</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" x="1100.0" y="486.1">
+    <tspan dy="0" x="1100.0">8 dashboard pages</tspan>
+  </text>
+  <line stroke="#334155" stroke-linecap="round" stroke-width="3" x1="1188" x2="1205" y1="390.0" y2="390.0"/>
+  <polygon fill="#334155" points="1205,390.0 1194.8680648939758,396.42992153974797 1194.8680648939758,383.57007846025203" stroke="#334155"/>
+  <rect fill="#FFFFFF" height="420" rx="20" ry="20" stroke="#E0A300" stroke-width="2" width="170" x="1208" y="180"/>
+  <circle cx="1293.0" cy="262" fill="#FFFBEB" r="54"/>
+  <polygon fill="none" points="1293.0,236.35 1315.8,249.65 1310.1,275.3 1293.0,289.55 1275.9,275.3 1270.2,249.65" stroke="#E0A300" stroke-width="2.8499999999999996"/>
+  <polyline fill="none" points="1282.55,263.9 1290.15,272.45 1306.3,252.5" stroke="#E0A300" stroke-width="2.8499999999999996"/>
+  <circle cx="1293.0" cy="340" fill="#E0A300" r="20"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="1293.0" y="347">
+    <tspan dy="0" x="1293.0">7</tspan>
+  </text>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" x="1293.0" y="400">
+    <tspan dy="0" x="1293.0">Data Quality</tspan>
+    <tspan dy="20.7" x="1293.0">&amp; Dashboard</tspan>
+    <tspan dy="20.7" x="1293.0">Truthfulness</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" x="1293.0" y="486.1">
+    <tspan dy="0" x="1293.0">Reconciliation •</tspan>
+    <tspan dy="15.34" x="1293.0">provenance • UI</tspan>
+    <tspan dy="15.34" x="1293.0">checks</tspan>
+  </text>
+  <line stroke="#334155" stroke-linecap="round" stroke-width="3" x1="1381" x2="1398" y1="390.0" y2="390.0"/>
+  <polygon fill="#334155" points="1398,390.0 1387.8680648939758,396.42992153974797 1387.8680648939758,383.57007846025203" stroke="#334155"/>
+  <rect fill="#FFFFFF" height="420" rx="20" ry="20" stroke="#68B932" stroke-width="2" width="170" x="1401" y="180"/>
+  <circle cx="1486.0" cy="262" fill="#F4FBEF" r="54"/>
+  <line stroke="#68B932" stroke-width="2.28" x1="1459.4" x2="1459.4" y1="239.2" y2="281.95"/>
+  <line stroke="#68B932" stroke-width="2.28" x1="1472.7" x2="1472.7" y1="239.2" y2="281.95"/>
+  <line stroke="#68B932" stroke-width="2.28" x1="1486.0" x2="1486.0" y1="239.2" y2="281.95"/>
+  <line stroke="#68B932" stroke-width="2.28" x1="1499.3000000000002" x2="1499.3000000000002" y1="239.2" y2="281.95"/>
+  <line stroke="#68B932" stroke-width="2.28" x1="1512.6000000000001" x2="1512.6000000000001" y1="239.2" y2="281.95"/>
+  <line stroke="#68B932" stroke-width="2.8499999999999996" x1="1456.55" x2="1515.45" y1="239.2" y2="239.2"/>
+  <line stroke="#68B932" stroke-width="2.8499999999999996" x1="1456.55" x2="1515.45" y1="281.95" y2="281.95"/>
+  <circle cx="1486.0" cy="264.85" fill="#FFFFFF" r="10.45" stroke="#68B932" stroke-width="2.8499999999999996"/>
+  <polyline fill="none" points="1480.3,264.85 1485.05,270.55 1493.6,258.2" stroke="#68B932" stroke-width="2.8499999999999996"/>
+  <circle cx="1486.0" cy="340" fill="#68B932" r="20"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="1486.0" y="347">
+    <tspan dy="0" x="1486.0">8</tspan>
+  </text>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" x="1486.0" y="400">
+    <tspan dy="0" x="1486.0">11-Gate</tspan>
+    <tspan dy="20.7" x="1486.0">Release</tspan>
+    <tspan dy="20.7" x="1486.0">Verification</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" x="1486.0" y="486.1">
+    <tspan dy="0" x="1486.0">PASS • FAIL •</tspan>
+    <tspan dy="15.34" x="1486.0">NOT_RUN</tspan>
+  </text>
+  <line stroke="#334155" stroke-linecap="round" stroke-width="3" x1="1574" x2="1591" y1="390.0" y2="390.0"/>
+  <polygon fill="#334155" points="1591,390.0 1580.8680648939758,396.42992153974797 1580.8680648939758,383.57007846025203" stroke="#334155"/>
+  <rect fill="#FFFFFF" height="420" rx="20" ry="20" stroke="#0F8F88" stroke-width="2" width="170" x="1594" y="180"/>
+  <circle cx="1679.0" cy="262" fill="#ECFEFF" r="54"/>
+  <circle cx="1679.0" cy="260.1" fill="none" r="22.799999999999997" stroke="#0F8F88" stroke-width="2.8499999999999996"/>
+  <polyline fill="none" points="1668.55,260.1 1676.15,269.6 1691.35,251.55" stroke="#0F8F88" stroke-width="2.8499999999999996"/>
+  <line stroke="#0F8F88" stroke-width="2.8499999999999996" x1="1669.5" x2="1675.2" y1="281.95" y2="294.3"/>
+  <line stroke="#0F8F88" stroke-width="2.8499999999999996" x1="1688.5" x2="1682.8" y1="281.95" y2="294.3"/>
+  <circle cx="1679.0" cy="340" fill="#0F8F88" r="20"/>
+  <text fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" x="1679.0" y="347">
+    <tspan dy="0" x="1679.0">9</tspan>
+  </text>
+  <text fill="#0F172A" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" x="1679.0" y="400">
+    <tspan dy="0" x="1679.0">Acceptance</tspan>
+    <tspan dy="20.7" x="1679.0">Evidence &amp;</tspan>
+    <tspan dy="20.7" x="1679.0">Immutable</tspan>
+    <tspan dy="20.7" x="1679.0">Git Release</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="13" font-weight="normal" text-anchor="middle" x="1679.0" y="506.8">
+    <tspan dy="0" x="1679.0">Core + portfolio</tspan>
+    <tspan dy="15.34" x="1679.0">reports • hashed</tspan>
+    <tspan dy="15.34" x="1679.0">artifacts</tspan>
+  </text>
+  <rect fill="#F1F5F9" height="52" rx="12" ry="12" stroke="#CBD5E1" stroke-width="1.4" width="1310" x="245" y="640"/>
+  <text fill="#334155" font-family="Arial, Helvetica, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" x="900.0" y="672">
+    <tspan dy="0" x="900.0">Verified master: 485 / 485 pytest • 41 / 41 dbt models • 44 / 44 dbt tests • 11 / 11 release gates • dashboard HTTP 200 / 200</tspan>
+  </text>
+  <text fill="#64748B" font-family="Arial, Helvetica, sans-serif" font-size="12" font-weight="normal" text-anchor="middle" x="900.0" y="724">
+    <tspan dy="0" x="900.0">Fully synthetic portfolio • analytics engineering • product analytics • AI agent observability • machine-verifiable evidence</tspan>
+  </text>
+</svg>
