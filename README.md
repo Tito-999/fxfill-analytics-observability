@@ -88,7 +88,7 @@ The data pipeline flows through these stages:
 &rarr; **Evidence-Derived Release Gates**
 &rarr; **Immutable Git Release**
 
-![Stages Diagram](docs/portfolio/stages.png)
+![Stages Diagram](docs/portfolio/stages.svg)
 
 Additional architecture diagrams are available in `docs/portfolio/`:
 
