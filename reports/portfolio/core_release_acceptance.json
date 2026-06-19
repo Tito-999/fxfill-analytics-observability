@@ -1,0 +1,151 @@
+{
+  "schema_version": "2.0.0",
+  "accepted": true,
+  "failed_gates": [],
+  "warnings": [],
+  "git": {
+    "verified_code_commit": "48a0ff73821a898ab75394765f48c1f8bde3587e",
+    "report_generation_head": "48a0ff73821a898ab75394765f48c1f8bde3587e"
+  },
+  "gates": {
+    "environment": "PASS",
+    "data_generation": "PASS",
+    "warehouse": "PASS",
+    "dbt_models": "PASS",
+    "dbt_tests": "PASS",
+    "pytest": "PASS",
+    "business_metric_integrity": "PASS",
+    "strict_reconciliation": "PASS",
+    "dashboard_truthfulness": "PASS",
+    "streamlit_smoke": "PASS",
+    "public_audit": "PASS"
+  },
+  "dbt": {
+    "model_count": 41,
+    "model_execution_count": 41,
+    "model_success_count": 41,
+    "model_fail_count": 0,
+    "model_error_count": 0,
+    "model_skip_count": 0,
+    "generic_test_count": 21,
+    "singular_test_count": 23,
+    "test_definition_count": 44,
+    "test_execution_count": 44,
+    "test_pass": 44,
+    "test_fail": 0,
+    "test_error": 0,
+    "test_skip": 0,
+    "model_results_sha256": "355a2f6502adb524844cb66e2aa3b48bb9720127f2d11dcb11d672930e89c2ee",
+    "test_results_sha256": "32f4e9d9f4fe949da83888e86341f1c17a9ba931a6f0aa86402c0dd7690775b4",
+    "artifacts_paths_distinct": true,
+    "artifacts_hashes_distinct": true,
+    "artifacts_semantically_distinct": true,
+    "artifacts_separated": true,
+    "failures": [],
+    "measurement_completed": true
+  },
+  "engineering": {
+    "collected": 485,
+    "passed": 485,
+    "failed": 0,
+    "errors": 0,
+    "skipped": 0,
+    "deselected": 0
+  },
+  "business_metric_integrity": {
+    "accepted": true,
+    "failures": []
+  },
+  "dashboard_truthfulness": {
+    "accepted": true,
+    "failures": [],
+    "retention": {
+      "maturity_contract_present": true,
+      "unmatured_points_plotted": 0,
+      "empty_traces_rendered": 0,
+      "measurement_completed": true,
+      "figures_examined": 3,
+      "traces_examined": 12,
+      "plotted_points_examined": 136,
+      "unexpected_points": 0,
+      "insufficient_points_plotted": 0
+    },
+    "feature_adoption": {
+      "metrics_checked": 4,
+      "percent_metrics_valid": 4,
+      "database_ui_mismatch_count": 0,
+      "kpi_percent_formatting": true,
+      "measurement_completed": true,
+      "metrics_found": 4,
+      "metrics_expected": 4,
+      "visible_items_examined": 4,
+      "visible_nan_count": 0,
+      "visible_none_count": 0
+    },
+    "agent": {
+      "sections_checked": 4,
+      "sections_date_filtered": 4,
+      "date_filter_violation_count": 0,
+      "visible_nan_count": 0,
+      "visible_none_count": 0,
+      "kpi_format_violation_count": 0,
+      "measurement_completed": true,
+      "sections_measured": 4,
+      "sections_expected": 4,
+      "visible_items_examined": 4
+    }
+  },
+  "data_quality": {
+    "accepted": true,
+    "provenance_matches": true,
+    "strict_reconciliation_passed": true,
+    "measurement_completed": true,
+    "reconciliation_row_count": 7,
+    "incomplete_reconciliation_rows": 0,
+    "stale_artifact_count": 0
+  },
+  "dashboard": {
+    "health_http_status": 200,
+    "home_http_status": 200,
+    "fatal_log_error_count": 0,
+    "process_terminated_cleanly": true,
+    "port_released": true,
+    "startup_passed": true
+  },
+  "public_release": {
+    "high_severity_findings": 0,
+    "medium_severity_findings": 0,
+    "tracked_database_files": 0,
+    "tracked_secret_files": 0
+  },
+  "clean_build": {
+    "synthetic_data_generated": true,
+    "data_quality_passed": true,
+    "duckdb_built": true,
+    "dbt_run_passed": true,
+    "dbt_test_passed": true,
+    "experiment_analysis_passed": true,
+    "duration_seconds": 61.1
+  },
+  "gate_summary": {
+    "required_gate_count": 11,
+    "pass_gate_count": 11,
+    "fail_gate_count": 0,
+    "not_run_gate_count": 0,
+    "not_run_gates": [],
+    "failed_state_gates": []
+  },
+  "consistency_validation": {
+    "measurement_completed": true,
+    "recomputed_accepted": true,
+    "stored_accepted": true,
+    "stored_matches_recomputed": true,
+    "recomputed_dbt_models_gate": "PASS",
+    "stored_dbt_models_gate": "PASS",
+    "recomputed_dbt_tests_gate": "PASS",
+    "stored_dbt_tests_gate": "PASS",
+    "contradiction_count": 0,
+    "contradictions": [],
+    "accepted": true
+  }
+}
