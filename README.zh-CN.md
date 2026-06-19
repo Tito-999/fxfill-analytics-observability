@@ -94,7 +94,7 @@ python scripts\verify_core_release.py
 
 1. **architecture.svg** 覆盖数据生成、转换、分析、验证和发布证据的分层端到端架构
 2. **stages.svg** 从合成数据生成到不可变发布证据的九阶段项目生命周期
-3. **data_flow.png** 数据仓库模型分层、转换依赖和分析数据流
+3. **data_flow.svg** 数据仓库模型分层、转换依赖和分析数据流
 4. **experiment_flow.svg** 从实验假设、分组到评估和决策的 A/B 测试流程
 
 ---
