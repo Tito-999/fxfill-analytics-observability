@@ -95,7 +95,7 @@ Additional architecture diagrams are available in docs/portfolio/:
 1. **architecture.svg** Layered end-to-end architecture covering data generation,
    transformation, analytics, verification, and release evidence.
 2. **stages.svg** Nine-stage project lifecycle from synthetic data generation to immutable release evidence.
-3. **data_flow.png** Warehouse model layers, transformation dependencies, and analytics data flow.
+3. **data_flow.svg** Warehouse model layers, transformation dependencies, and analytics data flow.
 4. **experiment_flow.svg** A/B experiment workflow from hypothesis and assignment through evaluation and decision.
 
 ---
